@@ -4,18 +4,6 @@ package routes
 import "github.com/revel/revel"
 
 
-type tApp struct {}
-var App tApp
-
-
-func (_ tApp) Index(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("App.Index", args).Url
-}
-
-
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -55,6 +43,18 @@ func (_ tWebSocket) RoomSocket(
 	revel.Unbind(args, "room_name", room_name)
 	revel.Unbind(args, "ws", ws)
 	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
+}
+
+
+type tApp struct {}
+var App tApp
+
+
+func (_ tApp) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("App.Index", args).Url
 }
 
 

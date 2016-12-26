@@ -3,27 +3,49 @@
 {{template "header.html" .}}
 
 
-{{if .execs}}
-<ul class="list-group">
-  {{range .execs}}
-      <div class="panel panel-info">
-          <div class="panel-heading">
-               <h3 class="panel-title pull-left">{{.Name}}</h3>
-              <button class="btn btn-danger pull-right">Delete</button>
-              <button class="btn btn-link pull-right" id="{{.ExecutionID}}">Infos</button>
-              <div class="clearfix"></div>
-          </div>
-          <div id="panel_{{.ExecutionID}}" class="panel-collapse collapse">
-            <div class="panel-body">{{.Script}}</div>
-            </div>
-      </div>
-  {{end}}
-</ul>
-{{else}}
-<p>
-  No more results
-</p>
-{{end}}
+
+
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h3 class="page-header" style="color:#00aeef;">Executions</h3>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <!-- /.row -->
+    <div class="row">
+        <!-- /.col-lg-8 -->
+
+        {{if .execs}}
+        <ul class="list-group">
+          {{range .execs}}
+              <div class="panel panel-info">
+                  <div class="panel-heading">
+                       <h3 class="panel-title pull-left">{{.Name}}</h3>
+                      <button class="btn btn-danger pull-right">Delete</button>
+                      <button class="btn btn-link pull-right" id="{{.ExecutionID}}">Infos</button>
+                      <div class="clearfix"></div>
+                  </div>
+                  <div id="panel_{{.ExecutionID}}" class="panel-collapse collapse">
+                    <div class="panel-body">{{.Script}}</div>
+                    </div>
+              </div>
+          {{end}}
+        </ul>
+        {{else}}
+        <p>
+          No more results
+        </p>
+        {{end}}
+
+    </div>
+    <!-- /.row -->
+</div>
+<!-- /#page-wrapper -->
+
+
+
 <style>
 .panel-heading h3 {
     white-space: nowrap;
@@ -39,10 +61,6 @@
 </style>
 
 <script>
-$(document).ready(function() {
-    $("#title_heading").text("All executions")
-});
-
 $("button").click(function() {
     if ($("#panel_" + this.id).is(":hidden")) {
       $("#panel_" + this.id).slideDown()

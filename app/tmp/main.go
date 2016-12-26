@@ -30,20 +30,6 @@ func main() {
 	revel.Init(*runMode, *importPath, *srcPath)
 	revel.INFO.Println("Running revel server")
 	
-	revel.RegisterController((*controllers.App)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "Index",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					17: []string{ 
-					},
-				},
-			},
-			
-		})
-	
 	revel.RegisterController((*controllers.GorpController)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -79,6 +65,20 @@ func main() {
 					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
+	revel.RegisterController((*controllers.App)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Index",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					17: []string{ 
+					},
 				},
 			},
 			
@@ -156,7 +156,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					44: []string{ 
+					24: []string{ 
 						"execs",
 					},
 				},
@@ -166,7 +166,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					65: []string{ 
+					45: []string{ 
 					},
 				},
 			},
@@ -183,12 +183,12 @@ func main() {
 	
 	revel.DefaultValidationKeys = map[string]map[int]string{ 
 		"github.com/mistrale/jsonception/app/controllers.Executions.Create": { 
-			54: "name",
-			55: "script",
+			34: "name",
+			35: "script",
 		},
 		"github.com/mistrale/jsonception/app/models.(*Execution).Validate": { 
-			14: "exec.Name",
-			15: "exec.Script",
+			84: "exec.Name",
+			85: "exec.Script",
 		},
 		"github.com/mistrale/jsonception/app/models.(*Reference).Validate": { 
 			18: "ref.Name",

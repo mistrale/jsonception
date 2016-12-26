@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Bootstrap Admin Theme</title>
+    <title>JSONCeption</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/public/lol/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -33,14 +33,62 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <script src="/public/lol/vendor/jquery/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/public/lol/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="/public/lol/vendor/metisMenu/metisMenu.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="/public/lol/vendor/raphael/raphael.min.js"></script>
+    <script src="/public/lol/vendor/morrisjs/morris.min.js"></script>
+    <script src="/public/lol/data/morris-data.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="/public/lol/dist/js/sb-admin-2.js"></script>
+
 </head>
+
+<style>
+  a { color:white; background-color: #265a7d}
+
+  #wrapper { background-color:#265a7d }
+
+  .sidebar ul li a.active {
+    background-color: #00aeef;
+  }
+
+  .sidebar ul li a {
+    color:white
+  }
+
+  .sidebar ul li {
+     border-bottom: 0px solid #e7e7e7;
+  }
+
+  .sidebar .sidebar-search {
+    border-bottom: 1px solid white;
+  }
+
+  .navbar-default {
+    background-color: #00aeef;
+    border: 0px;
+  }
+
+  .dropdown-toggle {
+    background-color: #00aeef;
+  }
+
+</style>
+
 
 <body>
 
     <div id="wrapper">
 
         <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; background-color:#00aeef">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -48,7 +96,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">JSonception</a>
+                <a class="navbar-brand" style="color:white; background-color: #00aeef" href="{{url "App.Index"}}">JSonception</a>
             </div>
             <!-- /.navbar-header -->
 
@@ -265,7 +313,7 @@
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li class="sidebar-search">
+                        <li class="sidebar-search" style="background-color: #265a7d">
                             <div class="input-group custom-search-form">
                                 <input type="text" class="form-control" placeholder="Search...">
                                 <span class="input-group-btn">

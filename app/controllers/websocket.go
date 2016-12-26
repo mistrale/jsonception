@@ -16,8 +16,17 @@ type WebSocket struct {
 
 // RoomSocket : WebSocket listen to room
 func (c WebSocket) RoomSocket(room_name string, ws *websocket.Conn) revel.Result {
+	fmt.Printf("room name : %s\n", room_name)
 	for {
-		room := socket.Rooms[room_name]
+		room, ok := socket.Rooms[room_name]
+		if !ok {
+			if err := websocket.JSON.Send(ws, "Connection to websocket invalide : room not found"); err != nil {
+				fmt.Printf("err : %s\n", err.Error())
+				// They disconnected
+				return nil
+			}
+			break
+		}
 		msg := <-room.Chan
 		if err := websocket.JSON.Send(ws, msg); err != nil {
 			fmt.Printf("err : %s\n", err.Error())
