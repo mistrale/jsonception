@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "header.html" .}}
+
+
+{{if .execs}}
+<ul class="list-group">
+  {{range .execs}}
+      <div class="panel panel-info">
+          <div class="panel-heading">
+               <h3 class="panel-title pull-left">{{.Name}}</h3>
+              <button class="btn btn-danger pull-right">Delete</button>
+              <button class="btn btn-link pull-right" id="{{.ExecutionID}}">Infos</button>
+              <div class="clearfix"></div>
+          </div>
+          <div id="panel_{{.ExecutionID}}" class="panel-collapse collapse">
+            <div class="panel-body">{{.Script}}</div>
+            </div>
+      </div>
+  {{end}}
+</ul>
+{{else}}
+<p>
+  No more results
+</p>
+{{end}}
+<style>
+.panel-heading h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: normal;
+    width: 75%;
+    padding-top: 8px;
+}
+.btn {
+  margin-left: 10px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    $("#title_heading").text("All executions")
+});
+
+$("button").click(function() {
+    if ($("#panel_" + this.id).is(":hidden")) {
+      $("#panel_" + this.id).slideDown()
+
+    } else {
+      $("#panel_" + this.id).slideUp()
+    }
+});
+</script>
+{{template "footer.html" .}}
