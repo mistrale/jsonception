@@ -4,6 +4,22 @@ package routes
 import "github.com/revel/revel"
 
 
+type tWebSocket struct {}
+var WebSocket tWebSocket
+
+
+func (_ tWebSocket) RoomSocket(
+		room_name string,
+		ws interface{},
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
+}
+
+
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -27,34 +43,6 @@ func (_ tGorpController) Rollback(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("GorpController.Rollback", args).Url
-}
-
-
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) RoomSocket(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
-}
-
-
-type tApp struct {}
-var App tApp
-
-
-func (_ tApp) Index(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("App.Index", args).Url
 }
 
 
@@ -126,6 +114,39 @@ func (_ tTestRunner) List(
 }
 
 
+type tReferences struct {}
+var References tReferences
+
+
+func (_ tReferences) Create(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("References.Create", args).Url
+}
+
+func (_ tReferences) Refresh(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("References.Refresh", args).Url
+}
+
+func (_ tReferences) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("References.Index", args).Url
+}
+
+func (_ tReferences) All(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("References.All", args).Url
+}
+
+
 type tExecutions struct {}
 var Executions tExecutions
 
@@ -137,10 +158,21 @@ func (_ tExecutions) Index(
 	return revel.MainRouter.Reverse("Executions.Index", args).Url
 }
 
-func (_ tExecutions) Create(
+func (_ tExecutions) All(
 		) string {
 	args := make(map[string]string)
 	
+	return revel.MainRouter.Reverse("Executions.All", args).Url
+}
+
+func (_ tExecutions) Create(
+		name string,
+		script string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "name", name)
+	revel.Unbind(args, "script", script)
 	return revel.MainRouter.Reverse("Executions.Create", args).Url
 }
 

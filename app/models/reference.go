@@ -8,7 +8,7 @@ type Reference struct {
 	Name        string
 	Config      string
 	Log         string
-
+	PathLogFile string
 	ExecutionID string
 	Execution   *Execution
 }
@@ -18,5 +18,7 @@ func (ref *Reference) Validate(v *revel.Validation) {
 	v.Check(ref.Name, revel.Required{})
 	v.Check(ref.Log, revel.Required{})
 	v.Check(ref.Config, revel.Required{})
+	v.Check(ref.Log, revel.Required{})
+	v.Check(ref.PathLogFile, revel.Required{})
 	v.Required(ref.Execution)
 }

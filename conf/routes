@@ -4,12 +4,16 @@
 
 module:testrunner
 
-GET     /                                       App.Index
+GET     /                                       Executions.Index
 GET     /execution/run                          Executions.Run
 POST    /execution                              Executions.Create
 GET     /execution                              Executions.Index
+GET     /execution/All                          Executions.All
 
-
+GET     /reference/refresh                      References.Refresh
+GET     /reference/All                          References.All
+POST    /reference/                             References.Create
+GET     /reference                              References.Index
 
 WS      /websocket/room                     WebSocket.RoomSocket
 
