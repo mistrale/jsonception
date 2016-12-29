@@ -33,7 +33,10 @@ func (c Executions) All() revel.Result {
 	if err != nil {
 		panic(err)
 	}
-	return c.Render(execs)
+	response := make(map[string]interface{})
+	response["success"] = true
+	response["response"] = execs
+	return c.RenderJson(response)
 }
 
 // Create method to add new execution in DB

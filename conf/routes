@@ -7,13 +7,15 @@ module:testrunner
 GET     /                                       Executions.Index
 GET     /execution/run                          Executions.Run
 POST    /execution                              Executions.Create
-GET     /execution                              Executions.Index
-GET     /execution/All                          Executions.All
+GET     /execution/all                          Executions.Index
+GET     /execution                              Executions.All
 
-GET     /reference/refresh                      References.Refresh
-GET     /reference/All                          References.All
-POST    /reference/                             References.Create
-GET     /reference                              References.Index
+GET     /test/:id/run                           Tests.Run
+#GET    /test/:id                               Tests.Show
+GET     /test/all                               Tests.All
+POST    /test/                                  Tests.Create
+GET     /test/new                               Tests.Index
+GET     /test                                   Tests.Get
 
 WS      /websocket/room                     WebSocket.RoomSocket
 

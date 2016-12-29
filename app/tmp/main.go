@@ -8,9 +8,9 @@ import (
 	_ "github.com/mistrale/jsonception/app"
 	controllers "github.com/mistrale/jsonception/app/controllers"
 	tests "github.com/mistrale/jsonception/tests"
-	controllers0 "github.com/revel/modules/static/app/controllers"
+	controllers1 "github.com/revel/modules/static/app/controllers"
 	_ "github.com/revel/modules/testrunner/app"
-	controllers1 "github.com/revel/modules/testrunner/app/controllers"
+	controllers0 "github.com/revel/modules/testrunner/app/controllers"
 	websocket "golang.org/x/net/websocket"
 	"github.com/revel/revel/testing"
 )
@@ -29,20 +29,6 @@ func main() {
 	flag.Parse()
 	revel.Init(*runMode, *importPath, *srcPath)
 	revel.INFO.Println("Running revel server")
-	
-	revel.RegisterController((*controllers.WebSocket)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "RoomSocket",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
 	
 	revel.RegisterController((*controllers.GorpController)(nil),
 		[]*revel.MethodType{
@@ -70,23 +56,13 @@ func main() {
 			
 		})
 	
-	revel.RegisterController((*controllers0.Static)(nil),
+	revel.RegisterController((*controllers.WebSocket)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
-				Name: "Serve",
+				Name: "RoomSocket",
 				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "prefix", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "filepath", Type: reflect.TypeOf((*string)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "ServeModule",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "moduleName", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "prefix", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "filepath", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
 				},
@@ -94,7 +70,7 @@ func main() {
 			
 		})
 	
-	revel.RegisterController((*controllers1.TestRunner)(nil),
+	revel.RegisterController((*controllers0.TestRunner)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
 				Name: "Index",
@@ -135,42 +111,25 @@ func main() {
 			
 		})
 	
-	revel.RegisterController((*controllers.References)(nil),
+	revel.RegisterController((*controllers1.Static)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
-				Name: "Create",
+				Name: "Serve",
 				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "prefix", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "filepath", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					32: []string{ 
-					},
 				},
 			},
 			&revel.MethodType{
-				Name: "Refresh",
+				Name: "ServeModule",
 				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "moduleName", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "prefix", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "filepath", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					37: []string{ 
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "Index",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					42: []string{ 
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "All",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					47: []string{ 
-					},
 				},
 			},
 			
@@ -192,9 +151,6 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					36: []string{ 
-						"execs",
-					},
 				},
 			},
 			&revel.MethodType{
@@ -217,26 +173,78 @@ func main() {
 			
 		})
 	
+	revel.RegisterController((*controllers.Tests)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Create",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Run",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Show",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					109: []string{ 
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "Index",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					116: []string{ 
+						"tests",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "All",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					127: []string{ 
+						"tests",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
 	revel.DefaultValidationKeys = map[string]map[int]string{ 
 		"github.com/mistrale/jsonception/app/controllers.Executions.Create": { 
-			42: "name",
-			43: "script",
-		},
-		"github.com/mistrale/jsonception/app/controllers.References.Create": { 
-			21: "name",
-			22: "script",
+			45: "name",
+			46: "script",
 		},
 		"github.com/mistrale/jsonception/app/models.(*Execution).Validate": { 
 			84: "exec.Name",
 			85: "exec.Script",
 		},
-		"github.com/mistrale/jsonception/app/models.(*Reference).Validate": { 
+		"github.com/mistrale/jsonception/app/models.(*Test).Validate": { 
 			18: "ref.Name",
-			19: "ref.Log",
-			20: "ref.Config",
-			21: "ref.Log",
-			22: "ref.PathLogFile",
-			23: "ref.Execution",
+			19: "ref.Config",
+			20: "ref.PathRefFile",
+			21: "ref.PathLogFile",
+			22: "ref.Execution",
 		},
 	}
 	testing.TestSuites = []interface{}{ 

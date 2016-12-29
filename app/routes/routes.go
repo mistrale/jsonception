@@ -4,22 +4,6 @@ package routes
 import "github.com/revel/revel"
 
 
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) RoomSocket(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
-}
-
-
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -46,32 +30,19 @@ func (_ tGorpController) Rollback(
 }
 
 
-type tStatic struct {}
-var Static tStatic
+type tWebSocket struct {}
+var WebSocket tWebSocket
 
 
-func (_ tStatic) Serve(
-		prefix string,
-		filepath string,
+func (_ tWebSocket) RoomSocket(
+		room_name string,
+		ws interface{},
 		) string {
 	args := make(map[string]string)
 	
-	revel.Unbind(args, "prefix", prefix)
-	revel.Unbind(args, "filepath", filepath)
-	return revel.MainRouter.Reverse("Static.Serve", args).Url
-}
-
-func (_ tStatic) ServeModule(
-		moduleName string,
-		prefix string,
-		filepath string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "moduleName", moduleName)
-	revel.Unbind(args, "prefix", prefix)
-	revel.Unbind(args, "filepath", filepath)
-	return revel.MainRouter.Reverse("Static.ServeModule", args).Url
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
 }
 
 
@@ -114,36 +85,32 @@ func (_ tTestRunner) List(
 }
 
 
-type tReferences struct {}
-var References tReferences
+type tStatic struct {}
+var Static tStatic
 
 
-func (_ tReferences) Create(
+func (_ tStatic) Serve(
+		prefix string,
+		filepath string,
 		) string {
 	args := make(map[string]string)
 	
-	return revel.MainRouter.Reverse("References.Create", args).Url
+	revel.Unbind(args, "prefix", prefix)
+	revel.Unbind(args, "filepath", filepath)
+	return revel.MainRouter.Reverse("Static.Serve", args).Url
 }
 
-func (_ tReferences) Refresh(
+func (_ tStatic) ServeModule(
+		moduleName string,
+		prefix string,
+		filepath string,
 		) string {
 	args := make(map[string]string)
 	
-	return revel.MainRouter.Reverse("References.Refresh", args).Url
-}
-
-func (_ tReferences) Index(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("References.Index", args).Url
-}
-
-func (_ tReferences) All(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("References.All", args).Url
+	revel.Unbind(args, "moduleName", moduleName)
+	revel.Unbind(args, "prefix", prefix)
+	revel.Unbind(args, "filepath", filepath)
+	return revel.MainRouter.Reverse("Static.ServeModule", args).Url
 }
 
 
@@ -183,6 +150,57 @@ func (_ tExecutions) Run(
 	
 	revel.Unbind(args, "script", script)
 	return revel.MainRouter.Reverse("Executions.Run", args).Url
+}
+
+
+type tTests struct {}
+var Tests tTests
+
+
+func (_ tTests) Create(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Create", args).Url
+}
+
+func (_ tTests) Run(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.Run", args).Url
+}
+
+func (_ tTests) Show(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.Show", args).Url
+}
+
+func (_ tTests) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Index", args).Url
+}
+
+func (_ tTests) All(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.All", args).Url
+}
+
+func (_ tTests) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Get", args).Url
 }
 
 

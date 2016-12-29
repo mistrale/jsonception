@@ -33,6 +33,22 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <script src="/public/CodeMirror/lib/codemirror.js"></script>
+    <script src="/public/CodeMirror/mode/xml/xml.js"></script>
+    <script src="/public/CodeMirror/mode/javascript/javascript.js"></script>
+    <script src="/public/CodeMirror/mode/css/css.js"></script>
+    <script src="/public/CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
+    <script src="/public/CodeMirror/mode/python/python.js"></script>
+    <script type="text/javascript"
+            src="/public/CodeMirror/mode/shell/shell.js"></script>
+    <script src="/public/CodeMirror/addon/edit/matchbrackets.js"></script>
+
+    <script src="/public/CodeMirror/doc/activebookmark.js"></script>
+    <script src="/public/js/jquery.js"></script>
+
+    <link rel=stylesheet href="/public/CodeMirror/lib/codemirror.css">
+    <link rel=stylesheet href="/public/CodeMirror/theme/mdn-like.css">
+
     <script src="/public/lol/vendor/jquery/jquery.min.js"></script>
     <!-- Bootstrap Core JavaScript -->
     <script src="/public/lol/vendor/bootstrap/js/bootstrap.min.js"></script>
@@ -48,6 +64,29 @@
     <script src="/public/lol/dist/js/sb-admin-2.js"></script>
 
 </head>
+
+<script>
+function onElementHeightChange(elm, callback){
+    var lastHeight = elm.clientHeight, newHeight;
+    (function run(){
+        newHeight = elm.clientHeight;
+        if( lastHeight != newHeight )
+            callback();
+        lastHeight = newHeight;
+
+        if( elm.onElementHeightChangeTimer )
+            clearTimeout(elm.onElementHeightChangeTimer);
+
+        elm.onElementHeightChangeTimer = setTimeout(run, 200);
+    })();
+}
+
+
+onElementHeightChange($(document), function(){
+    alert('Body height changed');
+})
+
+</script>
 
 <style>
   a { color:white; background-color: #265a7d}
@@ -79,8 +118,30 @@
     background-color: #00aeef;
   }
 
-</style>
 
+</style>
+<style>
+  .CodeMirror { height: 250px; border: 1px solid #ddd; }
+  .CodeMirror pre { padding-left: 7px; line-height: 1.25; }
+  .cm-s-solarized .cm-builtin {
+    color: #d54e53;
+  }
+
+
+   .CodeMirror-gutter  {
+      background-color: #00aeef;
+  }
+
+  .cm-s-solarized.cm-s-dark .CodeMirror-linenumber {
+       color: white;
+       text-shadow: #021014 0 2px;
+      /* text-shadow: #140202 0 -1px; */
+  }
+
+  .cm-s-mdn-like .CodeMirror-linenumber {
+    color: white;
+  }
+</style>
 
 <body>
 
@@ -339,10 +400,10 @@
                             <a href="#"><i class="fa fa-files-o fa-fw"></i>Reference<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{url "References.Index"}}">Create</a>
+                                    <a href="{{url "Tests.Index"}}">Create</a>
                                 </li>
                                 <li>
-                                    <a href="{{url "References.All"}}">All</a>
+                                    <a href="{{url "Tests.All"}}">All</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->

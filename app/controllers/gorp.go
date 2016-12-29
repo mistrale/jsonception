@@ -7,7 +7,6 @@ import (
 	"github.com/go-gorp/gorp"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mistrale/jsonception/app/models"
-	db "github.com/revel/modules/db/app"
 	r "github.com/revel/revel"
 )
 
@@ -16,19 +15,33 @@ var (
 )
 
 func InitDB() {
-	db.Init()
-	Dbm = &gorp.DbMap{Db: db.Db, Dialect: gorp.SqliteDialect{}}
+	db, err := sql.Open("sqlite3", "/tmp/post_db.bin")
+	if err != nil {
+		panic(err)
+	}
+	Dbm = &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
 
 	Dbm.AddTable(models.Execution{}).SetKeys(true, "ExecutionID")
+	Dbm.AddTable(models.Test{}).SetKeys(true, "TestID")
 
 	Dbm.TraceOn("[gorp]", r.INFO)
-	Dbm.CreateTables()
+	Dbm.CreateTablesIfNotExists()
 
 	execs := []*models.Execution{
-		&models.Execution{Name: "Test 1 de l execution youlo", Script: "tata"},
+		&models.Execution{Name: "Test 1 de l execution youlo", Script: "ls\nls\nls"},
 		&models.Execution{Name: "Test 2 de l execution youlo", Script: "tata"},
 	}
+
+	refs := []*models.Test{
+		&models.Test{Name: "Test 2 de l execution youlo", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 0},
+	}
 	fmt.Printf("test")
+	for _, ref := range refs {
+		if err := Dbm.Insert(ref); err != nil {
+			panic(err)
+		}
+	}
+
 	for _, exec := range execs {
 		if err := Dbm.Insert(exec); err != nil {
 			panic(err)

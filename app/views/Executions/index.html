@@ -1,44 +1,6 @@
 {{template "header.html" .}}
 
-<script src="/public/CodeMirror/lib/codemirror.js"></script>
-<script src="/public/CodeMirror/mode/xml/xml.js"></script>
-<script src="/public/CodeMirror/mode/javascript/javascript.js"></script>
-<script src="/public/CodeMirror/mode/css/css.js"></script>
-<script src="/public/CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
-<script src="/public/CodeMirror/mode/python/python.js"></script>
-<script type="text/javascript"
-        src="/public/CodeMirror/mode/shell/shell.js"></script>
-<script src="/public/CodeMirror/addon/edit/matchbrackets.js"></script>
 
-<script src="/public/CodeMirror/doc/activebookmark.js"></script>
-<script src="/public/js/jquery.js"></script>
-
-<link rel=stylesheet href="/public/CodeMirror/lib/codemirror.css">
-<link rel=stylesheet href="/public/CodeMirror/theme/mdn-like.css">
-
-
-<style>
-  .CodeMirror { height: 250px; border: 1px solid #ddd; }
-  .CodeMirror pre { padding-left: 7px; line-height: 1.25; }
-  .cm-s-solarized .cm-builtin {
-    color: #d54e53;
-  }
-
-
-   .CodeMirror-gutter  {
-      background-color: #00aeef;
-  }
-
-  .cm-s-solarized.cm-s-dark .CodeMirror-linenumber {
-       color: white;
-       text-shadow: #021014 0 2px;
-      /* text-shadow: #140202 0 -1px; */
-  }
-
-  .cm-s-mdn-like .CodeMirror-linenumber {
-    color: white;
-}
-</style>
 
 <div id="page-wrapper">
     <div class="row">
@@ -130,61 +92,13 @@
 <!-- /#page-wrapper -->
 
 <script>
-  var run_editor = CodeMirror.fromTextArea(document.getElementById("run_area"), {
-    lineNumbers: true,
-    theme:"mdn-like",
-    mode: "text/x-sh",
-    styleActiveLine:true,
-    matchBrackets: true
-  });
 
-  var out_editor = CodeMirror.fromTextArea(document.getElementById("output_area"), {
-    matchBrackets: true,
-    theme:"mdn-like",
-    lineNumbers: true,
-    readOnly : true,
-    styleActiveLine:true
-    });
+$("#register_form_exec").submit(function() {
+  $("#form_script").val(run_editor.getValue());
+  return true
+});
 
-  $("#clear-run-btn").click(function() {
-    run_editor.setValue("#!/bin/bash")
-  });
-
-  $("#clear_button_exec").click(function() {
-    out_editor.setValue("")
-  });
-
-  $("#register_form_exec").submit(function() {
-    $("#form_script").val(run_editor.getValue());
-    return true
-  });
-
-  $("#run-btn").click(function(){
-    $.getJSON( "/execution/run?script=" + encodeURIComponent(run_editor.getValue()), function(data) {
-      if (data["success"] == false) {
-        alert(data["error"])
-      } else {
-
-        out_editor.refresh()
-        uuid = data["uuid"]
-        var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
-
-             // Message received on the socket
-        output = ""
-        socket.onmessage = function(event) {
-          if (JSON.parse(event.data) == "end_" + uuid) {
-
-          } else {
-            output = JSON.parse(event.data)
-            //output += JSON.parse(event.data)
-            out_editor.setValue(out_editor.getValue() + output)
-            out_editor.scrollTo(0, 10000000)
-          }
-        }
-      }
-    });
-  });
 </script>
-
+<script src="/public/js/editor-jsonception.js"></script>
 
 {{template "footer.html" .}}
