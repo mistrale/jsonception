@@ -1,18 +1,22 @@
+{{if eq .ExecutionID 0}}
+{{else}}
+{{setuuid . }}
+{{end}}
 <div class="panel panel-info" id=panel_exec_{{.ExecutionID}}>
   <div class="panel-heading" id=>
     {{if eq .ExecutionID 0}}
     <h4 class="panel-title">
-      <a  id=collapser_exec style="background-color:transparent;"><span>New execution</span></a>
+      <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>New execution</span></a>
     </h4>    {{else}}
     <h4 class="panel-title">
-      <a  id=collapser_exec style="background-color:transparent;"><span>{{.Name}}</span></a>
+      <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>{{.Name}}</span></a>
     </h4>
     {{end}}
   </div>
   {{if eq .ExecutionID 0}}
-  <div id="collapse_exec">
+  <div id="collapse_exec_{{.Uuid}}">
   {{else}}
-  <div id="collapse_exec" class="panel-collapse" style="display:none;">
+  <div id="collapse_exec_{{.Uuid}}" class="panel-collapse" style="display:none;">
   {{end}}
     <div class="panel-body">
       <div class="form-group">
@@ -25,27 +29,38 @@
             <div class="form-group">
               <label>Script</label>
             </div>
-            <textarea id=script_area>{{.Script}}</textarea>
+            <textarea id=script_area_{{.Uuid}}>{{.Script}}</textarea>
           </div>
           <div class="form-group">
+
+          <div class="panel panel-warning" id=output_exec_{{.Uuid}} style="display:none;">
+            <div class="panel-heading">Output</div>
+            <div class="panel-body">
+              <textarea id=output_script_area_{{.Uuid}}></textarea>
+            </div>
+          </div>
+        </div>
+
+<!--
+          <div class="form-group" id="">
             <div class="form-group">
               <label>Output</label>
             </div>
-            <textarea id=output_script_area></textarea>
-          </div>
+            <textarea id=output_script_area_{{.Uuid}}></textarea>
+          </div> -->
           <div class="form-group">
             <p class="buttons">
-              <button id=save_btn class="save_exec_btn btn btn-primary">Save execution</button>
-              <button id=create_btn class="save_exec_btn btn btn-primary">Create execution</button>
-              <button id=run-btn class="run_exec_btn btn btn-success">Run execution</button>
-              <button id=clear_exec_btn class="clear_exec_btn btn btn-warning">Clear script</button>
-              <button id=clear_history_btn class="clear_history_btn btn btn-warning">Clear history</button>
+              <button id=save_btn_{{.Uuid}} class="save_exec_btn btn btn-primary">Save execution</button>
+              <button id=create_btn_{{.Uuid}} class="save_exec_btn btn btn-primary">Create execution</button>
+              <button id=run-btn_{{.Uuid}} class="run_exec_btn btn btn-success">Run execution</button>
+              <button id=clear_exec_btn_{{.Uuid}} class="clear_exec_btn btn btn-warning">Clear script</button>
+              <button id=clear_history_btn_{{.Uuid}} class="clear_history_btn btn btn-warning">Clear history</button>
             </p>
           </div>
           <div class="form-group" >
             <ul class="list-group">
-              <li id=save_error style="display:none;"  class="list-group-item list-group-item-danger"></li>
-              <li id=save_success  style="display:none;" class="list-group-item list-group-item-success"></li>
+              <li id=save_error_{{.Uuid}} style="display:none;"  class="list-group-item list-group-item-danger"></li>
+              <li id=save_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
             </ul>
         </div>
         </div>
@@ -56,42 +71,16 @@
 <script>
 var script_editor = {}
 var output_script_editor = {}
-var uuids = []
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
+var Uuids = []
 
 $(document).ready(function() {
-var uuid = guid()
-$("#script_area").attr("id", "script_area_" + uuid)
-$("#output_script_area").attr("id", "output_script_area_" + uuid)
-$("#exec_name").attr("id", "exec_name_" + uuid)
-
-$("#collapse_exec").attr("id", "collapse_exec_" + uuid)
-$("#collapser_exec").attr("id", "collapser_exec_" + uuid)
-
-$("#save_btn").attr("id", "save_btn_" + uuid)
-$("#create_btn").attr("id", "create_btn_" + uuid)
-$("#run-btn").attr("id", "run-btn_" + uuid)
-$("#clear_exec_btn").attr("id", "clear_exec_btn_" + uuid)
-$("#clear_history_btn").attr("id", "clear_history_btn_" + uuid)
-
-$("#save_error").attr("id", "save_error_" + uuid)
-$("#save_success").attr("id", "save_success_" + uuid)
-
   if ({{.ExecutionID}} == 0) {
-    $("#save_btn_" + uuid).hide();
+    $("#save_btn_{{.Uuid}}").hide();
   } else {
-    $("#create_btn_" + uuid).hide()
+    $("#create_btn_{{.Uuid}}").hide()
   }
 
-  script_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("script_area_" + uuid), {
+  script_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("script_area_{{.Uuid}}"), {
     lineNumbers: true,
     theme:"mdn-like",
     mode: "text/x-sh",
@@ -99,29 +88,27 @@ $("#save_success").attr("id", "save_success_" + uuid)
     matchBrackets: true
     });
 
-  output_script_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("output_script_area_" + uuid), {
+  output_script_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_{{.Uuid}}"), {
     matchBrackets: true,
     theme:"mdn-like",
     lineNumbers: true,
     styleActiveLine:true
     });
 
-    $("#collapser_exec_" + uuid).on('click', function() {
+    $("#collapser_exec_{{.Uuid}}").on('click', function() {
       console.log("LOOOOOL : " + this.id.split("_")[2])
-      $("#collapse_exec_" + uuid).toggle()
-      script_editor[uuid].refresh()
-      output_script_editor[uuid].refresh()
+      $("#collapse_exec_{{.Uuid}}").toggle()
+      script_editor[{{.Uuid}}].refresh()
+      output_script_editor[{{.Uuid}}].refresh()
     });
 
-    $("#create_btn_" + uuid).click(function() {
-      uuid = this.id.split("_")[2]
-
-      $("#save_error_"  + uuid).hide()
-      $("#save_success_"  + uuid).hide()
+    $("#create_btn_{{.Uuid}}").click(function() {
+      $("#save_error_{{.Uuid}}").hide()
+      $("#save_success_{{.Uuid}}").hide()
 
       var data = {
-        name : $("#exec_name_" + uuid).val(),
-        script : script_editor[uuid].getValue(),
+        name : $("#exec_name_{{.Uuid}}").val(),
+        script : script_editor[{{.Uuid}}].getValue(),
       };
 
           // construct an HTTP request
@@ -135,27 +122,25 @@ $("#save_success").attr("id", "save_success_" + uuid)
         xhr.onloadend = function () {
           response = JSON.parse(xhr.responseText);
           if (response["status"] != true) {
-            $("#save_error_" + uuid).slideDown()
-            $("#save_error_" + uuid).text(response["message"])
+            $("#save_error_{{.Uuid}}").slideDown()
+            $("#save_error_{{.Uuid}}").text(response["message"])
           } else {
-            $("#save_success_" +  uuid).slideDown()
-            $("#save_success_" + uuid).text(response["message"])
+            $("#save_success_{{.Uuid}}").slideDown()
+            $("#save_success_{{.Uuid}}").text(response["message"])
             console.log(response["response"])
           }
         };
     });
 
-    $("#run-btn_" + uuid).click(function(){
-      console.log("run uuid : " + uuid)
-      uuid =this.id.split("_")[1]
-      $.getJSON( "/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[uuid].getValue()), function(data) {
+    $("#run-btn_{{.Uuid}}").click(function(){
+      $.getJSON( "/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
         if (data["success"] == false) {
           alert(data["message"])
         } else {
-
-          output_script_editor[uuid].refresh()
-          room_uuid = data["response"]
-          var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + room_uuid)
+          $("#output_exec_{{.Uuid}}").slideDown()
+          output_script_editor[{{.Uuid}}].refresh()
+          room_Uuid = data["response"]
+          var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + room_Uuid)
 
                // Message received on the socket
           output = ""
@@ -163,33 +148,25 @@ $("#save_success").attr("id", "save_success_" + uuid)
             output = JSON.parse(event.data)
             if (output["status"] == false) {
               alert(output["message"])
-            } else if (output["response"]["body"] && output["response"]["body"] != "end_" + room_uuid) {
-              output_script_editor[uuid].setValue(output_script_editor[uuid].getValue() + output["response"]["body"])
-              output_script_editor[uuid].scrollTo(0, 10000000)
+            } else if (output["response"]["body"] && output["response"]["body"] != "end_" + room_Uuid) {
+              output_script_editor[{{.Uuid}}].setValue(output_script_editor[{{.Uuid}}].getValue() + output["response"]["body"])
+              output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
             }
           }
         }
       });
     });
 
-    $("#save_btn_" + uuid).click(function(){
-      console.log("run uuid : " + uuid)
-      uuid =this.id.split("_")[1]
-      $.getJSON( "/execution/test"), function(data) {
-        if (data["success"] == false) {
-          alert(data["message"])
-        } else {
-          console.log(data["response"])
-        }
-      });
+    $("#save_btn_{{.Uuid}}").click(function(){
     });
 
-    $("#clear_exec_btn_" + uuid).click(function() {
-      script_editor[uuid].setValue("")
+    $("#clear_exec_btn_{{.Uuid}}").click(function() {
+      script_editor[{{.Uuid}}].setValue("")
     });
 
-    $("#clear_history_btn_" + uuid).click(function() {
-      output_script_editor[uuid].setValue("")
+    $("#clear_history_btn_{{.Uuid}}").click(function() {
+      $("#output_exec_{{.Uuid}}").slideUp()
+      output_script_editor[{{.Uuid}}].setValue("")
     });
 });
 </script>

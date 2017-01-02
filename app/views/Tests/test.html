@@ -1,119 +1,121 @@
+{{if eq .ExecutionID 0}}
+{{else}}
+{{settestuuid . }}
+{{end}}
 <div class="panel panel-info" id=panel_test_infos>
   <div class="panel-heading">
-        {{if eq .TestID 0}}
-        <!-- <h3 class="panel-title"><i>Register test</i></h3> -->
-        <h4 class="panel-title">
-          <a data-toggle="collapse" id=collapser_test style="background-color:transparent;">Register test</a>
-        </h4>
-        <!-- <a data-toggle="collapse" class="fa fa-clock-o fa-fw" href="#collapse1">Registrer test</a> -->
-        {{else}}
-        <h4 class="panel-title">
-          <a data-toggle="collapse" id=collapser_test data-parent="#accordion" style="background-color:transparent;">{{.Name}}</a>
-        </h4>
-        {{end}}
+    {{if eq .TestID 0}}
+    <!-- <h3 class="panel-title"><i>Register test</i></h3> -->
+    <h4 class="panel-title">
+      <a data-toggle="collapse" id=collapser_test_{{.Uuid}} style="background-color:transparent;">Register test</a>
+    </h4>
+    <!-- <a data-toggle="collapse" class="fa fa-clock-o fa-fw" href="#collapse1">Registrer test</a> -->
+    {{else}}
+    <h4 class="panel-title">
+      <a data-toggle="collapse" href=collapse_test_{{.Uuid}} id=collapser_test_{{.Uuid}} data-parent="#accordion" style="background-color:transparent;">{{.Name}}</a>
+    </h4>
+    {{end}}
       <!-- <h3 class="panel-title"><i ></i></h3> -->
   </div>
   {{if eq .TestID 0}}
-  <div id="collapse_test" class="panel-collapse collapse in">
+  <div id="collapse_test_{{.Uuid}}" class="panel-collapse collapse in">
   {{else}}
-  <div id="collapse_test" class="panel-collapse collapse">
+  <div id="collapse_test_{{.Uuid}}" class="panel-collapse collapse">
   {{end}}
     <div class="panel-body">
-      <div class="col-lg-6">
-        <div>
-          <div class="form-group">
-            <div class="form-group" >
-              <label for="ExecutionID" style="display:none;"></label>
-              <input required id="execIDinput" type="hidden">
-            </div>
-            <div class="form-group" >
-              <label for="test_name">Reference name</label>
-              <input required id="test_name" type="text" class="form-control" value="{{.Name}}">
-            </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div>
             <div class="form-group">
-              <label for="path_file">Log event path file</label>
-              <input required id="log_event_file" value="{{.PathLogFile}}" type="text" class="form-control"></input>
-            </div>
-            <div class="form-group">
-              <label for="path_file">Log event path file</label>
-              <input required id="log_event_ref_file" value="{{.PathRefFile}}" type="text" class="form-control"></input>
-            </div>
-            <div class="form-group" >
               <div class="form-group" >
-                <label for="config">Add config json file</label>
-                <input required id="config_script" type="hidden">
+                <label for="ExecutionID" style="display:none;"></label>
+                <input required id="execIDinput" type="hidden">
               </div>
-              {{if eq .Config ""}}
-              <textarea id="config_area" class="config_area"></textarea>
-              {{else}}
-              <textarea id="config_area" class="config_area">{{.Config}}</textarea>
-              {{end}}
+              <div class="form-group" >
+                <label for="test_name">Reference name</label>
+                <input required id="test_name" type="text" class="form-control" value="{{.Name}}">
+              </div>
+              <div class="form-group">
+                <label for="path_file">Log event path file</label>
+                <input required id="log_event_file" value="{{.PathLogFile}}" type="text" class="form-control"></input>
+              </div>
+              <div class="form-group">
+                <label for="path_file">Log event path file</label>
+                <input required id="log_event_ref_file" value="{{.PathRefFile}}" type="text" class="form-control"></input>
+              </div>
+              <div class="form-group" >
+                <div class="form-group" >
+                  <label for="config">Add config json file</label>
+                  <input required id="config_script" type="hidden">
+                </div>
+                <textarea id="config_area_{{.Uuid}}" class="config_area">{{.Config}}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="form-group"  >
+            <label for="script">Add an execution</label>
+            <select class="form-control" id=select_exec_{{.Uuid}}>
+              <option val="0">Choose an execution</option>
+
+            </select>
+          </div>
+            {{template "Executions/execution.html" .Execution}}
+      <!-- NE PAS OUBLIER LES EXECUTIONS -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-warning" id=panel_test_run_{{.Uuid}} style="display:none; margin-top:20px;">
+            <div class="panel-heading">
+              <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>{{.Name}} run</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row">
+                <div  class="col-sm-6">
+                  <div class="form-group">
+                    <label>Log reference</label>
+                    <textarea  id="event_ref_area_{{.Uuid}}"></textarea>
+                  </div>
+                </div>
+                <div  class="col-sm-6">
+                  <div class="form-group">
+                    <label>Log test</label>
+                    <textarea id="event_log_area_{{.Uuid}}"></textarea>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="form-group"  >
-          <label for="script">Add an execution</label>
-          <select class="form-control" id=select_exec>
-            <option val="0">Choose an execution</option>
-
-          </select>
-        </div>
-          {{template "Executions/execution.html" .Execution}}
-    <!-- NE PAS OUBLIER LES EXECUTIONS -->
-
-
-      </div>
-      <div class="col-lg-12">
-        <div class="form-group" >
-          <p class="buttons">
-            <button id=save_test_btn class="save_test_btn btn btn-primary">Save</button>
-            <button id=create_test_btn class="create_test_btn btn btn-primary">Create</button>
-            <button id=run_test_btn class="run_test_btn btn btn-success">Run</button>
-            <button id=delete_test_btn class="delete_test_btn btn btn-danger">Delete</button>
-          </p>
+    </div>
+    <div class="panel-footer">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="buttons">
+            <button id=save_test_btn_{{.Uuid}} class="save_test_btn btn btn-primary">Save</button>
+            <button id=create_test_btn_{{.Uuid}} class="create_test_btn btn btn-primary">Create</button>
+            <button id=run_test_btn_{{.Uuid}} class="run_test_btn btn btn-success">Run</button>
+            <button id=delete_test_btn_{{.Uuid}} class="delete_test_btn btn btn-danger">Delete</button>
+            <button id=exit_test_btn_{{.Uuid}} class="exit_test_run_btn btn btn-danger" style="display:none;">Exit run mode</button>
+          </div>
           <ul class="list-group">
-            <li id=save_test_error  style="display:none;" class="list-group-item list-group-item-danger"></li>
-            <li id=save_test_success  style="display:none;" class="list-group-item list-group-item-success"></li>
+            <li id=save_test_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
+            <li id=save_test_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
           </ul>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
-    </div>
-  </div>
 </div>
-<div class="panel panel-warning" id=panel_test_run style="display:none;">
-  <div class="panel-heading">
-    <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>{{.Name}} run</h3>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div  class="col-sm-6">
-        <div class="form-group">
-          <label>Log reference</label>
-          <textarea  id="event_ref_area"></textarea>
-        </div>
-      </div>
-      <div  class="col-sm-6">
-        <div class="form-group">
-          <label>Log test</label>
-          <textarea id="event_log_area"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="form-group">
-      <p class="buttons">
-        <button id=rerun_test_btn class="rerun_test_btn btn btn-success">Re-run execution</button>
-        <button id=exit_test_btn class="exit_test_run_btn btn btn-danger">Exit run mode</button>
-      </p>
-    </div>
-  </div>
-</div>
-<ul class="list-group" style="display:none;">
-  <li class="list-group-item list-group-item-danger"></li>
-</ul>
-</div>
+
+<style>
+
+</style>
 
 <script>
 var executionIDs = {};
@@ -129,49 +131,17 @@ var event_ref_editor = {}
 // load at beginning
 $(document).ready(function() {
   //var test = {{.}}
-  var uuid = guid()
 
   exec_uuid = $("#panel_exec_{{.ExecutionID}}" + " a").attr("id").split("_")[2]
   console.log("exec uuid : " + exec_uuid)
-  $("#panel_exec_{{.ExecutionID}}").attr("id", "panel_exec_{{.ExecutionID}}_" + exec_uuid)
 
 
-  execUUIDs[uuid] = exec_uuid
-  executionIDs[uuid] = {{.ExecutionID}}
-  $("#collapse_test").attr("id", "collapse_test_" + uuid)
-  $("#collapser_test").attr("id", "collapser_test_" + uuid)
-  $("#collapser_test_" + uuid).attr("href", "collapse_test_" + uuid)
+  execUUIDs[{{.Uuid}}] = exec_uuid
+  executionIDs[{{.Uuid}}] = {{.ExecutionID}}
 
-  $("#execIDinput").attr("id", "execIDinput_" + uuid)
-  $("#log_event_file").attr("id", "log_event_file_" + uuid)
-  $("#log_event_ref_file").attr("id", "log_event_ref_file_" + uuid)
-  $("#config_script").attr("id", "config_script_" + uuid)
-  $("#config_area").attr("id", "config_area_" + uuid)
-  $("#test_name").attr("id", "test_name_" + uuid)
-  $("#select_exec").attr("id", "select_exec_" + uuid)
+  console.log("test uuid : " + {{.Uuid}} + " et exec uuid : " + exec_uuid)
 
-  $("#panel_run").attr("id", "panel_run_" + uuid)
-  $("#event_ref_area").attr("id", "event_ref_area_" + uuid)
-  $("#event_log_area").attr("id", "event_log_area_" + uuid)
-
-  $("#rerun_test_btn").attr("id", "rerun_test_btn_" + uuid)
-  $("#exit_test_btn").attr("id", "exit_test_btn_" + uuid)
-
-  $("#save_test_btn").attr("id", "save_test_btn_" + uuid)
-  $("#create_test_btn").attr("id", "create_test_btn_" + uuid)
-  $("#delete_test_btn").attr("id", "delete_test_btn_" + uuid)
-  $("#run_test_btn").attr("id", "run_test_btn_" + uuid)
-
-  $("#save_test_error").attr("id", "save_test_error_" + uuid)
-  $("#save_test_success").attr("id", "save_test_success_" + uuid)
-
-  $("#panel_test_run").attr("id", "panel_test_run_" + uuid)
-  $("#panel_test_infos").attr("id", "panel_test_infos_" + uuid)
-
-
-  console.log("test uuid : " + uuid + " et exec uuid : " + exec_uuid)
-
-  event_ref_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_" + uuid), {
+  event_ref_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_{{.Uuid}}"), {
   matchBrackets: true,
   theme:"mdn-like",
   lineNumbers: true,
@@ -180,7 +150,7 @@ $(document).ready(function() {
   mode : "javascript",
   });
 
-  event_log_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("event_log_area_" + uuid), {
+  event_log_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_log_area_{{.Uuid}}"), {
   matchBrackets: true,
   theme:"mdn-like",
   lineNumbers: true,
@@ -189,7 +159,7 @@ $(document).ready(function() {
   mode : "javascript",
   });
 
-  config_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("config_area_" + uuid), {
+  config_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("config_area_{{.Uuid}}"), {
   matchBrackets: true,
   theme:"mdn-like",
   mode : "javascript",
@@ -204,8 +174,7 @@ $(document).ready(function() {
       console.log(data)
       array = data["response"]
       $.each(array, function(k,v){
-        console.log("uuiddddd :  " + uuid)
-        $('#select_exec_' + uuid).append($('<option>', {
+        $('#select_exec_{{.Uuid}}').append($('<option>', {
               value : v["executionID"],
               text: v["name"]
             }))
@@ -216,8 +185,9 @@ $(document).ready(function() {
 
 
     console.log("wttfff")
-  $('#select_exec_' + uuid).on('change', function() {
-    var value = $('#select_exec_' + uuid+ " :selected").text()
+  $('#select_exec_{{.Uuid}}').on('change', function() {
+
+    var value = $('#select_exec_{{.Uuid}} :selected').text()
     console.log("myid : " + this.id + " et test : " + value)
     function getElement(element) {
       console.log(element.name)
@@ -225,47 +195,47 @@ $(document).ready(function() {
     }
     elem = array.find(getElement)
     if (!elem) {
-      script_editor[execUUIDs[uuid]].setValue("")
-      output_script_editor[execUUIDs[uuid]].setValue("")
-      $("#exec_name_" + execUUIDs[uuid]).attr("value","")
-      $("#create_btn_" + execUUIDs[uuid]).show()
-      executionIDs[uuid] = 0
+      script_editor[execUUIDs[{{.Uuid}}]].setValue("")
+      output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
+      $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value","")
+      $("#create_btn_" + execUUIDs[{{.Uuid}}]).show()
+      executionIDs[{{.Uuid}}] = 0
     } else {
-      script_editor[execUUIDs[uuid]].setValue(elem.script)
-      script_editor[execUUIDs[uuid]].refresh()
-      output_script_editor[execUUIDs[uuid]].setValue("")
-      $("#exec_name_" + execUUIDs[uuid]).attr("value", elem.name)
-      $("#create_btn_" + execUUIDs[uuid]).hide()
-      executionIDs[uuid] = elem.executionID
+      script_editor[execUUIDs[{{.Uuid}}]].setValue(elem.script)
+      script_editor[execUUIDs[{{.Uuid}}]].refresh()
+      output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
+      $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value", elem.name)
+      $("#create_btn_" + execUUIDs[{{.Uuid}}]).hide()
+      executionIDs[{{.Uuid}}] = elem.executionID
 
     }
   });
 
-  $("#collapser_test_" + uuid).on('click', function() {
-    $("#collapse_test_" + uuid).toggle()
+  $("#collapser_test_{{.Uuid}}").on('click', function() {
+    $("#collapse_test_{{.Uuid}}").toggle()
 
     if ({{.ExecutionID}} != 0) {
-      $("#select_exec_" + uuid).val({{.ExecutionID}});
+      $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
 
     }
-    $('#collapse_exec_' + execUUIDs[uuid]).css({"display":"inherit"});
-    config_editor[uuid].refresh()
+    $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
+    config_editor[{{.Uuid}}].refresh()
 
-    script_editor[execUUIDs[uuid]].setValue({{.Execution.Script}})
-    script_editor[execUUIDs[uuid]].refresh()
-    output_script_editor[execUUIDs[uuid]].refresh()
+    script_editor[execUUIDs[{{.Uuid}}]].setValue({{.Execution.Script}})
+    script_editor[execUUIDs[{{.Uuid}}]].refresh()
+    output_script_editor[execUUIDs[{{.Uuid}}]].refresh()
   });
 
-  $("#create_test_btn_" + uuid).click(function() {
+  $("#create_test_btn_{{.Uuid}}").click(function() {
       $("#save_test_error_" + uuid).hide()
       $("#save_test_success_" + uuid).hide()
 
       var data = {
-        name : $("#test_name_" + uuid).val(),
-        config : config_editor[uuid].getValue(),
-        path_log : $("#log_event_file_" + uuid).val(),
-        log_events : $("#log_event_ref_file_" + uuid).val(),
-        executionID : executionIDs[uuid],
+        name : $("#test_name_{{.Uuid}}").val(),
+        config : config_editor[{{.Uuid}}].getValue(),
+        path_log : $("#log_event_file_{{.Uuid}}").val(),
+        log_events : $("#log_event_ref_file_{{.Uuid}}").val(),
+        executionID : executionIDs[{{.Uuid}}],
       };
 
           // construct an HTTP request
@@ -281,11 +251,11 @@ $(document).ready(function() {
           if (response["status"] != true) {
             console.log(response["message"] + "uuid : "+ uuid)
 
-            $("#save_test_error_" + uuid).slideDown()
-            $("#save_test_error_" + uuid).text(response["message"])
+            $("#save_test_error_{{.Uuid}}").slideDown()
+            $("#save_test_error_{{.Uuid}}").text(response["message"])
           } else {
-            $("#save_test_success_" + uuid).slideDown()
-            $("#save_test_success_" + uuid).text(response["message"])
+            $("#save_test_success_{{.Uuid}}").slideDown()
+            $("#save_test_success_{{.Uuid}}").text(response["message"])
             console.log(response["response"])
             console.log(response["response"]["TestID"])
           }
@@ -315,8 +285,8 @@ $(document).ready(function() {
             if (output["status"] == false) {
               alert(output["message"])
             } else if (output["response"]["type"] == "exec_event") {
-              output_script_editor[execUUIDs[ruuid]].setValue(output_script_editor[execUUIDs[ruuid]].getValue() + output["response"]["body"])
-              output_script_editor[execUUIDs[ruuid]].scrollTo(0, 10000000)
+              output_script_editor[execUUIDs[{{.Uuid}}]].setValue(output_script_editor[execUUIDs[{{.Uuid}}]].getValue() + output["response"]["body"])
+              output_script_editor[execUUIDs[{{.Uuid}}]].scrollTo(0, 10000000)
             } else if (output["response"]["type"] == "test_event") {
               console.log("response" + output["response"])
             }
@@ -332,25 +302,20 @@ $(document).ready(function() {
     });
   }
 
-   $("#run_test_btn_" + uuid).click(function() {
-     ruuid = this.id.split("_")[3]
+   $("#run_test_btn_{{.Uuid}}").click(function() {
 //     $("#panel_test_infos_" + uuid).slideUp();
-     $("#panel_test_run_" + ruuid).slideDown();
-     output_script_editor[execUUIDs[ruuid]].refresh()
-     event_log_editor[ruuid].refresh()
-     event_ref_editor[ruuid].refresh()
-     run({{.TestID}}, ruuid);
+     $("#panel_test_run_{{.Uuid}}").slideDown();
+      $("#exit_test_btn_{{.Uuid}}").slideDown()
+     output_script_editor[execUUIDs[{{.Uuid}}]].refresh()
+     event_log_editor[{{.Uuid}}].refresh()
+     event_ref_editor[{{.Uuid}}].refresh()
+     run({{.TestID}}, {{.Uuid}});
    });
 
-   $("#rerun_test_btn_" + uuid).click(function() {
-     run({{.TestID}}, uuid)
-  });
-
-   $("#exit_test_btn_" + uuid).click(function() {
+   $("#exit_test_btn_{{.Uuid}}").click(function() {
      console.log("ASDSA uuid : " + uuid)
-     console.log("ok uuid : ")
-     ruuid = this.id.split("_")[3]
-     $("#panel_test_run_" + ruuid).slideUp();
+     $("#panel_test_run_{{.Uuid}}").slideUp();
+     $("#exit_test_btn_{{.Uuid}}").slideUp()
 
 //     $("#panel_test_infos_" + ruuid).slideDown();
     // $("#panel_test_infos_" + uuid).slideDown();

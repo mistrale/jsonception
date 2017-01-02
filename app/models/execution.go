@@ -7,6 +7,7 @@ type Execution struct {
 	ExecutionID int    `json:"executionID"`
 	Name        string `json:"name"`
 	Script      string `json:"script"`
+	Uuid        string `json:"-" db:"-"`
 }
 
 // func Run(script string, response chan map[string]interface{}) {

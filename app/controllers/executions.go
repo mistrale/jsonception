@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 
 	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
@@ -28,6 +27,7 @@ func init() {
 }
 
 func (c Executions) Index() revel.Result {
+
 	exec := models.Execution{ExecutionID: 0}
 	return c.Render(exec)
 }
@@ -38,7 +38,7 @@ func (c Executions) All() revel.Result {
 	_, err := c.Txn.Select(&execs,
 		`select * from Execution`)
 	if err != nil {
-		panic(err)
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
 	testID := 0
 	return c.Render(execs, testID)
@@ -50,9 +50,33 @@ func (c Executions) Get() revel.Result {
 	_, err := c.Txn.Select(&execs,
 		`select * from Execution`)
 	if err != nil {
-		panic(err)
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
 	return c.RenderJson(utils.NewResponse(true, "", execs))
+}
+
+// GetOne method to routes GET /execution/:id
+func (c Executions) GetOne(id int) revel.Result {
+	var exec models.Execution
+	err := c.Txn.SelectOne(&exec,
+		`select * from Execution where ExecutionID=?`, id)
+	if err != nil {
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
+	}
+	return c.RenderJson(utils.NewResponse(true, "", exec))
+}
+
+// GetOneTemplate method to routes GET /execution/:id throw template
+func (c Executions) GetOneTemplate(id int) revel.Result {
+	var exec models.Execution
+	err := c.Txn.SelectOne(&exec,
+		`select * from Execution where ExecutionID=?`, id)
+	if err != nil {
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
+	}
+	uuid := uuid.NewV4()
+	c.Render(exec, uuid)
+	return c.RenderTemplate("Executions/test.html")
 }
 
 // Create method to add new execution in DB
@@ -75,7 +99,7 @@ func (c Executions) Create() revel.Result {
 
 	err := c.Txn.Insert(exec)
 	if err != nil {
-		log.Println(err.Error())
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
 	//	dispatcher.AddWorker(work_ID)
 	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
@@ -97,7 +121,7 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 	} else {
 		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: script, Response: make(chan map[string]interface{})}
 		work := dispatcher.Worker{}
-		work.Run(request)
+		go work.Run(request)
 	}
 
 	response := <-request.Response

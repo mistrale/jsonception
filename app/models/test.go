@@ -2,8 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
+	"github.com/go-gorp/gorp"
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
 	"github.com/revel/revel"
@@ -18,6 +20,7 @@ type Test struct {
 	PathLogFile string `json:"path_log"`
 	ExecutionID int    `json:"executionID"`
 	Execution   *Execution
+	Uuid        string `json:"-" db:"-"`
 }
 
 // Run method to realise test
@@ -60,4 +63,18 @@ func (ref *Test) Validate(v *revel.Validation) {
 	v.Check(ref.PathRefFile, revel.Required{})
 	v.Check(ref.PathLogFile, revel.Required{})
 	v.Required(ref.Execution)
+}
+
+func (t *Test) PostGet(exe gorp.SqlExecutor) error {
+	var (
+		obj interface{}
+		err error
+	)
+
+	obj, err = exe.Get(Execution{}, t.ExecutionID)
+	if err != nil {
+		return fmt.Errorf("Error loading a test's execution (%d): %s", t.ExecutionID, err)
+	}
+	t.Execution = obj.(*Execution)
+	return nil
 }

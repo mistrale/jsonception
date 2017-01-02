@@ -3,9 +3,13 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 
 	"github.com/go-gorp/gorp"
+	"github.com/revel/revel"
+
 	_ "github.com/mattn/go-sqlite3"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
@@ -60,7 +64,16 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
+
 	dispatcher.StartDispatcher(len(exec_counts))
+	revel.TemplateFuncs["setuuid"] = func(exec *models.Execution) template.JS {
+		exec.Uuid = uuid.NewV4().String()
+		return template.JS("")
+	}
+	revel.TemplateFuncs["settestuuid"] = func(test *models.Test) template.JS {
+		test.Uuid = uuid.NewV4().String()
+		return template.JS("")
+	}
 }
 
 type GorpController struct {

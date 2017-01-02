@@ -6,7 +6,7 @@ module:testrunner
 
 GET     /                                       Executions.Index
 GET     /execution/run                          Executions.Run
-GET     /execution/test                          Executions.Test
+GET     /execution/test                          Executions.GetOneTemplate
 POST    /execution                              Executions.Create
 GET     /execution/all                          Executions.All
 GET     /execution                              Executions.Get
