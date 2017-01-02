@@ -128,7 +128,7 @@ func (c Tests) Run(testID int) revel.Result {
 				response["type"] = "test_event"
 				response["body"] = msg
 				fmt.Printf("on push dansle chan : %s\n", msg)
-				room.Chan <- msg
+				room.Chan <- utils.NewResponse(true, "", response)
 			}
 		}(ch)
 	}()

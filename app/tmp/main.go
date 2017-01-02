@@ -30,6 +30,20 @@ func main() {
 	revel.Init(*runMode, *importPath, *srcPath)
 	revel.INFO.Println("Running revel server")
 	
+	revel.RegisterController((*controllers.WebSocket)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "ListenExecutionRun",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
 	revel.RegisterController((*controllers.GorpController)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -49,20 +63,6 @@ func main() {
 			&revel.MethodType{
 				Name: "Rollback",
 				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
-	revel.RegisterController((*controllers.WebSocket)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "ListenExecutionRun",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
 				},
@@ -267,11 +267,11 @@ func main() {
 			58: "exec.Script",
 		},
 		"github.com/mistrale/jsonception/app/models.(*Test).Validate": { 
-			61: "ref.Name",
-			62: "ref.Config",
-			63: "ref.PathRefFile",
-			64: "ref.PathLogFile",
-			65: "ref.Execution",
+			82: "ref.Name",
+			83: "ref.Config",
+			84: "ref.PathRefFile",
+			85: "ref.PathLogFile",
+			86: "ref.Execution",
 		},
 	}
 	testing.TestSuites = []interface{}{ 

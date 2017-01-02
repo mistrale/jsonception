@@ -30,6 +30,7 @@ func InitDB() {
 
 	Dbm.AddTable(models.Execution{}).SetKeys(true, "ExecutionID")
 	Dbm.AddTable(models.Test{}).SetKeys(true, "TestID")
+	//Dbm.AddTable(models.TestHistory{}).SetKeys(true, "TestHistoryID")
 
 	Dbm.TraceOn("[gorp]", r.INFO)
 	Dbm.CreateTablesIfNotExists()

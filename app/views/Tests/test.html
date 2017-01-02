@@ -73,6 +73,14 @@
             </div>
             <div class="panel-body">
               <div class="row">
+                <div  class="col-sm-12">
+                  <div class="form-group">
+                    <label>Output execution</label>
+                    <textarea  id="output_script_area_{{.Uuid}}"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div  class="col-sm-6">
                   <div class="form-group">
                     <label>Log reference</label>
@@ -85,6 +93,12 @@
                     <textarea id="event_log_area_{{.Uuid}}"></textarea>
                   </div>
                 </div>
+              </div>
+              <div class="row">
+                <ul class="list-group">
+                  <li id=save_test_run_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
+                  <li id=save_test_run_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
+                </ul>
               </div>
             </div>
           </div>
@@ -126,6 +140,8 @@ var config_editor = {}
 
 var event_log_editor= {}
 var event_ref_editor = {}
+var output_script_test = {}
+
 //executionIDs[this.id] = 0
 
 // load at beginning
@@ -140,6 +156,13 @@ $(document).ready(function() {
   executionIDs[{{.Uuid}}] = {{.ExecutionID}}
 
   console.log("test uuid : " + {{.Uuid}} + " et exec uuid : " + exec_uuid)
+
+  output_script_test[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_{{.Uuid}}"), {
+    matchBrackets: true,
+    theme:"mdn-like",
+    lineNumbers: true,
+    styleActiveLine:true
+    });
 
   event_ref_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_{{.Uuid}}"), {
   matchBrackets: true,
@@ -220,7 +243,7 @@ $(document).ready(function() {
     }
     $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
     config_editor[{{.Uuid}}].refresh()
-
+    output_script_test[{{.Uuid}}].refresh()
     script_editor[execUUIDs[{{.Uuid}}]].setValue({{.Execution.Script}})
     script_editor[execUUIDs[{{.Uuid}}]].refresh()
     output_script_editor[execUUIDs[{{.Uuid}}]].refresh()
@@ -285,10 +308,11 @@ $(document).ready(function() {
             if (output["status"] == false) {
               alert(output["message"])
             } else if (output["response"]["type"] == "exec_event") {
-              output_script_editor[execUUIDs[{{.Uuid}}]].setValue(output_script_editor[execUUIDs[{{.Uuid}}]].getValue() + output["response"]["body"])
-              output_script_editor[execUUIDs[{{.Uuid}}]].scrollTo(0, 10000000)
+              output_script_test[{{.Uuid}}].setValue(output_script_test[{{.Uuid}}].getValue() + output["response"]["body"])
+              output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
             } else if (output["response"]["type"] == "test_event") {
-              console.log("response" + output["response"])
+
+              console.log("response" + output["response"]["body"]["response"])
             }
           }
           //window.location.href = "http://localhost:9000/test/all";

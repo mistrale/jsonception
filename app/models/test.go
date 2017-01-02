@@ -13,7 +13,7 @@ import (
 
 // Test : script and logevent
 type Test struct {
-	TestID      int
+	TestID      int    `json:"test_id"`
 	Name        string `json:"name"`
 	Config      string `json:"config"`
 	PathRefFile string `json:"log_events"`
@@ -46,14 +46,35 @@ func (test *Test) Run(response chan map[string]interface{}) {
 	response <- utils.NewResponse(true, "matchs being", nil)
 
 	//fmt.Printf(" test config : %s\n", test.Config)
-
-	success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
-
-	if success {
-		response <- utils.NewResponse(true, "Files match.", nil)
-	} else {
-		response <- utils.NewResponse(true, "Files doesnt match.", nil)
+	// get json event from two files to differ
+	var testJson []interface{}
+	if err := utils.GetJsonArray(test.PathLogFile, &testJson); err != nil {
+		fmt.Println(err.Error())
+		response <- utils.NewResponse(false, err.Error(), nil)
 	}
+
+	if len(refJSon) != len(testJson) {
+		fmt.Println("File diverg from different events number")
+		response <- utils.NewResponse(false, "File diverg from different events number", nil)
+	}
+
+	// iterate through reference file
+	for i, refEvent := range refJSon {
+		params1 := utils.CopyMap(config)
+
+		// get keys to compare for current event
+		eventParams := jsoncmp.FindParameters(refEvent.(map[string]interface{}), params1)
+		if eventParams == nil {
+			response <- utils.NewResponse(false, "", nil)
+		}
+		// compare two events
+		if err := jsoncmp.CompareEvent(refEvent.(map[string]interface{}), testJson[i].(map[string]interface{}), eventParams); err != nil {
+			fmt.Printf("Error : %s\n", err.Error())
+			response <- utils.NewResponse(false, err.Error(), nil)
+		}
+	}
+	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
+	response <- utils.NewResponse(true, "", "Files match !")
 }
 
 // Validate Reference struct field for DB
