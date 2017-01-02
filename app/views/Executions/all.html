@@ -1,98 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
 {{template "header.html" .}}
-
-
-<script src="/public/lol/vendor/morrisjs/morris.min.js"></script>
-<script src="/public/lol/data/morris-data.js"></script>
 
 <div id="page-wrapper">
     <div class="row">
-        <div class="col-lg-12">
-            <h3 class="page-header" style="color:#00aeef;">Executions</h3>
+        <div class="col-lg-4">
+            <h3 class="page-header" style="color:#00aeef;">New executions</h3>
         </div>
         <!-- /.col-lg-12 -->
     </div>
 
     <!-- /.row -->
-    <div class="row">
-        <!-- /.col-lg-8 -->
+    <div>
+      {{range .execs}}
+      
+        <div class="row panel_test">
+          <!-- /.col-lg-8 -->
 
-        {{if .execs}}
-        <ul class="list-group">
-          {{range .execs}}
-              <div class="panel panel-info">
-                  <div class="panel-heading">
-                       <h3 class="panel-title pull-left">{{.Name}}</h3>
-                      <button class="btn btn-danger pull-right">Delete</button>
-                      <button class="btn btn-link pull-right" id="{{.ExecutionID}}">Infos</button>
-                      <div class="clearfix"></div>
-                  </div>
-                  <div id="panel_{{.ExecutionID}}" class="panel-collapse collapse">
-                    <div class="panel-body">{{.Script}}</div>
-                    </div>
-              </div>
-          {{end}}
-        </ul>
-        {{else}}
-        <p>
-          No more results
-        </p>
+          <div class="col-lg-12">
+
+              {{template "Executions/execution.html" . }}
+          </div>
+        </div>
         {{end}}
 
-
-        <div id="myfirstchart" style="height: 250px;"></div>
-
     </div>
-    <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
-
-
-
-<style>
-.panel-heading h3 {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: normal;
-    width: 75%;
-    padding-top: 8px;
-}
-.btn {
-  margin-left: 10px;
-}
-</style>
-
-<script>
-new Morris.Line({
-  // ID of the element in which to draw the chart.
-  element: 'myfirstchart',
-  // Chart data records -- each entry in this array corresponds to a point on
-  // the chart.
-  data: [
-    { year: '2008', value: 20 },
-    { year: '2009', value: 10 },
-    { year: '2010', value: 5 },
-    { year: '2011', value: 5 },
-    { year: '2012', value: 20 }
-  ],
-  // The name of the data record attribute that contains x-values.
-  xkey: 'year',
-  // A list of names of data record attributes that contain y-values.
-  ykeys: ['value'],
-  // Labels for the ykeys -- will be displayed when you hover over the
-  // chart.
-  labels: ['Value']
-});
-
-$("button").click(function() {
-    if ($("#panel_" + this.id).is(":hidden")) {
-      $("#panel_" + this.id).slideDown()
-
-    } else {
-      $("#panel_" + this.id).slideUp()
-    }
-});
-</script>
 {{template "footer.html" .}}

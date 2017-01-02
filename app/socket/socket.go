@@ -9,12 +9,12 @@ var (
 
 type Room struct {
 	Name string
-	Chan chan string
+	Chan chan map[string]interface{}
 }
 
 func CreateRoom(name string) *Room {
 	fmt.Printf("creatiing room : %s\n", name)
-	Rooms[name] = &Room{Name: name, Chan: make(chan string)}
+	Rooms[name] = &Room{Name: name, Chan: make(chan map[string]interface{})}
 	return Rooms[name]
 }
 

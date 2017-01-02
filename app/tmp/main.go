@@ -59,7 +59,7 @@ func main() {
 	revel.RegisterController((*controllers.WebSocket)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
-				Name: "RoomSocket",
+				Name: "ListenExecutionRun",
 				Args: []*revel.MethodArg{ 
 					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
 					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
@@ -142,7 +142,8 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					25: []string{ 
+					32: []string{ 
+						"exec",
 					},
 				},
 			},
@@ -151,13 +152,22 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
+					44: []string{ 
+						"execs",
+						"testID",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
 				},
 			},
 			&revel.MethodType{
 				Name: "Create",
 				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "name", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
 				},
@@ -165,6 +175,7 @@ func main() {
 			&revel.MethodType{
 				Name: "Run",
 				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
 					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
@@ -196,7 +207,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					109: []string{ 
+					141: []string{ 
 					},
 				},
 			},
@@ -205,8 +216,8 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					116: []string{ 
-						"tests",
+					147: []string{ 
+						"test",
 					},
 				},
 			},
@@ -215,7 +226,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					127: []string{ 
+					165: []string{ 
 						"tests",
 					},
 				},
@@ -231,20 +242,16 @@ func main() {
 		})
 	
 	revel.DefaultValidationKeys = map[string]map[int]string{ 
-		"github.com/mistrale/jsonception/app/controllers.Executions.Create": { 
-			45: "name",
-			46: "script",
-		},
 		"github.com/mistrale/jsonception/app/models.(*Execution).Validate": { 
-			84: "exec.Name",
-			85: "exec.Script",
+			56: "exec.Name",
+			57: "exec.Script",
 		},
 		"github.com/mistrale/jsonception/app/models.(*Test).Validate": { 
-			18: "ref.Name",
-			19: "ref.Config",
-			20: "ref.PathRefFile",
-			21: "ref.PathLogFile",
-			22: "ref.Execution",
+			58: "ref.Name",
+			59: "ref.Config",
+			60: "ref.PathRefFile",
+			61: "ref.PathLogFile",
+			62: "ref.Execution",
 		},
 	}
 	testing.TestSuites = []interface{}{ 

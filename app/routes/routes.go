@@ -34,7 +34,7 @@ type tWebSocket struct {}
 var WebSocket tWebSocket
 
 
-func (_ tWebSocket) RoomSocket(
+func (_ tWebSocket) ListenExecutionRun(
 		room_name string,
 		ws interface{},
 		) string {
@@ -42,7 +42,7 @@ func (_ tWebSocket) RoomSocket(
 	
 	revel.Unbind(args, "room_name", room_name)
 	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.RoomSocket", args).Url
+	return revel.MainRouter.Reverse("WebSocket.ListenExecutionRun", args).Url
 }
 
 
@@ -132,22 +132,27 @@ func (_ tExecutions) All(
 	return revel.MainRouter.Reverse("Executions.All", args).Url
 }
 
-func (_ tExecutions) Create(
-		name string,
-		script string,
+func (_ tExecutions) Get(
 		) string {
 	args := make(map[string]string)
 	
-	revel.Unbind(args, "name", name)
-	revel.Unbind(args, "script", script)
+	return revel.MainRouter.Reverse("Executions.Get", args).Url
+}
+
+func (_ tExecutions) Create(
+		) string {
+	args := make(map[string]string)
+	
 	return revel.MainRouter.Reverse("Executions.Create", args).Url
 }
 
 func (_ tExecutions) Run(
+		id_exec int,
 		script string,
 		) string {
 	args := make(map[string]string)
 	
+	revel.Unbind(args, "id_exec", id_exec)
 	revel.Unbind(args, "script", script)
 	return revel.MainRouter.Reverse("Executions.Run", args).Url
 }

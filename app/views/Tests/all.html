@@ -1,0 +1,338 @@
+
+{{template "header.html" .}}
+
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-4">
+            <h3 class="page-header" style="color:#00aeef;">New test</h3>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <!-- /.row -->
+    <div>
+    {{range .tests}}
+
+      <div class="row panel_test" id={{.TestID}}>
+        <!-- /.col-lg-8 -->
+          <div class="col-lg-12">
+            <div class="panel-group" id=accordion>
+              {{template "Tests/test.html" .}}
+
+        </div>
+    </div>
+    {{end}}
+  </div>
+</div>
+</div>
+
+<style>
+.line-error {
+    background: #FBC2C4 !important;
+    color: #8a1f11 !important;
+}
+</style>
+<!--
+<script>
+var executionIDs = [];
+var array
+
+var script_editor = []
+var output_script_editor = []
+var config_editor = []
+
+var output_test_editor = []
+var event_log_editor= []
+var event_ref_editor = []
+
+
+// load at beginning
+$(document).ready(function() {
+  var tests = {{.tests}}
+
+    $(".panel_test").each(function() {
+        //executionIDs[this.id] = 0
+        event_ref_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("event_ref_area" + this.id), {
+          matchBrackets: true,
+          theme:"mdn-like",
+          lineNumbers: true,
+          styleActiveLine:true,
+          readOnly : true,
+          mode : "javascript",
+          });
+
+
+        event_log_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("event_log_area" + this.id), {
+          matchBrackets: true,
+          theme:"mdn-like",
+          lineNumbers: true,
+          styleActiveLine:true,
+          readOnly : true,
+          mode : "javascript",
+          });
+
+        output_test_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("output_test_area" + this.id), {
+          matchBrackets: true,
+          theme:"mdn-like",
+          lineNumbers: true,
+          styleActiveLine:true,
+          readOnly : true
+          });
+
+
+        config_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("config_area_" + this.id), {
+          matchBrackets: true,
+          theme:"mdn-like",
+          mode : "javascript",
+          lineNumbers: true,
+          styleActiveLine:true
+          });
+
+          config_editor[this.id].refresh()
+
+        script_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("script_area_" + this.id), {
+          lineNumbers: true,
+          theme:"mdn-like",
+          mode: "text/x-sh",
+          styleActiveLine:true,
+          matchBrackets: true,
+          readOnly: true
+          });
+
+        output_script_editor[this.id] = CodeMirror.fromTextArea(document.getElementById("output_script_area_" + this.id), {
+          matchBrackets: true,
+          theme:"mdn-like",
+          lineNumbers: true,
+          styleActiveLine:true
+          });
+    });
+
+    $.ajax({
+      dataType: "json",
+      url: "http://localhost:9000/execution",
+      success: function (data) {
+        console.log(data)
+        array = data["response"]
+        $.each(data["response"], function(k,v){
+          $('.select_exec').each(function() {
+            $("#" + this.id).append($('<option>', {
+                value : v["ExecutionID"],
+                text: v["Name"]
+              }))
+          });
+        });
+        $('.select_exec').each(function() {
+          id = this.id.split("_")[1]
+          if (id == 0) {
+            console.log("my id : " + id)
+            console.log("my my : " + $("#" + this.id).val())
+
+            $("#" + this.id).val(0)
+            console.log("my my : " + $("#" + this.id).val())
+
+            return
+          }
+          if (id == 0 || tests[id - 1].executionID == 0) {
+            return
+          }
+         if (tests[id - 1].executionID > 0) {
+           function getElement(element) {
+             return element.ExecutionID == tests[id - 1].executionID;
+           }
+           elem = array.find(getElement)
+          // console.log("wtf " + tests[id - 1].)
+           $("#exec_div_" + this.id).slideDown()
+           output_script_editor[id].refresh()
+           script_editor[id].setValue(elem.Script)
+           script_editor[id].refresh()
+           executionIDs[id] = elem.ExecutionID
+         }
+        });
+      }
+    });
+
+
+    //Line number is zero based index
+    var actualLineNumber = 2;
+
+    //Select editor loaded in the DOM
+
+  //Write the item to the console window, for debugging
+console.log("wtfff" +config_editor[2])
+    //Set line CSS class to the line number & affecting the background of the line with the css class of line-error
+    config_editor[2].addLineClass(actualLineNumber, 'background', 'line-error');
+
+    if (tests.length == 1 && tests[0].TestID == 0) {
+        $(".run_test_btn").hide();
+        $(".delete_test_btn").hide();
+        $(".save_test_btn").hide();
+    } else {
+      $(".create_test_btn").hide();
+    }
+});
+
+$('.panel-collapse').on("shown.bs.collapse", function() {
+  config_editor[this.id.split("_")[1]].refresh()
+  script_editor[this.id.split("_")[1]].refresh()
+  output_script_editor[this.id.split("_")[1]].refresh()
+});
+
+$('select').on('change', function() {
+  var value = $("#" + this.id + " :selected").text()
+  console.log("myid : " + this.id + " et test : " + value)
+  var id = this.id.split("_")[1]
+
+  if (this.value == "Choose an execution") {
+    $("#exec_div_" + this.id).slideUp()
+    executionIDs[id] = -1
+    return
+  }
+  console.log("ID : " + id)
+  output_script_editor[id].setValue("")
+  var value = this.value
+
+  function getElement(element) {
+    return element.ExecutionID == value;
+  }
+  elem = array.find(getElement)
+  $("#exec_div_" + this.id).slideDown()
+  output_script_editor[id].refresh()
+  script_editor[id].setValue(elem.Script)
+  script_editor[id].refresh()
+  executionIDs[id] = elem.ExecutionID
+});
+
+$("#btn-run").click(function() {
+  $("#output_area").slideDown()
+});
+
+$(".run_exec_btn").click(function(){
+  var id = this.id.split("_")[1]
+  $.getJSON( "/execution/run?script=" + encodeURIComponent(script_editor[id].getValue()), function(data) {
+    if (data["success"] == false) {
+      alert(data["error"])
+    } else {
+
+      output_script_editor[id].refresh()
+      uuid = data["uuid"]
+      var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
+
+           // Message received on the socket
+      output = ""
+      socket.onmessage = function(event) {
+        if (JSON.parse(event.data) == "end_" + uuid) {
+
+        } else {
+          output = JSON.parse(event.data)
+          //output += JSON.parse(event.data)
+          output_script_editor[id].setValue(output_script_editor[id].getValue() + output)
+          output_script_editor[id].scrollTo(0, 10000000)
+        }
+      }
+    }
+  });
+});
+
+$("#clear-run-btn").click(function() {
+  run_editor.setValue("#!/bin/bash")
+});
+
+$("#clear_button_exec").click(function() {
+  out_editor.setValue("")
+});
+
+$(".create_test_btn").click(function() {
+    id = this.id.split("_")[2]
+    $("#save_error_" + id).hide()
+    $("#save_success_" + id).hide()
+
+    var data = {
+      name : $("#test_name_0").val(),
+      config : config_editor[0].getValue(),
+      path_log : $("#log_event_file_0").val(),
+      log_events : $("#log_event_ref_file_0").val(),
+      executionID : executionIDs[id],
+    };
+
+        // construct an HTTP request
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", 'http://localhost:9000/test/', true);
+      xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+      // send the collected data as JSON
+      xhr.send(JSON.stringify(data));
+
+      xhr.onloadend = function () {
+        response = JSON.parse(xhr.responseText);
+        if (response["status"] != true) {
+          $("#save_error_" + id).slideDown()
+          $("#save_error_" + id).text(response["message"])
+        } else {
+          $("#save_success_" + id).slideDown()
+          $("#save_success_" + id).text(response["message"])
+          console.log(response["response"])
+          console.log(response["response"]["TestID"])
+        }
+      };
+});
+//
+function run(testID) {
+  console.log("testid :" + testID)
+  $.ajax({
+    url: 'http://localhost:9000/test/' + testID + '/run', // url where to submit the request
+    type : "GET", // type of action POST || GET
+    dataType : 'json', // data type
+    data : "testID=" + testID,
+    success : function(data) {
+      if (data["status"] == false) {
+          alert(data["message"])
+        } else {
+
+        uuid = data["response"]
+        console.log("lol : " + data["response"].toString())
+        var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
+        output = ""
+        socket.onmessage = function(event) {
+          output = JSON.parse(event.data)
+          if (output["status"] == false) {
+            alert(output["message"])
+          } else if (output["response"] != "end_" + uuid) {
+            console.log("response" + output["response"])
+          }
+        }
+        //window.location.href = "http://localhost:9000/test/all";
+        // you can see the result from the console
+        // tab of the developer tools
+      }
+    },
+    error: function(xhr, resp, text) {
+        console.log(xhr, resp, text);
+    }
+  });
+}
+
+ $(".run_test_btn").click(function() {
+   id = this.id.split("_")[2]
+   console.log("id : " + id)
+   $("#panel_infos_" + id).slideUp();
+   $("#panel_run_" + id).slideDown();
+   output_test_editor[id].refresh()
+   event_log_editor[id].refresh()
+   event_ref_editor[id].refresh()
+   run(id);
+ });
+
+ $(".rerun_btn").click(function() {
+   run(this.id.split("_")[2])
+});
+
+ $(".exit_run_btn").click(function() {
+   id = this.id.split("_")[2]
+   console.log("id : " + id)
+   $("#panel_infos_" + id).slideDown();
+   $("#panel_run_" + id).slideUp();
+ });
+</script> -->
+
+
+{{template "footer.html" .}}

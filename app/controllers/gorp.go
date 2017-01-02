@@ -6,7 +6,10 @@ import (
 
 	"github.com/go-gorp/gorp"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
+
 	r "github.com/revel/revel"
 )
 
@@ -27,13 +30,16 @@ func InitDB() {
 	Dbm.TraceOn("[gorp]", r.INFO)
 	Dbm.CreateTablesIfNotExists()
 
+	test := &models.Execution{ExecutionID: 0, Name: "No execution", Script: ""}
+
 	execs := []*models.Execution{
-		&models.Execution{Name: "Test 1 de l execution youlo", Script: "ls\nls\nls"},
+		test,
 		&models.Execution{Name: "Test 2 de l execution youlo", Script: "tata"},
 	}
 
 	refs := []*models.Test{
-		&models.Test{Name: "Test 2 de l execution youlo", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 0},
+		&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 1, Execution: nil},
+		&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 0, Execution: nil},
 	}
 	fmt.Printf("test")
 	for _, ref := range refs {
@@ -47,6 +53,14 @@ func InitDB() {
 			panic(err)
 		}
 	}
+
+	var exec_counts []models.Execution
+	_, err = Dbm.Select(&exec_counts,
+		`select * from Execution`)
+	if err != nil {
+		panic(err)
+	}
+	dispatcher.StartDispatcher(len(exec_counts))
 }
 
 type GorpController struct {

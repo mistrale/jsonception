@@ -15,90 +15,14 @@
         <!-- /.col-lg-8 -->
 
         <!----- Run execute  ----->
-        <div class="col-lg-12" id=run_div style="padding:0px;">
-          <div class="panel panel-info">
-            <div class="panel-heading">
-              <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>New script</h3>
-              </div>
-                <div class="panel-body">
-                  <div>
-                    <div class="form-group">
-                      <textarea id=run_area>#!/bin/bash
-</textarea>
-                    </div>
-                    <p class="buttons">
-                      <button id=run-btn class="btn btn-success">Run</button>
-                      <button id=clear-run-btn class="btn btn-warning" onclick="">Clear</button>
-                    </p>
-                  </div>
-                </div>
-              </div>
-          </div>
-
-        </div>
-        <div class="row">
-
-          <!----- Output execute  ----->
-          <div class="panel panel-info">
-              <div class="panel-heading">
-                  <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>Output execution</h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                  <div class="form-group">
-                      <textarea id=output_area></textarea>
-                  </div>
-                </div>
-                <button id=clear_button_exec class="btn btn-warning">Clear history</button>
-              </div>
-          </div>
-
-        </div>
-        <div class="row">
-
-          <div class="panel panel-info" id=form class="col-lg-12" >
-            <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>Registrer execution</h3>
-            </div>
-            <div class="panel-body">
-              <div>
-                <div class="form-group">
-                  <form id=register_form_exec action="{{ url "Executions.Create" }}" method="POST">
-                    {{with $field := field "name" .}}
-                    <div class="form-group" >
-                      <label for="name">Execution name</label>
-                      <input required id="execName" name="{{$field.Name}}" type="text" class="form-control" value="{{$field.Flash}}">
-                    </div>
-                    {{end}}
-                    {{with $field := field "script" .}}
-                    <div class="form-group"  >
-                      <label for="script" style="display:none;">Execution name</label>
-                      <input id=form_script required name="{{$field.Name}}" type="hidden" class="form-control" value="{{$field.Flash}}">
-                    </div>
-                    {{end}}
-                    <p class="buttons">
-                      <input type="submit" id=save_button_exec class="btn btn-success" value="Save execution">
-                    </p>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="col-lg-12">
+          {{template "Executions/execution.html" .exec}}
         </div>
 
     </div>
+
     <!-- /.row -->
 </div>
 <!-- /#page-wrapper -->
-
-<script>
-
-$("#register_form_exec").submit(function() {
-  $("#form_script").val(run_editor.getValue());
-  return true
-});
-
-</script>
-<script src="/public/js/editor-jsonception.js"></script>
 
 {{template "footer.html" .}}

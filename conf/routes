@@ -6,9 +6,10 @@ module:testrunner
 
 GET     /                                       Executions.Index
 GET     /execution/run                          Executions.Run
+GET     /execution/test                          Executions.Test
 POST    /execution                              Executions.Create
-GET     /execution/all                          Executions.Index
-GET     /execution                              Executions.All
+GET     /execution/all                          Executions.All
+GET     /execution                              Executions.Get
 
 GET     /test/:id/run                           Tests.Run
 #GET    /test/:id                               Tests.Show
@@ -17,7 +18,7 @@ POST    /test/                                  Tests.Create
 GET     /test/new                               Tests.Index
 GET     /test                                   Tests.Get
 
-WS      /websocket/room                     WebSocket.RoomSocket
+WS      /websocket/room                     WebSocket.ListenExecutionRun
 
 
 # Ignore favicon requests
