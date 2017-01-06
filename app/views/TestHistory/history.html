@@ -1,0 +1,46 @@
+{{set_test_history_uuid . }}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a data-toggle="collapse" data-parent="#accordion" href="#collapse1_{{.Uuid}}">
+      Collapsible Group 1</a>
+    </h4>
+  </div>
+  <div id="collapse1_{{.Uuid}}" class="panel-collapse collapse">
+    <div class="panel-body">
+      <div class="row">
+        <div  class="col-sm-12">
+          <div class="form-group">
+            <label>Output execution</label>
+            <textarea  id="output_script_area_history_{{.Uuid}}">{{.OutputExec}}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div  class="col-sm-6">
+          <div class="form-group">
+            <label>Log reference</label>
+            <textarea  id="event_ref_area_history_{{.Uuid}}">{{.Reflog}}</textarea>
+          </div>
+        </div>
+        <div  class="col-sm-6">
+          <div class="form-group">
+            <label>Log test</label>
+            <textarea id="event_log_area_history_{{.Uuid}}">{{.Testlog}}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <ul class="list-group">
+            <li id=save_test_run_error_history_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
+            <li id=save_test_run_success_history_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+</script>

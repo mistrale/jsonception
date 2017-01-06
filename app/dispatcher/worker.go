@@ -68,7 +68,6 @@ func (w *Worker) Run(Work WorkRequest) {
 			response["type"] = "exec_event"
 			response["body"] = msg
 			Work.Response <- utils.NewResponse(true, "", response)
-			fmt.Printf("on push dansle chan : %s\n", response)
 			//room.Chan <- msg
 		}
 	}(ch)

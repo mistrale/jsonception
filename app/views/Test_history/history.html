@@ -1,0 +1,110 @@
+{{set_test_history_uuid . }}
+<div class="panel panel-default" id=head_panel_history_{{.Uuid}}>
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a data-toggle="collapse" id=collapser_history_{{.Uuid}}
+       href="#collapse_history_{{.Uuid}}" style="background-color:transparent;">
+        {{.ID}}
+      </a>
+    </h4>
+  </div>
+  <div id="collapse_history_{{.Uuid}}" class="panel-collapse collapse">
+    <div class="panel-body">
+      <div class="row">
+        <div  class="col-sm-12">
+          <div class="form-group">
+            <label>Output execution</label>
+            <textarea  id="output_script_area_history_{{.Uuid}}">{{.OutputExec}}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div  class="col-sm-6">
+          <div class="form-group">
+            <label>Log reference</label>
+            <textarea  id="event_ref_area_history_{{.Uuid}}">{{.Reflog}}</textarea>
+          </div>
+        </div>
+        <div  class="col-sm-6">
+          <div class="form-group">
+            <label>Log test</label>
+            <textarea id="event_log_area_history_{{.Uuid}}">{{.Testlog}}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <ul class="list-group">
+            <li id=save_test_run_error_history_{{.Uuid}} class="list-group-item list-group-item-danger"></li>
+            <li id=save_test_run_success_history_{{.Uuid}} class="list-group-item list-group-item-success"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var event_log_history_editor= {}
+var event_ref_history_editor = {}
+var output_script_history_test = {}
+
+$(document).ready(function() {
+  output_script_history_test[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_history_{{.Uuid}}"), {
+    matchBrackets: true,
+    theme:"mdn-like",
+    lineNumbers: true,
+    styleActiveLine:true
+    });
+
+  event_ref_history_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_history_{{.Uuid}}"), {
+  matchBrackets: true,
+  theme:"mdn-like",
+  lineNumbers: true,
+  styleActiveLine:true,
+  readOnly : true,
+  mode : "javascript",
+  });
+
+  event_log_history_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_log_area_history_{{.Uuid}}"), {
+  matchBrackets: true,
+  theme:"mdn-like",
+  lineNumbers: true,
+  styleActiveLine:true,
+  readOnly : true,
+  mode : "javascript",
+  });
+  //
+  // console.log({{.TimeRunned}})
+   var myDate = new Date({{.TimeRunned}} / 1000000);
+  //
+  // console.log(myDate.toString());
+  // console.log(myDate.toLocaleString());
+  // console.log(myDate.toUTCString());
+
+  $("#collapser_history_{{.Uuid}}").text(myDate.toString());
+
+  if ({{.Status}} == "finished" && {{.Success}} == true) {
+    $("#head_panel_history_{{.Uuid}}").addClass("panel-success");
+    $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
+    $("#save_test_run_error_history_{{.Uuid}}").hide();
+    $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
+
+  }
+  if ({{.Status}} == "finished" && {{.Success}} == false) {
+    $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
+    $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
+    $("#save_test_run_success_history_{{.Uuid}}").hide();
+    $("#save_test_run_error_history_{{.Uuid}}").text({{.OutputTest}});
+  }
+
+
+  $("#collapse_history_{{.Uuid}}").on('shown.bs.collapse', function() {
+    event_ref_history_editor[{{.Uuid}}].refresh();
+    event_log_history_editor[{{.Uuid}}].refresh();
+    output_script_history_test[{{.Uuid}}].refresh();
+  })
+
+
+});
+
+</script>

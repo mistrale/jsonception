@@ -2,10 +2,15 @@ package models
 
 // TestHistory model for all test history
 type TestHistory struct {
-	TestHistory int    `json:"testhistory_id"`
-	TestID      int    `json:"test_id"`
-	OutputExec  string `json:"output_exec"`
-	Status      string `json:"status"`
-	Success     bool   `json:"sucess"`
-	Response    string `json:"response"`
+	ID         int    `json:"id"`
+	TestID     int    `json:"test_id"`
+	OutputExec string `json:"output_exec"`
+	Reflog     string `json:"ref_log"`
+	Testlog    string `json:"test_log"`
+	Status     string `json:"status"`
+	Success    bool   `json:"sucess"`
+	OutputTest string `json:"output_test"`
+	RunUUID    string `json:"run_uuid"`
+	Uuid       string `json:"-" db:"-"`
+	TimeRunned int64  `json:"time_runned"`
 }

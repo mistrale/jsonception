@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,6 +10,20 @@ import (
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
 	"github.com/revel/revel"
+)
+
+const (
+	// REFLOGEVENT event log of reference
+	REFLOGEVENT = "ref_log_event"
+
+	// TESTLOGEVENT event log of current test uuid
+	TESTLOGEVENT = "test_log_event"
+
+	// RESULTEVENT for result of a test
+	RESULTEVENT = "result_event"
+
+	// TESTEVENT for event when test is running
+	TESTEVENT = "test_event"
 )
 
 // Test : script and logevent
@@ -43,7 +58,6 @@ func (test *Test) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(false, err.Error(), nil)
 		return
 	}
-	response <- utils.NewResponse(true, "matchs being", nil)
 
 	//fmt.Printf(" test config : %s\n", test.Config)
 	// get json event from two files to differ
@@ -51,11 +65,13 @@ func (test *Test) Run(response chan map[string]interface{}) {
 	if err := utils.GetJsonArray(test.PathLogFile, &testJson); err != nil {
 		fmt.Println(err.Error())
 		response <- utils.NewResponse(false, err.Error(), nil)
+		return
 	}
 
 	if len(refJSon) != len(testJson) {
 		fmt.Println("File diverg from different events number")
 		response <- utils.NewResponse(false, "File diverg from different events number", nil)
+		return
 	}
 
 	// iterate through reference file
@@ -72,9 +88,49 @@ func (test *Test) Run(response chan map[string]interface{}) {
 			fmt.Printf("Error : %s\n", err.Error())
 			response <- utils.NewResponse(false, err.Error(), nil)
 		}
+		jsonlogresp := refEvent.(map[string]interface{})
+		jsonrefresp := testJson[i].(map[string]interface{})
+
+		//json.MarshalIndent(jsonresp, "", "    ")
+		str1, err := json.Marshal(jsonlogresp)
+		if err != nil {
+			response <- utils.NewResponse(false, err.Error(), nil)
+			return
+
+		}
+		str2, err2 := json.Marshal(jsonrefresp)
+		if err2 != nil {
+			response <- utils.NewResponse(false, err.Error(), nil)
+			return
+		}
+		resp := make(map[string]interface{})
+		resp["type"] = TESTEVENT
+		var prettyJSON1 bytes.Buffer
+		err = json.Indent(&prettyJSON1, str1, "", "\t")
+		if err != nil {
+			response <- utils.NewResponse(false, err.Error(), nil)
+			return
+		}
+		var prettyJSON2 bytes.Buffer
+		err = json.Indent(&prettyJSON2, str2, "", "\t")
+		if err != nil {
+			response <- utils.NewResponse(false, err.Error(), nil)
+			return
+		}
+		resp["body"] = make(map[string]interface{})
+		resp["body"].(map[string]interface{})[TESTLOGEVENT] = string(prettyJSON1.Bytes())
+		resp["body"].(map[string]interface{})[REFLOGEVENT] = string(prettyJSON2.Bytes())
+
+		response <- utils.NewResponse(true, "", resp)
+
 	}
 	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
-	response <- utils.NewResponse(true, "", "Files match !")
+	resp := make(map[string]interface{})
+	resp["type"] = RESULTEVENT
+	resp["body"] = "files match !"
+
+	response <- utils.NewResponse(true, "", resp)
+	// response <- utils.NewResponse(true, "", "Files match !")
 }
 
 // Validate Reference struct field for DB
@@ -95,6 +151,9 @@ func (t *Test) PostGet(exe gorp.SqlExecutor) error {
 	obj, err = exe.Get(Execution{}, t.ExecutionID)
 	if err != nil {
 		return fmt.Errorf("Error loading a test's execution (%d): %s", t.ExecutionID, err)
+	}
+	if obj == nil {
+		return nil
 	}
 	t.Execution = obj.(*Execution)
 	return nil

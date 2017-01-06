@@ -1,6 +1,6 @@
-{{if eq .ExecutionID 0}}
+{{if eq .TestID 0}}
 {{else}}
-{{settestuuid . }}
+{{set_test_uuid . }}
 {{end}}
 <div class="panel panel-info" id=panel_test_infos>
   <div class="panel-heading">
@@ -32,16 +32,16 @@
                 <input required id="execIDinput" type="hidden">
               </div>
               <div class="form-group" >
-                <label for="test_name">Reference name</label>
-                <input required id="test_name" type="text" class="form-control" value="{{.Name}}">
+                <label for="test_name">Test name</label>
+                <input required id="test_name_{{.Uuid}}" type="text" class="form-control" value="{{.Name}}">
               </div>
               <div class="form-group">
                 <label for="path_file">Log event path file</label>
-                <input required id="log_event_file" value="{{.PathLogFile}}" type="text" class="form-control"></input>
+                <input required id="log_event_file_{{.Uuid}}" value="{{.PathLogFile}}" type="text" class="form-control"></input>
               </div>
               <div class="form-group">
                 <label for="path_file">Log event path file</label>
-                <input required id="log_event_ref_file" value="{{.PathRefFile}}" type="text" class="form-control"></input>
+                <input required id="log_event_ref_file_{{.Uuid}}" value="{{.PathRefFile}}" type="text" class="form-control"></input>
               </div>
               <div class="form-group" >
                 <div class="form-group" >
@@ -65,6 +65,7 @@
       <!-- NE PAS OUBLIER LES EXECUTIONS -->
         </div>
       </div>
+      <!-- output de test -->
       <div class="row">
         <div class="col-lg-12">
           <div class="panel panel-warning" id=panel_test_run_{{.Uuid}} style="display:none; margin-top:20px;">
@@ -95,15 +96,33 @@
                 </div>
               </div>
               <div class="row">
-                <ul class="list-group">
-                  <li id=save_test_run_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
-                  <li id=save_test_run_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
-                </ul>
+                <div class="col-lg-12">
+                  <ul class="list-group">
+                    <li id=save_test_run_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
+                    <li id=save_test_run_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- history  -->
+      <div class="row" style="margin-top:20px;">
+        <div class="col-lg-12">
+          <div class="panel panel-warning" id=history_panel_{{.Uuid}} style="display:none;">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#history_collapse_{{.Uuid}}"  style="background-color:transparent;">History</a>
+                </h4>
+              </div>
+              <div id="history_collapse_{{.Uuid}}" class="panel-collapse collapse in">
+                <div class="panel-body" id=history_panel_body_{{.Uuid}}></div>
+              </div>
+            </div>
+        </div>
+      </div>
+
     </div>
     <div class="panel-footer">
       <div class="row">
@@ -114,10 +133,11 @@
             <button id=run_test_btn_{{.Uuid}} class="run_test_btn btn btn-success">Run</button>
             <button id=delete_test_btn_{{.Uuid}} class="delete_test_btn btn btn-danger">Delete</button>
             <button id=exit_test_btn_{{.Uuid}} class="exit_test_run_btn btn btn-danger" style="display:none;">Exit run mode</button>
+            <button id=history_test_btn_{{.Uuid}} class="history_test_btn btn btn-warning">See history</button>
           </div>
           <ul class="list-group">
-            <li id=save_test_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
-            <li id=save_test_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
+            <li id=save_test_error_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-danger"></li>
+            <li id=save_test_success_{{.Uuid}} style="display:none;"  class="list-group-item list-group-item-success"></li>
           </ul>
         </div>
       </div>
@@ -149,13 +169,9 @@ $(document).ready(function() {
   //var test = {{.}}
 
   exec_uuid = $("#panel_exec_{{.ExecutionID}}" + " a").attr("id").split("_")[2]
-  console.log("exec uuid : " + exec_uuid)
-
 
   execUUIDs[{{.Uuid}}] = exec_uuid
   executionIDs[{{.Uuid}}] = {{.ExecutionID}}
-
-  console.log("test uuid : " + {{.Uuid}} + " et exec uuid : " + exec_uuid)
 
   output_script_test[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_{{.Uuid}}"), {
     matchBrackets: true,
@@ -194,7 +210,6 @@ $(document).ready(function() {
     dataType: "json",
     url: "http://localhost:9000/execution",
     success: function (data) {
-      console.log(data)
       array = data["response"]
       $.each(array, function(k,v){
         $('#select_exec_{{.Uuid}}').append($('<option>', {
@@ -205,32 +220,32 @@ $(document).ready(function() {
       }
   });
 
+  if ({{.ExecutionID}} == 0) {
+    $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"none"});
+  }
 
-
-    console.log("wttfff")
   $('#select_exec_{{.Uuid}}').on('change', function() {
-
     var value = $('#select_exec_{{.Uuid}} :selected').text()
-    console.log("myid : " + this.id + " et test : " + value)
     function getElement(element) {
       console.log(element.name)
       return element.name == value;
     }
     elem = array.find(getElement)
     if (!elem) {
+      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"none"});
       script_editor[execUUIDs[{{.Uuid}}]].setValue("")
       output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
       $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value","")
       $("#create_btn_" + execUUIDs[{{.Uuid}}]).show()
       executionIDs[{{.Uuid}}] = 0
     } else {
+      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
       script_editor[execUUIDs[{{.Uuid}}]].setValue(elem.script)
       script_editor[execUUIDs[{{.Uuid}}]].refresh()
       output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
       $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value", elem.name)
       $("#create_btn_" + execUUIDs[{{.Uuid}}]).hide()
       executionIDs[{{.Uuid}}] = elem.executionID
-
     }
   });
 
@@ -239,9 +254,8 @@ $(document).ready(function() {
 
     if ({{.ExecutionID}} != 0) {
       $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
-
+      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
     }
-    $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
     config_editor[{{.Uuid}}].refresh()
     output_script_test[{{.Uuid}}].refresh()
     script_editor[execUUIDs[{{.Uuid}}]].setValue({{.Execution.Script}})
@@ -250,8 +264,8 @@ $(document).ready(function() {
   });
 
   $("#create_test_btn_{{.Uuid}}").click(function() {
-      $("#save_test_error_" + uuid).hide()
-      $("#save_test_success_" + uuid).hide()
+      $("#save_test_error_{{.Uuid}}").hide()
+      $("#save_test_success_{{.Uuid}}").hide()
 
       var data = {
         name : $("#test_name_{{.Uuid}}").val(),
@@ -272,7 +286,6 @@ $(document).ready(function() {
         xhr.onloadend = function () {
           response = JSON.parse(xhr.responseText);
           if (response["status"] != true) {
-            console.log(response["message"] + "uuid : "+ uuid)
 
             $("#save_test_error_{{.Uuid}}").slideDown()
             $("#save_test_error_{{.Uuid}}").text(response["message"])
@@ -296,28 +309,36 @@ $(document).ready(function() {
         if (data["status"] == false) {
             alert(data["message"])
           } else {
-            console.log("output : " + data["response"])
 
           uuid = data["response"]
           var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
-            console.log("body : " + output)
-
             if (output["status"] == false) {
-              alert(output["message"])
+              $("#save_test_run_error_{{.Uuid}}").show();
+              $("#save_test_run_error_{{.Uuid}}").text(output["message"]);
+              $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-warning" )
+              $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-danger" )
+
+
             } else if (output["response"]["type"] == "exec_event") {
               output_script_test[{{.Uuid}}].setValue(output_script_test[{{.Uuid}}].getValue() + output["response"]["body"])
               output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
             } else if (output["response"]["type"] == "test_event") {
+              event_log_editor[{{.Uuid}}].setValue(event_log_editor[{{.Uuid}}].getValue() + output["response"]["body"]["test_log_event"] + "\n")
+              event_ref_editor[{{.Uuid}}].setValue(event_ref_editor[{{.Uuid}}].getValue() + output["response"]["body"]["ref_log_event"] + "\n")
 
-              console.log("response" + output["response"]["body"]["response"])
+              event_log_editor[{{.Uuid}}].scrollTo(0, 10000000)
+              event_ref_editor[{{.Uuid}}].scrollTo(0, 10000000)
+
+            } else if (output["response"]["type"] == "result_event") {
+              $("#save_test_run_success_{{.Uuid}}").show();
+              $("#save_test_run_success_{{.Uuid}}").text(output["response"]["body"]);
+              $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-warning" )
+              $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-success" )
             }
           }
-          //window.location.href = "http://localhost:9000/test/all";
-          // you can see the result from the console
-          // tab of the developer tools
         }
       },
       error: function(xhr, resp, text) {
@@ -327,27 +348,44 @@ $(document).ready(function() {
   }
 
    $("#run_test_btn_{{.Uuid}}").click(function() {
-//     $("#panel_test_infos_" + uuid).slideUp();
-     $("#panel_test_run_{{.Uuid}}").slideDown();
-      $("#exit_test_btn_{{.Uuid}}").slideDown()
-     output_script_editor[execUUIDs[{{.Uuid}}]].refresh()
-     event_log_editor[{{.Uuid}}].refresh()
-     event_ref_editor[{{.Uuid}}].refresh()
-     run({{.TestID}}, {{.Uuid}});
+     $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-warning" )
+     $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-success panel-danger" )
+      $("#panel_test_run_{{.Uuid}}").slideDown(function() {
+        $("#save_test_run_success_{{.Uuid}}").hide();
+        $("#save_test_run_error_{{.Uuid}}").hide();
+
+        output_script_test[{{.Uuid}}].setValue("")
+        event_log_editor[{{.Uuid}}].setValue("")
+        event_ref_editor[{{.Uuid}}].setValue("")
+
+       output_script_test[{{.Uuid}}].refresh()
+       event_log_editor[{{.Uuid}}].refresh()
+       event_ref_editor[{{.Uuid}}].refresh()
+       $("#exit_test_btn_{{.Uuid}}").slideDown(function() {
+         run({{.TestID}}, {{.Uuid}});
+       });
+      });
    });
 
    $("#exit_test_btn_{{.Uuid}}").click(function() {
-     console.log("ASDSA uuid : " + uuid)
      $("#panel_test_run_{{.Uuid}}").slideUp();
      $("#exit_test_btn_{{.Uuid}}").slideUp()
+   });
 
-//     $("#panel_test_infos_" + ruuid).slideDown();
-    // $("#panel_test_infos_" + uuid).slideDown();
-    // $("#panel_test_run_" + uuid).slideUp();
+   $("#history_test_btn_{{.Uuid}}").click(function() {
+       $.get( "/test/{{.TestID}}/history_template?testID={{.TestID}}", function(data) {
+          console.log("#history_panel_{{.Uuid}}")
+          console.log("#history_panel_body_{{.Uuid}}")
+
+           //console.log(data)
+           $("#history_panel_{{.Uuid}}").slideDown();
+           $("#history_panel_body_{{.Uuid}}").html(data)
+           //$( ".list_panel" ).html(data)
+       });
    });
 
     //Line number is zero based index
-    var actualLineNumber = 2;
+  //  var actualLineNumber = 2;
 
     //Select editor loaded in the DOM
 
@@ -359,6 +397,7 @@ $(document).ready(function() {
       $(".run_test_btn").hide();
       $(".delete_test_btn").hide();
       $(".save_test_btn").hide();
+      $("#history_test_btn_{{.Uuid}}").hide();
   } else {
     $(".create_test_btn").hide();
   }

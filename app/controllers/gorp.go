@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 
 	"github.com/go-gorp/gorp"
@@ -30,34 +29,36 @@ func InitDB() {
 
 	Dbm.AddTable(models.Execution{}).SetKeys(true, "ExecutionID")
 	Dbm.AddTable(models.Test{}).SetKeys(true, "TestID")
+	Dbm.AddTable(models.TestHistory{}).SetKeys(true, "ID")
+
 	//Dbm.AddTable(models.TestHistory{}).SetKeys(true, "TestHistoryID")
 
 	Dbm.TraceOn("[gorp]", r.INFO)
 	Dbm.CreateTablesIfNotExists()
+	//
+	// test := &models.Execution{ExecutionID: 0, Name: "No execution", Script: ""}
+	//
+	// // execs := []*models.Execution{
+	// 	test,
+	// 	&models.Execution{Name: "Test 2 de l execution youlo", Script: "tata"},
+	// }
 
-	test := &models.Execution{ExecutionID: 0, Name: "No execution", Script: ""}
-
-	execs := []*models.Execution{
-		test,
-		&models.Execution{Name: "Test 2 de l execution youlo", Script: "tata"},
-	}
-
-	refs := []*models.Test{
-		&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 1, Execution: nil},
-		&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 0, Execution: nil},
-	}
-	fmt.Printf("test")
-	for _, ref := range refs {
-		if err := Dbm.Insert(ref); err != nil {
-			panic(err)
-		}
-	}
-
-	for _, exec := range execs {
-		if err := Dbm.Insert(exec); err != nil {
-			panic(err)
-		}
-	}
+	// refs := []*models.Test{
+	// 	&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 1, Execution: nil},
+	// 	&models.Test{Name: "CATASDWADAS", Config: "", PathRefFile: "", PathLogFile: "", ExecutionID: 0, Execution: nil},
+	// }
+	// fmt.Printf("test")
+	// for _, ref := range refs {
+	// 	if err := Dbm.Insert(ref); err != nil {
+	// 		panic(err)
+	// 	}
+	// }
+	//
+	// for _, exec := range execs {
+	// 	if err := Dbm.Insert(exec); err != nil {
+	// 		panic(err)
+	// 	}
+	// }
 
 	var exec_counts []models.Execution
 	_, err = Dbm.Select(&exec_counts,
@@ -67,11 +68,17 @@ func InitDB() {
 	}
 
 	dispatcher.StartDispatcher(len(exec_counts))
-	revel.TemplateFuncs["setuuid"] = func(exec *models.Execution) template.JS {
+	revel.TemplateFuncs["set_exec_uuid"] = func(exec *models.Execution) template.JS {
 		exec.Uuid = uuid.NewV4().String()
 		return template.JS("")
 	}
-	revel.TemplateFuncs["settestuuid"] = func(test *models.Test) template.JS {
+
+	revel.TemplateFuncs["set_test_uuid"] = func(test *models.Test) template.JS {
+		test.Uuid = uuid.NewV4().String()
+		return template.JS("")
+	}
+
+	revel.TemplateFuncs["set_test_history_uuid"] = func(test *models.TestHistory) template.JS {
 		test.Uuid = uuid.NewV4().String()
 		return template.JS("")
 	}

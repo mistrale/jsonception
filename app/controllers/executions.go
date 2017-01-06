@@ -28,7 +28,7 @@ func init() {
 
 func (c Executions) Index() revel.Result {
 
-	exec := models.Execution{ExecutionID: 0}
+	exec := &models.Execution{ExecutionID: 0, Uuid: uuid.NewV4().String()}
 	return c.Render(exec)
 }
 
@@ -101,7 +101,7 @@ func (c Executions) Create() revel.Result {
 	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
-	//	dispatcher.AddWorker(work_ID)
+	dispatcher.AddWorker()
 	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
 
@@ -117,7 +117,7 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 			return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 		}
 		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: exec.Script, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue[exec.ExecutionID] <- request
+		dispatcher.WorkQueue[exec.ExecutionID-1] <- request
 	} else {
 		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: script, Response: make(chan map[string]interface{})}
 		work := dispatcher.Worker{}
@@ -133,9 +133,7 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 
 	go func(ch chan map[string]interface{}) {
 		for {
-			msg := <-request.Response
-			fmt.Printf("on push dansle chan : %s\n", msg)
-			room.Chan <- msg
+			room.Chan <- <-request.Response
 		}
 	}(request.Response)
 	return c.RenderJson(response)

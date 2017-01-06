@@ -1,12 +1,9 @@
-{{if eq .ExecutionID 0}}
-{{else}}
-{{setuuid . }}
-{{end}}
+{{set_exec_uuid . }}
 <div class="panel panel-info" id=panel_exec_{{.ExecutionID}}>
   <div class="panel-heading" id=>
     {{if eq .ExecutionID 0}}
     <h4 class="panel-title">
-      <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>New execution</span></a>
+      <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>New template execution</span></a>
     </h4>    {{else}}
     <h4 class="panel-title">
       <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>{{.Name}}</span></a>
@@ -23,7 +20,7 @@
         <div id=exec_div_select>
           <div class="form-group">
             <label>Name</label>
-            <input required id="exec_name" type="text" class="form-control" value="{{.Name}}">
+            <input required id=exec_name_{{.Uuid}} type="text" class="form-control" value="{{.Name}}">
           </div>
           <div class="form-group">
             <div class="form-group">
@@ -31,15 +28,15 @@
             </div>
             <textarea id=script_area_{{.Uuid}}>{{.Script}}</textarea>
           </div>
-          <div class="form-group">
 
-          <div class="panel panel-warning" id=output_exec_{{.Uuid}} style="display:none;">
-            <div class="panel-heading">Output</div>
-            <div class="panel-body">
-              <textarea id=output_script_area_{{.Uuid}}></textarea>
+          <div class="form-group">
+            <div class="panel panel-warning" id=output_exec_{{.Uuid}} style="display:none;">
+              <div class="panel-heading">Output</div>
+              <div class="panel-body">
+                <textarea id=output_script_area_{{.Uuid}}></textarea>
+              </div>
             </div>
           </div>
-        </div>
 
 <!--
           <div class="form-group" id="">

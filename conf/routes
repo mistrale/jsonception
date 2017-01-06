@@ -4,21 +4,32 @@
 
 module:testrunner
 
-GET     /                                       Executions.Index
+# model REST Execution
 GET     /execution/run                          Executions.Run
-GET     /execution/test                          Executions.GetOneTemplate
 POST    /execution                              Executions.Create
-GET     /execution/all                          Executions.All
 GET     /execution                              Executions.Get
+# GUI Controller
+GET     /execution/all                          Executions.All
+#GET     /execution/test                         Executions.GetOneTemplate
+GET     /                                       Executions.Index
 
+# model REST Test
 GET     /test/:id/run                           Tests.Run
 #GET    /test/:id                               Tests.Show
-GET     /test/all                               Tests.All
+GET    /test/:id/history                        Tests.GetHistory
 POST    /test/                                  Tests.Create
-GET     /test/new                               Tests.Index
 GET     /test                                   Tests.Get
+# GUI Controller
+GET     /test/all                               Tests.All
+GET     /test/new                               Tests.Index
+GET    /test/:id/history_template               Tests.GetHistoryTemplate
 
-WS      /websocket/room                     WebSocket.ListenExecutionRun
+
+# model REST TestHistory
+GET     /test_history                           TestHistory.Get
+
+
+WS      /websocket/room                         WebSocket.ListenExecutionRun
 
 
 # Ignore favicon requests

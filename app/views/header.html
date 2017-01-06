@@ -157,7 +157,7 @@ onElementHeightChange($(document), function(){
     <div id="wrapper">
 
         <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; background-color:#00aeef">
+        <nav id=nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; background-color:#00aeef">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -186,7 +186,7 @@ onElementHeightChange($(document), function(){
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-files-o fa-fw"></i>Execution<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i>Template execution<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                   <a href="{{url "Executions.Index"}}">Run and create</a>
@@ -198,7 +198,7 @@ onElementHeightChange($(document), function(){
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-files-o fa-fw"></i>Reference<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i>Test<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="{{url "Tests.Index"}}">Create</a>

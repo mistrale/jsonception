@@ -18,17 +18,6 @@ type Tests struct {
 	GorpController
 }
 
-func (c Tests) loadExecutionByID(id int) *models.Execution {
-	h, err := c.Txn.Get(models.Execution{}, id)
-	if err != nil {
-		panic(err)
-	}
-	if h == nil {
-		return nil
-	}
-	return h.(*models.Execution)
-}
-
 // Create method to add new execution in DB
 func (c Tests) Create() revel.Result {
 	test := &models.Test{}
@@ -82,58 +71,96 @@ func (c Tests) Run(testID int) revel.Result {
 	uuid := uuid.NewV4()
 	room := socket.CreateRoom(uuid.String())
 	var request dispatcher.WorkRequest
+	output := ""
 
 	if err := c.Txn.SelectOne(&test,
 		`select * from Test where testID=?`, testID); err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	fmt.Printf("print result : %d and exec id : %d\n", testID, test.ExecutionID)
+
+	// create history
+	history := &models.TestHistory{TestID: testID, RunUUID: uuid.String(), Status: "running"}
+	if err := c.Txn.Insert(history); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
 
 	// if there is an execution
-	if test.ExecutionID != 0 {
-		var exec models.Execution
-
-		if err := c.Txn.SelectOne(&exec, "select * from Execution where ExecutionID=?", test.ExecutionID); err != nil {
-			return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-		}
-		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: exec.Script, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue[exec.ExecutionID] <- request
+	if test.Execution != nil {
+		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: test.Execution.Script, Response: make(chan map[string]interface{})}
+		dispatcher.WorkQueue[test.ExecutionID-1] <- request
 		response := <-request.Response
 		if response["status"] != true {
 			fmt.Printf("status : %s\n", response)
+			updateEndHistory(history, "", "", "", response["message"].(string), false)
 			return c.RenderJson(response)
 		}
 	}
 	go func() {
-		if test.ExecutionID != 0 {
+
+		if test.Execution != nil {
 			for {
 				msg := <-request.Response
 				if msg["status"] != true {
 					fmt.Printf("status : %s\n", msg)
+					updateEndHistory(history, output, "", "", msg["message"].(string), false)
 					room.Chan <- msg
 					return
 				}
 				if msg["response"] == "end_"+uuid.String() {
 					break
 				}
+				output += msg["response"].(map[string]interface{})["body"].(string)
 				room.Chan <- msg
 			}
 		}
 		ch := make(chan map[string]interface{})
 		go test.Run(ch)
-		go func(ch chan map[string]interface{}) {
-			for {
-				msg := <-ch
-				response := make(map[string]interface{})
-				response["type"] = "test_event"
-				response["body"] = msg
-				fmt.Printf("on push dansle chan : %s\n", msg)
-				room.Chan <- utils.NewResponse(true, "", response)
+
+		reflog := ""
+		testlog := ""
+
+		for {
+			msg := <-ch
+			room.Chan <- msg
+			if msg["status"] != true {
+				updateEndHistory(history, output, reflog, testlog, msg["message"].(string), false)
+				break
 			}
-		}(ch)
+			fmt.Printf("response : %s\n", msg)
+			response := msg["response"].(map[string]interface{})
+			if response["type"] == models.TESTEVENT {
+				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
+				testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
+			} else if response["type"] == models.RESULTEVENT {
+				updateEndHistory(history, output, reflog, testlog, response["body"].(string), true)
+				break
+			}
+		}
 	}()
-	//c.Executions.Run("lslsl")
 	return c.RenderJson(utils.NewResponse(true, "", uuid.String()))
+}
+
+// GetHistory method to get all history from one test
+func (c Tests) GetHistory(testID int) revel.Result {
+	var history []models.TestHistory
+
+	if _, err := c.Txn.Select(&history,
+		`select * from TestHistory where TestID=?`, testID); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	return c.RenderJson(history)
+}
+
+// GetHistory method to get all history from one test and template html
+func (c Tests) GetHistoryTemplate(testID int) revel.Result {
+	var history []models.TestHistory
+
+	if _, err := c.Txn.Select(&history,
+		`select * from TestHistory where TestID=?`, testID); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	c.Render(history)
+	return c.RenderTemplate("TestHistory/all.html")
 }
 
 // Refresh method to reset a reference
@@ -143,7 +170,7 @@ func (c Tests) Show(testID int) revel.Result {
 
 // Index method to page from reference index
 func (c Tests) Index() revel.Result {
-	test := models.Test{TestID: 0, Execution: &models.Execution{}}
+	test := models.Test{TestID: 0, Execution: &models.Execution{}, Uuid: uuid.NewV4().String()}
 	return c.Render(test)
 }
 

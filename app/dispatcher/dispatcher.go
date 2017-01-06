@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+var (
+	nb_work = 0
+)
+
 type WorkRequest struct {
 	Uuid     string
 	Script   string
@@ -19,19 +23,20 @@ var workerQueue []chan chan WorkRequest
 var WorkQueue = make([]chan WorkRequest, 0)
 
 // AddWorker when a new execution is created
-func AddWorker(work_ID int) {
+func AddWorker() {
 	workerQueue = append(workerQueue, make(chan chan WorkRequest))
 	WorkQueue = append(WorkQueue, make(chan WorkRequest))
 
-	worker := NewWorker(work_ID, workerQueue[len(workerQueue)-1])
+	worker := NewWorker(nb_work+1, workerQueue[len(workerQueue)-1])
 	worker.Start()
 	startWorkerQueue(len(workerQueue) - 1)
+	nb_work++
 }
 
 func StartDispatcher(nb_workers int) {
 	// First, initialize the channel we are going to but the workers' work channels into.
 	workerQueue = make([]chan chan WorkRequest, nb_workers)
-
+	nb_work = nb_workers
 	// Now, create all of our workers.
 	for i := 0; i < nb_workers; i++ {
 		workerQueue[i] = make(chan chan WorkRequest)
