@@ -2,7 +2,7 @@ package models
 
 // TestHistory model for all test history
 type TestHistory struct {
-	ID         int    `json:"id"`
+	ID         int    `json:"id" gorm:"primary_key"`
 	TestID     int    `json:"test_id"`
 	OutputExec string `json:"output_exec"`
 	Reflog     string `json:"ref_log"`

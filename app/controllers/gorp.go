@@ -1,14 +1,15 @@
 package controllers
 
 import (
-	"database/sql"
 	"html/template"
 
-	"github.com/go-gorp/gorp"
+	"github.com/jinzhu/gorm"
 	"github.com/revel/revel"
 
 	_ "github.com/mattn/go-sqlite3"
 	uuid "github.com/satori/go.uuid"
+
+	_ "github.com/lib/pq"
 
 	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
@@ -17,24 +18,43 @@ import (
 )
 
 var (
-	Dbm *gorp.DbMap
+	Dbm *gorm.DB
 )
 
 func InitDB() {
-	db, err := sql.Open("sqlite3", "/tmp/post_db.bin")
+	db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
 	if err != nil {
 		panic(err)
 	}
-	Dbm = &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
 
-	Dbm.AddTable(models.Execution{}).SetKeys(true, "ExecutionID")
-	Dbm.AddTable(models.Test{}).SetKeys(true, "TestID")
-	Dbm.AddTable(models.TestHistory{}).SetKeys(true, "ID")
+	// Ping function checks the database connectivity
+	err = db.DB().Ping()
+	if err != nil {
+		panic(err)
+	}
 
-	//Dbm.AddTable(models.TestHistory{}).SetKeys(true, "TestHistoryID")
+	Dbm = db
 
-	Dbm.TraceOn("[gorp]", r.INFO)
-	Dbm.CreateTablesIfNotExists()
+	Dbm.CreateTable(&models.Execution{})
+	Dbm.CreateTable(&models.Test{})
+	Dbm.CreateTable(&models.Library{})
+	Dbm.CreateTable(&models.TestHistory{})
+
+	// 		db, err := sql.Open("sqlite3", "/tmp/post_db.bin")
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+	// //	Dbm = &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
+	//
+	// 	Dbm.AddTable(models.Execution{}).SetKeys(true, "ExecutionID")
+	// 	Dbm.AddTable(models.Test{}).SetKeys(true, "TestID")
+	// 	Dbm.AddTable(models.TestHistory{}).SetKeys(true, "ID")
+	// 	Dbm.AddTable(models.Library{}).SetKeys(true, "LibraryID")
+	//
+	// 	//Dbm.AddTable(models.TestHistory{}).SetKeys(true, "TestHistoryID")
+	//
+	// 	Dbm.TraceOn("[gorp]", r.INFO)
+	// 	Dbm.CreateTablesIfNotExists()
 	//
 	// test := &models.Execution{ExecutionID: 0, Name: "No execution", Script: ""}
 	//
@@ -61,11 +81,7 @@ func InitDB() {
 	// }
 
 	var exec_counts []models.Execution
-	_, err = Dbm.Select(&exec_counts,
-		`select * from Execution`)
-	if err != nil {
-		panic(err)
-	}
+	Dbm.Find(&exec_counts)
 
 	dispatcher.StartDispatcher(len(exec_counts))
 	revel.TemplateFuncs["set_exec_uuid"] = func(exec *models.Execution) template.JS {
@@ -82,18 +98,20 @@ func InitDB() {
 		test.Uuid = uuid.NewV4().String()
 		return template.JS("")
 	}
+
+	revel.TemplateFuncs["set_library_uuid"] = func(lib *models.Library) template.JS {
+		lib.Uuid = uuid.NewV4().String()
+		return template.JS("")
+	}
 }
 
 type GorpController struct {
 	*r.Controller
-	Txn *gorp.Transaction
+	Txn *gorm.DB
 }
 
 func (c *GorpController) Begin() r.Result {
-	txn, err := Dbm.Begin()
-	if err != nil {
-		panic(err)
-	}
+	txn := Dbm.Begin()
 	c.Txn = txn
 	return nil
 }
@@ -102,9 +120,7 @@ func (c *GorpController) Commit() r.Result {
 	if c.Txn == nil {
 		return nil
 	}
-	if err := c.Txn.Commit(); err != nil && err != sql.ErrTxDone {
-		panic(err)
-	}
+	c.Txn.Commit()
 	c.Txn = nil
 	return nil
 }
@@ -113,9 +129,7 @@ func (c *GorpController) Rollback() r.Result {
 	if c.Txn == nil {
 		return nil
 	}
-	if err := c.Txn.Rollback(); err != nil && err != sql.ErrTxDone {
-		panic(err)
-	}
+	c.Txn.Rollback()
 	c.Txn = nil
 	return nil
 }

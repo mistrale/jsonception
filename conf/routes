@@ -21,6 +21,7 @@ POST    /test/                                  Tests.Create
 GET     /test                                   Tests.Get
 # GUI Controller
 GET     /test/all                               Tests.All
+GET     /test/:id/template                      Tests.GetOneTemplate
 GET     /test/new                               Tests.Index
 GET    /test/:id/history_template               Tests.GetHistoryTemplate
 
@@ -28,7 +29,14 @@ GET    /test/:id/history_template               Tests.GetHistoryTemplate
 # model REST TestHistory
 GET     /test_history                           TestHistory.Get
 
+# model REST Libraries
+GET     /libraries                                   Libraries.Get
+POST    /libraries/                                  Libraries.Create
+# GUI Controller
+GET     /libraries/all                               Libraries.All
+GET     /libraries/new                               Libraries.Index
 
+# Socket Controller
 WS      /websocket/room                         WebSocket.ListenExecutionRun
 
 

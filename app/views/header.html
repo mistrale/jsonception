@@ -137,7 +137,7 @@ onElementHeightChange($(document), function(){
   }
 
 
-   .CodeMirror-gutter  {
+  .cm-s-mdn-like .CodeMirror-gutters  {
       background-color: #00aeef;
   }
 
@@ -205,6 +205,18 @@ onElementHeightChange($(document), function(){
                                 </li>
                                 <li>
                                     <a href="{{url "Tests.All"}}">All</a>
+                                </li>
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-files-o fa-fw"></i>Library<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="{{url "Libraries.Index"}}">Create</a>
+                                </li>
+                                <li>
+                                    <a href="{{url "Libraries.All"}}">All</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->

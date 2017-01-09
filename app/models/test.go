@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/go-gorp/gorp"
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
-	"github.com/revel/revel"
 )
 
 const (
@@ -28,14 +26,15 @@ const (
 
 // Test : script and logevent
 type Test struct {
-	TestID      int    `json:"test_id"`
-	Name        string `json:"name"`
-	Config      string `json:"config"`
-	PathRefFile string `json:"log_events"`
-	PathLogFile string `json:"path_log"`
-	ExecutionID int    `json:"executionID"`
-	Execution   *Execution
-	Uuid        string `json:"-" db:"-"`
+	TestID      int       `json:"test_id"  gorm:"primary_key"`
+	Name        string    `json:"name"`
+	Config      string    `json:"config"`
+	PathRefFile string    `json:"log_events"`
+	PathLogFile string    `json:"path_log"`
+	ExecutionID int       `json:"executionID"`
+	Execution   Execution `json:"execution" gorm:"ForeignKey:ExecutionID;AssociationForeignKey:ExecutionID"`
+
+	Uuid string `json:"-" db:"-"`
 }
 
 // Run method to realise test
@@ -130,31 +129,5 @@ func (test *Test) Run(response chan map[string]interface{}) {
 	resp["body"] = "files match !"
 
 	response <- utils.NewResponse(true, "", resp)
-	// response <- utils.NewResponse(true, "", "Files match !")
-}
-
-// Validate Reference struct field for DB
-func (ref *Test) Validate(v *revel.Validation) {
-	v.Check(ref.Name, revel.Required{})
-	v.Check(ref.Config, revel.Required{})
-	v.Check(ref.PathRefFile, revel.Required{})
-	v.Check(ref.PathLogFile, revel.Required{})
-	v.Required(ref.Execution)
-}
-
-func (t *Test) PostGet(exe gorp.SqlExecutor) error {
-	var (
-		obj interface{}
-		err error
-	)
-
-	obj, err = exe.Get(Execution{}, t.ExecutionID)
-	if err != nil {
-		return fmt.Errorf("Error loading a test's execution (%d): %s", t.ExecutionID, err)
-	}
-	if obj == nil {
-		return nil
-	}
-	t.Execution = obj.(*Execution)
-	return nil
+	response <- utils.NewResponse(true, "", "Files match !")
 }

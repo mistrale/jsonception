@@ -1,0 +1,27 @@
+{{template "header.html" .}}
+
+
+
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h3 class="page-header" style="color:#00aeef;">New</h3>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <!-- /.row -->
+    <div class="row">
+        <!-- /.col-lg-8 -->
+
+        <div class="col-lg-12">
+          {{template "Libraries/library.html" .library}}
+        </div>
+
+    </div>
+
+    <!-- /.row -->
+</div>
+<!-- /#page-wrapper -->
+
+{{template "footer.html" .}}

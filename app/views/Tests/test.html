@@ -1,7 +1,4 @@
-{{if eq .TestID 0}}
-{{else}}
 {{set_test_uuid . }}
-{{end}}
 <div class="panel panel-info" id=panel_test_infos>
   <div class="panel-heading">
     {{if eq .TestID 0}}
@@ -144,7 +141,6 @@
     </div>
   </div>
 </div>
-
 </div>
 
 <style>
@@ -155,6 +151,7 @@
 var executionIDs = {};
 var execUUIDs = {}
 var array
+var isInit = false;
 
 var config_editor = {}
 
@@ -206,19 +203,30 @@ $(document).ready(function() {
   styleActiveLine:true
   });
 
-  $.ajax({
-    dataType: "json",
-    url: "http://localhost:9000/execution",
-    success: function (data) {
-      array = data["response"]
-      $.each(array, function(k,v){
-        $('#select_exec_{{.Uuid}}').append($('<option>', {
-              value : v["executionID"],
-              text: v["name"]
-            }))
-        });
-      }
-  });
+  if (!isInit) {
+    $.ajax({
+      dataType: "json",
+      url: "http://localhost:9000/execution",
+      success: function (data) {
+        array = data["response"]
+        $.each(array, function(k,v){
+          $('#select_exec_{{.Uuid}}').append($('<option>', {
+                value : v["executionID"],
+                text: v["name"]
+              }))
+          });
+        }
+    });
+    isInit = true;
+  } else {
+    $.each(array, function(k,v){
+      $('#select_exec_{{.Uuid}}').append($('<option>', {
+            value : v["executionID"],
+            text: v["name"]
+          }))
+      });
+  }
+
 
   if ({{.ExecutionID}} == 0) {
     $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"none"});
@@ -251,7 +259,7 @@ $(document).ready(function() {
 
   $("#collapser_test_{{.Uuid}}").on('click', function() {
     $("#collapse_test_{{.Uuid}}").toggle()
-
+    console.log("uuid : " + {{.Uuid}})
     if ({{.ExecutionID}} != 0) {
       $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
       $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});

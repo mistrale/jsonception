@@ -13,13 +13,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// References controller
+// Tests controller
 type Tests struct {
 	GorpController
 }
 
 // Create method to add new execution in DB
 func (c Tests) Create() revel.Result {
+	fmt.Println("asdas")
 	test := &models.Test{}
 	content, _ := ioutil.ReadAll(c.Request.Body)
 	if err := json.Unmarshal(content, test); err != nil {
@@ -50,42 +51,48 @@ func (c Tests) Create() revel.Result {
 
 	var tests []models.Test
 
-	if _, err := c.Txn.Select(&tests,
-		`select * from Test where PathLogFile=?`, test.PathLogFile); err != nil {
-		return c.RenderJson(utils.NewResponse(true, err.Error(), nil))
-	}
+	//c.Txn.Find(&tests, where)
+	c.Txn.Where("PathLogFile = ?", test.PathLogFile).Find(&tests)
+
+	// if _, err := c.Txn.Select(&tests,
+	// 	`select * from Test where PathLogFile=?`, test.PathLogFile); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(true, err.Error(), nil))
+	// }
 
 	if len(tests) >= 1 {
 		return c.RenderJson(utils.NewResponse(false, "A log file path of same name is already taken", nil))
 	}
 	// insert ref with ExecutionID
-	if err := c.Txn.Insert(test); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
+	c.Txn.Create(test)
+	// if err := c.Txn.Create(test); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	// }
 	return c.RenderJson(utils.NewResponse(true, "Successful test creation", *test))
 }
 
-// Refresh method to reset a reference
+//
+// // Run method to start a test
 func (c Tests) Run(testID int) revel.Result {
 	var test models.Test
 	uuid := uuid.NewV4()
 	room := socket.CreateRoom(uuid.String())
 	var request dispatcher.WorkRequest
 	output := ""
-
-	if err := c.Txn.SelectOne(&test,
-		`select * from Test where testID=?`, testID); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
+	c.Txn.First(&test, testID)
+	// if err := c.Txn.SelectOne(&test,
+	// 	`select * from Test where testID=?`, testID); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	// }
 
 	// create history
 	history := &models.TestHistory{TestID: testID, RunUUID: uuid.String(), Status: "running"}
-	if err := c.Txn.Insert(history); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
+	c.Txn.Create(history)
+	// if err := c.Txn.Insert(history); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	// }
 
 	// if there is an execution
-	if test.Execution != nil {
+	if test.ExecutionID != 0 {
 		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: test.Execution.Script, Response: make(chan map[string]interface{})}
 		dispatcher.WorkQueue[test.ExecutionID-1] <- request
 		response := <-request.Response
@@ -97,7 +104,7 @@ func (c Tests) Run(testID int) revel.Result {
 	}
 	go func() {
 
-		if test.Execution != nil {
+		if test.ExecutionID != 0 {
 			for {
 				msg := <-request.Response
 				if msg["status"] != true {
@@ -142,23 +149,32 @@ func (c Tests) Run(testID int) revel.Result {
 
 // GetHistory method to get all history from one test
 func (c Tests) GetHistory(testID int) revel.Result {
-	var history []models.TestHistory
+	fmt.Printf("asdas : %d\n", testID)
 
-	if _, err := c.Txn.Select(&history,
-		`select * from TestHistory where TestID=?`, testID); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
+	var history []models.TestHistory
+	fmt.Printf("asdas : %d\n", testID)
+	c.Txn.Where("test_id = ?", testID).Find(&history)
+
+	//c.Txn.Find(&history)
+	//
+	// if _, err := c.Txn.Select(&history,
+	// 	`select * from TestHistory where TestID=?`, testID); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	// }
 	return c.RenderJson(history)
 }
 
 // GetHistory method to get all history from one test and template html
 func (c Tests) GetHistoryTemplate(testID int) revel.Result {
 	var history []models.TestHistory
+	c.Txn.Where("test_id = ?", testID).Find(&history)
 
-	if _, err := c.Txn.Select(&history,
-		`select * from TestHistory where TestID=?`, testID); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
+	//
+	//
+	// if _, err := c.Txn.Select(&history,
+	// 	`select * from TestHistory where TestID=?`, testID); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	// }
 	c.Render(history)
 	return c.RenderTemplate("TestHistory/all.html")
 }
@@ -170,41 +186,28 @@ func (c Tests) Show(testID int) revel.Result {
 
 // Index method to page from reference index
 func (c Tests) Index() revel.Result {
-	test := models.Test{TestID: 0, Execution: &models.Execution{}, Uuid: uuid.NewV4().String()}
+	test := &models.Test{TestID: 0, Execution: models.Execution{}, Uuid: uuid.NewV4().String()}
 	return c.Render(test)
 }
 
 // All method to get all reference
 func (c Tests) All() revel.Result {
 	var tests []models.Test
-	_, err := c.Txn.Select(&tests,
-		`select * from Test`)
-	if err != nil {
-		panic(err)
-	}
-	for i, v := range tests {
-		exec := &models.Execution{}
-		err = c.Txn.SelectOne(exec, "select * from Execution where ExecutionID=?", v.ExecutionID)
-		fmt.Printf("executID name : %s\n", exec.Name)
-		tests[i].Execution = exec
-	}
-	fmt.Printf("nm test : %d\n", len(tests))
+	c.Txn.Preload("Execution").Find(&tests)
 	return c.Render(tests)
 }
 
 // Get method to get all reference
 func (c Tests) Get() revel.Result {
 	var tests []models.Test
-	_, err := c.Txn.Select(&tests,
-		`select * from Test`)
-	if err != nil {
-		panic(err)
-	}
-	for i, v := range tests {
-		exec := &models.Execution{}
-		err = c.Txn.SelectOne(exec, "select * from Execution where ExecutionID=?", v.ExecutionID)
-		fmt.Printf("executID name : %s\n", exec.Name)
-		tests[i].Execution = exec
-	}
+	c.Txn.Preload("Execution").Find(&tests)
 	return c.RenderJson(tests)
+}
+
+// Get method to get all reference
+func (c Tests) GetOneTemplate(testID int) revel.Result {
+	test := &models.Test{}
+	c.Txn.First(test, testID)
+	c.Render(test)
+	return c.RenderTemplate("Tests/TestTemplate.html")
 }

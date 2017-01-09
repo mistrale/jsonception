@@ -152,7 +152,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					44: []string{ 
+					46: []string{ 
 						"execs",
 						"testID",
 					},
@@ -179,7 +179,7 @@ func main() {
 					&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					78: []string{ 
+					86: []string{ 
 						"exec",
 						"uuid",
 					},
@@ -199,6 +199,45 @@ func main() {
 					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
+	revel.RegisterController((*controllers.Libraries)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Create",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Index",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					51: []string{ 
+						"library",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "All",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					58: []string{ 
+						"libs",
+					},
 				},
 			},
 			
@@ -247,7 +286,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					162: []string{ 
+					178: []string{ 
 						"history",
 					},
 				},
@@ -258,7 +297,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					168: []string{ 
+					184: []string{ 
 					},
 				},
 			},
@@ -267,7 +306,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					174: []string{ 
+					190: []string{ 
 						"test",
 					},
 				},
@@ -277,7 +316,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					192: []string{ 
+					197: []string{ 
 						"tests",
 					},
 				},
@@ -289,6 +328,17 @@ func main() {
 				RenderArgNames: map[int][]string{ 
 				},
 			},
+			&revel.MethodType{
+				Name: "GetOneTemplate",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					211: []string{ 
+						"test",
+					},
+				},
+			},
 			
 		})
 	
@@ -296,13 +346,6 @@ func main() {
 		"github.com/mistrale/jsonception/app/models.(*Execution).Validate": { 
 			57: "exec.Name",
 			58: "exec.Script",
-		},
-		"github.com/mistrale/jsonception/app/models.(*Test).Validate": { 
-			138: "ref.Name",
-			139: "ref.Config",
-			140: "ref.PathRefFile",
-			141: "ref.PathLogFile",
-			142: "ref.Execution",
 		},
 	}
 	testing.TestSuites = []interface{}{ 

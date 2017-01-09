@@ -4,10 +4,10 @@ import "github.com/revel/revel"
 
 // Execution : script runned
 type Execution struct {
-	ExecutionID int    `json:"executionID"`
-	Name        string `json:"name"`
+	ExecutionID int    `json:"executionID" gorm:"primary_key"`
+	Name        string `json:"name" sql:"unique"`
 	Script      string `json:"script"`
-	Uuid        string `json:"-" db:"-"`
+	Uuid        string `json:"-" sql:"-"`
 }
 
 // func Run(script string, response chan map[string]interface{}) {

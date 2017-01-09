@@ -176,6 +176,39 @@ func (_ tExecutions) Run(
 }
 
 
+type tLibraries struct {}
+var Libraries tLibraries
+
+
+func (_ tLibraries) Create(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Create", args).Url
+}
+
+func (_ tLibraries) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Get", args).Url
+}
+
+func (_ tLibraries) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Index", args).Url
+}
+
+func (_ tLibraries) All(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.All", args).Url
+}
+
+
 type tTestHistory struct {}
 var TestHistory tTestHistory
 
@@ -254,6 +287,15 @@ func (_ tTests) Get(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("Tests.Get", args).Url
+}
+
+func (_ tTests) GetOneTemplate(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.GetOneTemplate", args).Url
 }
 
 
