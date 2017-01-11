@@ -11,6 +11,6 @@ type TestHistory struct {
 	Success    bool   `json:"sucess"`
 	OutputTest string `json:"output_test"`
 	RunUUID    string `json:"run_uuid"`
-	Uuid       string `json:"-" db:"-"`
+	Uuid       string `json:"-" sql:"-"`
 	TimeRunned int64  `json:"time_runned"`
 }

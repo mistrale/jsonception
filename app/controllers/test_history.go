@@ -35,18 +35,4 @@ func updateEndHistory(history *models.TestHistory, outputexec, reflog, testlog, 
 	history.Status = "finished"
 	history.TimeRunned = time.Now().UnixNano()
 	Dbm.Save(history)
-	// _, err := Dbm.Exec(`update TestHistory set OutputExec = ?,
-	// 																							RefLog = ?,
-	// 																							TestLog = ?,
-	// 																							OutputTest = ?,
-	// 																							Success = ?,
-	// 																							Status = ?,
-	//                                               TimeRunned = ? where ID = ?`,
-	// 	outputexec, reflog, testlog, outputTest, success, "finished", time.Now().UnixNano(), history.ID)
-	// if err != nil {
-	// 	fmt.Printf("History id : %d\n", history.ID)
-	// 	log.Printf("error : %s\n", err.Error())
-	//
-	// 	panic(err)
-	// }
 }

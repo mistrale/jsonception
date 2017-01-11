@@ -286,7 +286,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					178: []string{ 
+					181: []string{ 
 						"history",
 					},
 				},
@@ -297,7 +297,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					184: []string{ 
+					187: []string{ 
 					},
 				},
 			},
@@ -306,7 +306,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					190: []string{ 
+					193: []string{ 
 						"test",
 					},
 				},
@@ -316,7 +316,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					197: []string{ 
+					200: []string{ 
 						"tests",
 					},
 				},
@@ -334,7 +334,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					211: []string{ 
+					214: []string{ 
 						"test",
 					},
 				},

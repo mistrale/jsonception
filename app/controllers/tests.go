@@ -78,7 +78,9 @@ func (c Tests) Run(testID int) revel.Result {
 	room := socket.CreateRoom(uuid.String())
 	var request dispatcher.WorkRequest
 	output := ""
-	c.Txn.First(&test, testID)
+	//	c.Txn.First(&test, testID)
+	c.Txn.Preload("Execution").First(&test, testID)
+
 	// if err := c.Txn.SelectOne(&test,
 	// 	`select * from Test where testID=?`, testID); err != nil {
 	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
@@ -93,6 +95,7 @@ func (c Tests) Run(testID int) revel.Result {
 
 	// if there is an execution
 	if test.ExecutionID != 0 {
+		fmt.Printf("YOYOYO TOIT script : %s\tID : %d\tNAME : %s\n", test.Execution.Script, test.Execution.ExecutionID, test.Execution.Name)
 		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: test.Execution.Script, Response: make(chan map[string]interface{})}
 		dispatcher.WorkQueue[test.ExecutionID-1] <- request
 		response := <-request.Response
@@ -133,7 +136,7 @@ func (c Tests) Run(testID int) revel.Result {
 				updateEndHistory(history, output, reflog, testlog, msg["message"].(string), false)
 				break
 			}
-			fmt.Printf("response : %s\n", msg)
+			//fmt.Printf("response : %s\n", msg)
 			response := msg["response"].(map[string]interface{})
 			if response["type"] == models.TESTEVENT {
 				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
