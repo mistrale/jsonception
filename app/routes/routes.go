@@ -46,6 +46,35 @@ func (_ tWebSocket) ListenExecutionRun(
 }
 
 
+type tStatic struct {}
+var Static tStatic
+
+
+func (_ tStatic) Serve(
+		prefix string,
+		filepath string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "prefix", prefix)
+	revel.Unbind(args, "filepath", filepath)
+	return revel.MainRouter.Reverse("Static.Serve", args).Url
+}
+
+func (_ tStatic) ServeModule(
+		moduleName string,
+		prefix string,
+		filepath string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "moduleName", moduleName)
+	revel.Unbind(args, "prefix", prefix)
+	revel.Unbind(args, "filepath", filepath)
+	return revel.MainRouter.Reverse("Static.ServeModule", args).Url
+}
+
+
 type tTestRunner struct {}
 var TestRunner tTestRunner
 
@@ -82,35 +111,6 @@ func (_ tTestRunner) List(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("TestRunner.List", args).Url
-}
-
-
-type tStatic struct {}
-var Static tStatic
-
-
-func (_ tStatic) Serve(
-		prefix string,
-		filepath string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "prefix", prefix)
-	revel.Unbind(args, "filepath", filepath)
-	return revel.MainRouter.Reverse("Static.Serve", args).Url
-}
-
-func (_ tStatic) ServeModule(
-		moduleName string,
-		prefix string,
-		filepath string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "moduleName", moduleName)
-	revel.Unbind(args, "prefix", prefix)
-	revel.Unbind(args, "filepath", filepath)
-	return revel.MainRouter.Reverse("Static.ServeModule", args).Url
 }
 
 
@@ -187,6 +187,33 @@ func (_ tLibraries) Create(
 	return revel.MainRouter.Reverse("Libraries.Create", args).Url
 }
 
+func (_ tLibraries) Run(
+		libID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "libID", libID)
+	return revel.MainRouter.Reverse("Libraries.Run", args).Url
+}
+
+func (_ tLibraries) GetHistory(
+		libID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "libID", libID)
+	return revel.MainRouter.Reverse("Libraries.GetHistory", args).Url
+}
+
+func (_ tLibraries) GetOne(
+		idLib int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "idLib", idLib)
+	return revel.MainRouter.Reverse("Libraries.GetOne", args).Url
+}
+
 func (_ tLibraries) Get(
 		) string {
 	args := make(map[string]string)
@@ -242,7 +269,7 @@ func (_ tTests) Run(
 }
 
 func (_ tTests) GetHistory(
-		testID int,
+		testID string,
 		) string {
 	args := make(map[string]string)
 	

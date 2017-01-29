@@ -23,6 +23,8 @@ var (
 
 func InitDB() {
 	db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
+
+	//db, err := gorm.Open("postgres", "user=Sikorav dbname=testata sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -39,6 +41,7 @@ func InitDB() {
 	Dbm.CreateTable(&models.Test{})
 	Dbm.CreateTable(&models.Library{})
 	Dbm.CreateTable(&models.TestHistory{})
+	Dbm.CreateTable(&models.LibraryHistory{})
 
 	// 		db, err := sql.Open("sqlite3", "/tmp/post_db.bin")
 	// 		if err != nil {

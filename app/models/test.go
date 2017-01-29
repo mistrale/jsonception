@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
@@ -22,6 +23,10 @@ const (
 
 	// TESTEVENT for event when test is running
 	TESTEVENT = "test_event"
+
+	EXEC_EVENT = "exec_event"
+
+	RESULT_EXEC = "result_exec"
 )
 
 // Test : script and logevent
@@ -37,8 +42,12 @@ type Test struct {
 	Uuid string `json:"-" db:"-"`
 }
 
+func (test Test) GetID() int {
+	return test.TestID
+}
+
 // Run method to realise test
-func (test *Test) Run(response chan map[string]interface{}) {
+func (test Test) Run(response chan map[string]interface{}) {
 	//	uuid := uuid.NewV4()
 	b, err := ioutil.ReadFile(test.PathRefFile)
 	if err != nil {
@@ -129,5 +138,5 @@ func (test *Test) Run(response chan map[string]interface{}) {
 	resp["body"] = "files match !"
 
 	response <- utils.NewResponse(true, "", resp)
-	response <- utils.NewResponse(true, "", "Files match !")
+	log.Println("JOB DONE")
 }

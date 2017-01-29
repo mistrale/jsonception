@@ -1,5 +1,5 @@
 {{set_test_uuid . }}
-<div class="panel panel-info" id=panel_test_infos>
+<div class="panel panel-info" id=panel_test_infos_{{.Uuid}}>
   <div class="panel-heading">
     {{if eq .TestID 0}}
     <!-- <h3 class="panel-title"><i>Register test</i></h3> -->
@@ -50,7 +50,7 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-6" id="exec_form_{{.Uuid}}">
           <div class="form-group"  >
             <label for="script">Add an execution</label>
             <select class="form-control" id=select_exec_{{.Uuid}}>
@@ -125,7 +125,7 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="buttons">
-            <button id=save_test_btn_{{.Uuid}} class="save_test_btn btn btn-primary">Save</button>
+            <button id=save_test_btn_{{.Uuid}} class="save_test_btn btn btn-primary" style="display:none;">Save</button>
             <button id=create_test_btn_{{.Uuid}} class="create_test_btn btn btn-primary">Create</button>
             <button id=run_test_btn_{{.Uuid}} class="run_test_btn btn btn-success">Run</button>
             <button id=delete_test_btn_{{.Uuid}} class="delete_test_btn btn btn-danger">Delete</button>
@@ -151,7 +151,6 @@
 var executionIDs = {};
 var execUUIDs = {}
 var array
-var isInit = false;
 
 var config_editor = {}
 
@@ -163,9 +162,7 @@ var output_script_test = {}
 
 // load at beginning
 $(document).ready(function() {
-  //var test = {{.}}
-
-  exec_uuid = $("#panel_exec_{{.ExecutionID}}" + " a").attr("id").split("_")[2]
+  exec_uuid = $("#exec_form_{{.Uuid}} .panel_exec" + " a").attr("id").split("_")[2]
 
   execUUIDs[{{.Uuid}}] = exec_uuid
   executionIDs[{{.Uuid}}] = {{.ExecutionID}}
@@ -203,7 +200,7 @@ $(document).ready(function() {
   styleActiveLine:true
   });
 
-  if (!isInit) {
+  if (!array) {
     $.ajax({
       dataType: "json",
       url: "http://localhost:9000/execution",
@@ -217,9 +214,9 @@ $(document).ready(function() {
           });
         }
     });
-    isInit = true;
   } else {
     $.each(array, function(k,v){
+      console.log("lol : " + v)
       $('#select_exec_{{.Uuid}}').append($('<option>', {
             value : v["executionID"],
             text: v["name"]
@@ -310,7 +307,7 @@ $(document).ready(function() {
     console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
       url: 'http://localhost:9000/test/' + testID + '/run', // url where to submit the request
-      type : "GET", // type of action POST || GET
+      type : "POST", // type of action POST || GET
       dataType : 'json', // data type
       data : "testID=" + testID,
       success : function(data) {

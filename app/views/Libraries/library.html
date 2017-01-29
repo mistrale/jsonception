@@ -34,14 +34,70 @@
             <div class="panel-heading">Test</div>
               <div class="panel-body" id=panel_test_library_{{.Uuid}}>
                 {{range .Tests}}
+                <div id=panel_one_test_{{.Uuid}}_{{.TestID}}>
+                  <div class="col-lg-11">
                   {{template "Tests/test.html" .}}
+                  </div>
+                  <div class="col-lg-1">
+                    <button class="btn btn-danger" id=remove_test_from_list_btn_{{.Uuid}}_{{.TestID}}>Remove</button>
+                  </div>
                 {{end}}
               </div>
             </div>
           </div>
       </div>
+      <!-- output de test -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-warning" id=panel_lib_run_{{.Uuid}} style=" margin-top:20px;">
+            <div class="panel-heading">
+              <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>{{.Name}} run</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row">
+                <div  class="col-sm-12">
+                  <button onclick="move()">Click Me</button>
+
+                  <div id="myProgress">
+                    <div id="myBar">
+                      <div id="label">10%</div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Output execution</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div  class="col-sm-6">
+                  <div class="form-group">
+                    <label>Log reference</label>
+                  </div>
+                </div>
+                <div  class="col-sm-6">
+                  <div class="form-group">
+                    <label>Log test</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <ul class="list-group">
+                    <li id=save_lib_run_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
+                    <li id=save_lib_run_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="form-group">
-        <button  class="btn btn-primary" id=create_btn_library_{{.Uuid}}>Create test</button>
+        <button  class="btn btn-primary create_btn" id=create_btn_library_{{.Uuid}}>Create</button>
+        <button  class="btn btn-primary update_btn" id=update_btn_library_{{.Uuid}}>Update</button>
+        <button  class="btn btn-success run_btn" id=run_btn_library_{{.Uuid}}>Run</button>
+        <button  class="btn btn-warning history_btn" id=run_btn_library_{{.Uuid}}>See history</button>
+        <button  class="btn btn-danger delete_btn" id=run_btn_library_{{.Uuid}}>Delete</button>
       </div>
       <ul class="list-group">
         <li id=save_library_error_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-danger"></li>
@@ -49,25 +105,60 @@
       </ul>
     </div>
   </div>
+</div>
+<style>
+#myProgress {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background-color: #ddd;
+}
+#myBar {
+    position: absolute;
+    width: 1%;
+    height: 100%;
+    background-color: #5cb85c;
+}
+/* If you want the label inside the progress bar */
+#label {
+    text-align: center; /* If you want to center it */
+    line-height: 30px; /* Set the line-height to the same as the height of the progress bar container, to center it vertically */
+    color: white;
+}
+</style>
 <script>
+
+function move() {
+    var elem = document.getElementById("myBar");
+    var width = 10;
+    var id = setInterval(frame, 10);
+    function frame() {
+        if (width >= 100) {
+            clearInterval(id);
+        } else {
+            width++;
+            elem.style.width = width + '%';
+            document.getElementById("label").innerHTML = width * 1 + '%';
+        }
+    }
+}
+
 var testIDs = {}
 var tests
 
 var currentData = {}
 var listTests = {}
 
-isInit = false
 $(document).ready(function() {
   listTests[{{.Uuid}}] = []
   testIDs[{{.Uuid}}] = 0
 
-  if (!isInit) {
+  if (!tests) {
     $.ajax({
       dataType: "json",
       url: "http://localhost:9000/test",
       success: function (data) {
         tests = data
-        console.log(data)
         $.each(tests, function(k,v){
           $('#select_library_{{.Uuid}}').append($('<option>', {
                 value : v["testID"],
@@ -76,7 +167,6 @@ $(document).ready(function() {
           });
         }
     });
-    isInit = true;
   } else {
     $.each(tests, function(k,v){
       $('#select_library_{{.Uuid}}').append($('<option>', {
@@ -85,6 +175,7 @@ $(document).ready(function() {
           }))
       });
   }
+
 
   $("#add_btn_test_{{.Uuid}}").click(function() {
     console.log("asdas : "  + testIDs[{{.Uuid}}])
@@ -95,7 +186,7 @@ $(document).ready(function() {
       $("#add_test_{{.Uuid}} .panel").remove()
 
       $("#panel_test_library_{{.Uuid}}").append('<div id=panel_one_test_{{.Uuid}}_' + testIDs[{{.Uuid}}] + '><div class="col-lg-11">' + currentData[{{.Uuid}}] +
-      '<div class="col-lg-1"><button class="btn btn-danger" id="remove_test_from_list_btn_{{.Uuid}}_' + testIDs[{{.Uuid}}] +
+      '</div><div class="col-lg-1"><button class="btn btn-danger" id="remove_test_from_list_btn_{{.Uuid}}_' + testIDs[{{.Uuid}}] +
       '">Remove</button></div></div>')
 
       $("#remove_test_from_list_btn_{{.Uuid}}_" + testIDs[{{.Uuid}}]).click(function() {
@@ -184,5 +275,40 @@ $(document).ready(function() {
   $("#collapser_library_{{.Uuid}}").on('click', function() {
     $("#collapse_library_{{.Uuid}}").toggle()
   });
-});
+
+  function run(libID) {
+    //console.log("exec uuid  :" + execUUIDs[ruuid])
+    $.ajax({
+      url: 'http://localhost:9000/libraries/' + libID + '/run', // url where to submit the request
+      type : "POST", // type of action POST || GET
+      dataType : 'json', // data type
+      data : "libID=" + libID,
+      success : function(data) {
+        console.log(data)
+
+        if (data["status"] == false) {
+            alert(data["message"])
+          } else {
+            uuid = data["response"]
+            var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
+            output = ""
+            socket.onmessage = function(event) {
+              console.log(event.data)
+
+              //output = JSON.parse(event.data)
+            //  console.log(output)
+            }
+        }
+      },
+      error: function(xhr, resp, text) {
+          console.log(xhr, resp, text);
+      }
+    });
+  }
+
+  $("#run_btn_library_{{.Uuid}}").click(function() {
+      run({{.LibraryID}});
+      move()
+     });
+  });
 </script>

@@ -28,6 +28,7 @@ func (c WebSocket) ListenExecutionRun(room_name string, ws *websocket.Conn) reve
 			break
 		}
 		response := <-room.Chan
+		fmt.Printf("SENDING DATA :%s\n", response)
 		if err := websocket.JSON.Send(ws, response); err != nil {
 			fmt.Printf("err : %s\n", err.Error())
 			// They disconnected

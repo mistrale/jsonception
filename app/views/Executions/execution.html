@@ -1,5 +1,5 @@
 {{set_exec_uuid . }}
-<div class="panel panel-info" id=panel_exec_{{.ExecutionID}}>
+<div class="panel panel-info panel_exec" id=panel_exec_{{.Uuid}}_{{.ExecutionID}}>
   <div class="panel-heading" id=>
     {{if eq .ExecutionID 0}}
     <h4 class="panel-title">
@@ -38,16 +38,9 @@
             </div>
           </div>
 
-<!--
-          <div class="form-group" id="">
-            <div class="form-group">
-              <label>Output</label>
-            </div>
-            <textarea id=output_script_area_{{.Uuid}}></textarea>
-          </div> -->
           <div class="form-group">
             <p class="buttons">
-              <button id=save_btn_{{.Uuid}} class="save_exec_btn btn btn-primary">Save execution</button>
+              <button id=save_btn_{{.Uuid}} class="save_exec_btn btn btn-primary" style="display:none;">Save execution</button>
               <button id=create_btn_{{.Uuid}} class="save_exec_btn btn btn-primary">Create execution</button>
               <button id=run-btn_{{.Uuid}} class="run_exec_btn btn btn-success">Run execution</button>
               <button id=clear_exec_btn_{{.Uuid}} class="clear_exec_btn btn btn-warning">Clear script</button>

@@ -1,6 +1,10 @@
 package models
 
-import "github.com/revel/revel"
+import (
+	"os/exec"
+
+	"github.com/mistrale/jsonception/app/utils"
+)
 
 // Execution : script runned
 type Execution struct {
@@ -10,50 +14,52 @@ type Execution struct {
 	Uuid        string `json:"-" sql:"-"`
 }
 
-// func Run(script string, response chan map[string]interface{}) {
-// 	uuid := uuid.NewV4()
-// 	var file string
-//
-// 	if runtime.GOOS == "windows" {
-// 		file = "/" + uuid.String() + ".sh"
-// 	} else {
-// 		file = "/tmp/bash_" + uuid.String() + ".sh"
-// 	}
-// 	fmt.Printf("script : %s\tfile : %s\n", script, file)
-//
-// 	if err := ioutil.WriteFile(file, []byte(script), 0777); err != nil {
-// 		response <- utils.NewResponse(false, err.Error(), nil)
-// 	}
-// 	//defer os.Remove(file)
-//
-// 	go func() {
-// 		var cmd *exec.Cmd
-// 		cmd = exec.Command("bash", "-c", script)
-//
-// 		ch := make(chan string)
-// 		out := newStream(ch)
-// 		cmd.Stdout = out
-// 		cmd.Stderr = out
-// 		if err := cmd.Start(); err != nil {
-// 			response <- utils.NewResponse(false, err.Error(), nil)
-// 			//log.Fatal(err)
-// 		}
-// 		response <- utils.NewResponse(true, "", uuid.String())
-// 		go func(ch chan string) {
-// 			for {
-// 				msg := <-ch
-// 				response <- utils.NewResponse(true, "", msg)
-// 				fmt.Printf("on push dansle chan : %s\n", msg)
-// 				//room.Chan <- msg
-// 			}
-// 		}(ch)
-// 		cmd.Wait()
-// 		response <- utils.NewResponse(true, "", "end_"+uuid.String())
-// 	}()
-// }
+type outstream struct {
+	ch chan string
+}
 
-// Validate Execution struct field for DB
-func (exec *Execution) Validate(v *revel.Validation) {
-	v.Required(exec.Name)
-	v.Required(exec.Script)
+func newStream(ch chan string) *outstream {
+	return &outstream{ch: ch}
+}
+
+func (out outstream) Write(p []byte) (int, error) {
+	out.ch <- string(p)
+	//	fmt.Println("wtf : " + string(p))
+	return len(p), nil
+}
+
+// GetID method to retrieve model's id
+func (e Execution) GetID() int {
+	return e.ExecutionID
+}
+
+// Run method to start script
+func (e Execution) Run(response chan map[string]interface{}) {
+	var cmd *exec.Cmd
+	cmd = exec.Command("bash", "-c", e.Script)
+
+	ch := make(chan string)
+	out := newStream(ch)
+	cmd.Stdout = out
+	cmd.Stderr = out
+	if err := cmd.Start(); err != nil {
+		response <- utils.NewResponse(false, err.Error(), nil)
+		//log.Fatal(err)
+	}
+	response <- utils.NewResponse(true, "ok", e.Uuid)
+	go func(ch chan string) {
+		for {
+			msg := <-ch
+			resp := make(map[string]interface{})
+			resp["type"] = EXEC_EVENT
+			resp["body"] = msg
+			response <- utils.NewResponse(true, "", resp)
+			//room.Chan <- msg
+		}
+	}(ch)
+	cmd.Wait()
+	resp := make(map[string]interface{})
+	resp["type"] = RESULT_EXEC
+	resp["body"] = "end_" + e.Uuid
+	response <- utils.NewResponse(true, "", resp)
 }

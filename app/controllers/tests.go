@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
@@ -20,7 +21,6 @@ type Tests struct {
 
 // Create method to add new execution in DB
 func (c Tests) Create() revel.Result {
-	fmt.Println("asdas")
 	test := &models.Test{}
 	content, _ := ioutil.ReadAll(c.Request.Body)
 	if err := json.Unmarshal(content, test); err != nil {
@@ -49,92 +49,73 @@ func (c Tests) Create() revel.Result {
 		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file.", nil))
 	}
 
-	var tests []models.Test
-
-	//c.Txn.Find(&tests, where)
-	c.Txn.Where("PathLogFile = ?", test.PathLogFile).Find(&tests)
-
-	// if _, err := c.Txn.Select(&tests,
-	// 	`select * from Test where PathLogFile=?`, test.PathLogFile); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(true, err.Error(), nil))
-	// }
-
-	if len(tests) >= 1 {
-		return c.RenderJson(utils.NewResponse(false, "A log file path of same name is already taken", nil))
-	}
 	// insert ref with ExecutionID
 	c.Txn.Create(test)
-	// if err := c.Txn.Create(test); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
 	return c.RenderJson(utils.NewResponse(true, "Successful test creation", *test))
 }
 
-//
-// // Run method to start a test
-func (c Tests) Run(testID int) revel.Result {
-	var test models.Test
-	uuid := uuid.NewV4()
-	room := socket.CreateRoom(uuid.String())
+// Generic Run test method
+func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) bool {
+	fmt.Printf("test id in RUNTEST : %d\tand chan addr : %p\n", test.GetID(), room)
 	var request dispatcher.WorkRequest
 	output := ""
-	//	c.Txn.First(&test, testID)
-	c.Txn.Preload("Execution").First(&test, testID)
 
-	// if err := c.Txn.SelectOne(&test,
-	// 	`select * from Test where testID=?`, testID); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
-
+	test.Uuid = n_uuid
+	test.Execution.Uuid = n_uuid
 	// create history
-	history := &models.TestHistory{TestID: testID, RunUUID: uuid.String(), Status: "running"}
-	c.Txn.Create(history)
-	// if err := c.Txn.Insert(history); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
+	history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
+
+	var runner models.IRunnable = test.Execution
 
 	// if there is an execution
 	if test.ExecutionID != 0 {
-		fmt.Printf("YOYOYO TOIT script : %s\tID : %d\tNAME : %s\n", test.Execution.Script, test.Execution.ExecutionID, test.Execution.Name)
-		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: test.Execution.Script, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue[test.ExecutionID-1] <- request
+		request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+		dispatcher.WorkQueue <- request
 		response := <-request.Response
 		if response["status"] != true {
-			fmt.Printf("status : %s\n", response)
-			updateEndHistory(history, "", "", "", response["message"].(string), false)
-			return c.RenderJson(response)
+			updateEndHistory(db, history, "", "", "", response["message"].(string), false)
+			room <- response
+			return false
 		}
 	}
 	go func() {
 
 		if test.ExecutionID != 0 {
 			for {
+				fmt.Printf("chaann addr 2 : %p\n", room)
 				msg := <-request.Response
+				room <- msg
+
 				if msg["status"] != true {
-					fmt.Printf("status : %s\n", msg)
-					updateEndHistory(history, output, "", "", msg["message"].(string), false)
-					room.Chan <- msg
+					updateEndHistory(db, history, output, "", "", msg["message"].(string), false)
 					return
 				}
-				if msg["response"] == "end_"+uuid.String() {
-					break
+				if response, ok := msg["response"].(map[string]interface{}); ok {
+					if response["type"] == models.RESULT_EXEC {
+						break
+					}
+					output += msg["response"].(map[string]interface{})["body"].(string)
 				}
-				output += msg["response"].(map[string]interface{})["body"].(string)
-				room.Chan <- msg
+				//				fmt.Printf("OUTPUT : %s\n", msg)
 			}
 		}
-		ch := make(chan map[string]interface{})
-		go test.Run(ch)
+		runner = test
+		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+		dispatcher.WorkQueue <- request
+		ch := request.Response
+
+		//go test.Run(ch)
 
 		reflog := ""
 		testlog := ""
 
 		for {
 			msg := <-ch
-			room.Chan <- msg
+
 			if msg["status"] != true {
-				updateEndHistory(history, output, reflog, testlog, msg["message"].(string), false)
-				break
+				updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), false)
+				room <- msg
+				return
 			}
 			//fmt.Printf("response : %s\n", msg)
 			response := msg["response"].(map[string]interface{})
@@ -142,28 +123,37 @@ func (c Tests) Run(testID int) revel.Result {
 				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
 				testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
 			} else if response["type"] == models.RESULTEVENT {
-				updateEndHistory(history, output, reflog, testlog, response["body"].(string), true)
-				break
+				updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), true)
+				room <- msg
+
+				return
 			}
+			room <- msg
 		}
 	}()
-	return c.RenderJson(utils.NewResponse(true, "", uuid.String()))
+	return true
+}
+
+// Run method to start a test
+func (c Tests) Run(testID int) revel.Result {
+	var test models.Test
+
+	test_uuid := uuid.NewV4()
+	room := socket.CreateRoom(test_uuid.String())
+	c.Txn.Preload("Execution").First(&test, testID)
+
+	// run test
+	if !RunTest(&test, test_uuid.String(), room.Chan, c.Txn) {
+		return c.RenderJson(<-room.Chan)
+	}
+	return c.RenderJson(utils.NewResponse(true, "", test_uuid.String()))
 }
 
 // GetHistory method to get all history from one test
-func (c Tests) GetHistory(testID int) revel.Result {
-	fmt.Printf("asdas : %d\n", testID)
-
+func (c Tests) GetHistory(testID string) revel.Result {
 	var history []models.TestHistory
-	fmt.Printf("asdas : %d\n", testID)
-	c.Txn.Where("test_id = ?", testID).Find(&history)
-
-	//c.Txn.Find(&history)
-	//
-	// if _, err := c.Txn.Select(&history,
-	// 	`select * from TestHistory where TestID=?`, testID); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
+	c.Txn.Where("run_uuid = ?", testID).Find(&history)
+	fmt.Printf("format uuid : %s\n", testID)
 	return c.RenderJson(history)
 }
 
@@ -171,13 +161,6 @@ func (c Tests) GetHistory(testID int) revel.Result {
 func (c Tests) GetHistoryTemplate(testID int) revel.Result {
 	var history []models.TestHistory
 	c.Txn.Where("test_id = ?", testID).Find(&history)
-
-	//
-	//
-	// if _, err := c.Txn.Select(&history,
-	// 	`select * from TestHistory where TestID=?`, testID); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
 	c.Render(history)
 	return c.RenderTemplate("TestHistory/all.html")
 }
@@ -210,7 +193,7 @@ func (c Tests) Get() revel.Result {
 // Get method to get all reference
 func (c Tests) GetOneTemplate(testID int) revel.Result {
 	test := &models.Test{}
-	c.Txn.First(test, testID)
+	c.Txn.Preload("Execution").First(test, testID)
 	c.Render(test)
 	return c.RenderTemplate("Tests/TestTemplate.html")
 }

@@ -50,11 +50,7 @@ func (c Executions) All() revel.Result {
 func (c Executions) Get() revel.Result {
 	var execs []models.Execution
 	c.Txn.Find(&execs)
-	// _, err := c.Txn.Select(&execs,
-	// 	`select * from Execution`)
-	// if err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
-	// }
+
 	return c.RenderJson(utils.NewResponse(true, "", execs))
 }
 
@@ -63,12 +59,6 @@ func (c Executions) GetOne(id int) revel.Result {
 	var exec models.Execution
 	c.Txn.First(&exec, id)
 
-	//
-	// err := c.Txn.SelectOne(&exec,
-	// 	`select * from Execution where ExecutionID=?`, id)
-	// if err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
-	// }
 	return c.RenderJson(utils.NewResponse(true, "", exec))
 }
 
@@ -77,11 +67,6 @@ func (c Executions) GetOneTemplate(id int) revel.Result {
 	var exec models.Execution
 	c.Txn.First(&exec, id)
 
-	// err := c.Txn.SelectOne(&exec,
-	// 	`select * from Execution where ExecutionID=?`, id)
-	// if err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
-	// }
 	uuid := uuid.NewV4()
 	c.Render(exec, uuid)
 	return c.RenderTemplate("Executions/test.html")
@@ -109,30 +94,27 @@ func (c Executions) Create() revel.Result {
 	// if err != nil {
 	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	// }
-	dispatcher.AddWorker()
+	//dispatcher.AddWorker()
 	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
 
 // Run method to execute script
-
 func (c Executions) Run(id_exec int, script string) revel.Result {
 	uuid := uuid.NewV4()
 
 	var request dispatcher.WorkRequest
+	var exec models.Execution
+
 	if id_exec != 0 {
-		var exec models.Execution
 		c.Txn.First(&exec, id_exec)
-		//
-		// if err := c.Txn.SelectOne(&exec, "select * from Execution where ExecutionID=?", id_exec); err != nil {
-		// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-		// }
-		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: exec.Script, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue[exec.ExecutionID-1] <- request
 	} else {
-		request = dispatcher.WorkRequest{Uuid: uuid.String(), Script: script, Response: make(chan map[string]interface{})}
-		work := dispatcher.Worker{}
-		go work.Run(request)
+		exec.Script = script
 	}
+	exec.Uuid = uuid.String()
+
+	var runner models.IRunnable = exec
+	request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+	dispatcher.WorkQueue <- request
 
 	response := <-request.Response
 	if response["status"] != true {
@@ -146,5 +128,6 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 			room.Chan <- <-request.Response
 		}
 	}(request.Response)
+	fmt.Println("ALLELULIA")
 	return c.RenderJson(response)
 }

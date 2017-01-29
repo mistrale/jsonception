@@ -83,14 +83,15 @@ $(document).ready(function() {
 
   $("#collapser_history_{{.Uuid}}").text(myDate.toString());
 
-  if ({{.Status}} == "finished" && {{.Success}} == true) {
+  if ({{.Success}} == true) {
     $("#head_panel_history_{{.Uuid}}").addClass("panel-success");
     $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
     $("#save_test_run_error_history_{{.Uuid}}").hide();
     $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
 
   }
-  if ({{.Status}} == "finished" && {{.Success}} == false) {
+
+  if ({{.Success}} == false) {
     $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
     $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
     $("#save_test_run_success_history_{{.Uuid}}").hide();

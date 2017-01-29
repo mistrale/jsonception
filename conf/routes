@@ -14,7 +14,7 @@ GET     /execution/all                          Executions.All
 GET     /                                       Executions.Index
 
 # model REST Test
-GET     /test/:id/run                           Tests.Run
+POST     /test/:id/run                          Tests.Run
 #GET    /test/:id                               Tests.Show
 GET    /test/:id/history                        Tests.GetHistory
 POST    /test/                                  Tests.Create
@@ -30,11 +30,14 @@ GET    /test/:id/history_template               Tests.GetHistoryTemplate
 GET     /test_history                           TestHistory.Get
 
 # model REST Libraries
-GET     /libraries                                   Libraries.Get
-POST    /libraries/                                  Libraries.Create
+GET     /libraries                                  Libraries.Get
+#GET     /libraries/:id                             Libraries.GetOne
+POST    /libraries/                                 Libraries.Create
+POST     /libraries/:id/run                         Libraries.Run
+GET    /libraries/:id/history                        Libraries.GetHistory
 # GUI Controller
-GET     /libraries/all                               Libraries.All
-GET     /libraries/new                               Libraries.Index
+GET     /libraries/all                              Libraries.All
+GET     /libraries/new                              Libraries.Index
 
 # Socket Controller
 WS      /websocket/room                         WebSocket.ListenExecutionRun
