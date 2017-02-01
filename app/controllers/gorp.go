@@ -106,6 +106,12 @@ func InitDB() {
 		lib.Uuid = uuid.NewV4().String()
 		return template.JS("")
 	}
+	revel.TemplateFuncs["newHistory"] = func() *models.TestHistory {
+		return &models.TestHistory{}
+	}
+	revel.TemplateFuncs["newUuid"] = func() string {
+		return uuid.NewV4().String()
+	}
 }
 
 type GorpController struct {

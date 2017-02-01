@@ -49,34 +49,28 @@
       <!-- output de test -->
       <div class="row">
         <div class="col-lg-12">
-          <div class="panel panel-warning" id=panel_lib_run_{{.Uuid}} style=" margin-top:20px;">
+          <div class="panel panel-warning" id=panel_lib_run_{{.Uuid}} style=" margin-top:20px;display:none;">
             <div class="panel-heading">
               <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>{{.Name}} run</h3>
             </div>
             <div class="panel-body">
               <div class="row">
                 <div  class="col-sm-12">
-                  <button onclick="move()">Click Me</button>
 
-                  <div id="myProgress">
-                    <div id="myBar">
-                      <div id="label">10%</div>
+                  <div class="form-group">
+                    <div id="myProgress_{{.Uuid}}" style="position: relative;width: 100%;height: 30px;background-color: #ddd;">
+                      <div id="myBar_{{.Uuid}}" style="position: absolute;width: 1%;height: 100%;background-color: #5cb85c;">
+                        <div id="label_{{.Uuid}}" style="text-align: center;line-height: 30px;color: white;">0%</div>
+                      </div>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label>Output execution</label>
+
+                  <div class="panel-group" id="panel_output_lib_{{.Uuid}}">
+                    {{range .Tests}}
+                    <div class="test_id_{{.TestID}}">
+                    {{template "TestHistory/history.html" newHistory}}
                   </div>
-                </div>
-              </div>
-              <div class="row">
-                <div  class="col-sm-6">
-                  <div class="form-group">
-                    <label>Log reference</label>
-                  </div>
-                </div>
-                <div  class="col-sm-6">
-                  <div class="form-group">
-                    <label>Log test</label>
+                    {{end}}
                   </div>
                 </div>
               </div>
@@ -96,8 +90,8 @@
         <button  class="btn btn-primary create_btn" id=create_btn_library_{{.Uuid}}>Create</button>
         <button  class="btn btn-primary update_btn" id=update_btn_library_{{.Uuid}}>Update</button>
         <button  class="btn btn-success run_btn" id=run_btn_library_{{.Uuid}}>Run</button>
-        <button  class="btn btn-warning history_btn" id=run_btn_library_{{.Uuid}}>See history</button>
-        <button  class="btn btn-danger delete_btn" id=run_btn_library_{{.Uuid}}>Delete</button>
+        <button  class="btn btn-warning history_btn" id=see_history_library_btn_{{.Uuid}}>See history</button>
+        <button  class="btn btn-danger delete_btn" id=delete_btn_library_{{.Uuid}}>Delete</button>
       </div>
       <ul class="list-group">
         <li id=save_library_error_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-danger"></li>
@@ -106,42 +100,8 @@
     </div>
   </div>
 </div>
-<style>
-#myProgress {
-    position: relative;
-    width: 100%;
-    height: 30px;
-    background-color: #ddd;
-}
-#myBar {
-    position: absolute;
-    width: 1%;
-    height: 100%;
-    background-color: #5cb85c;
-}
-/* If you want the label inside the progress bar */
-#label {
-    text-align: center; /* If you want to center it */
-    line-height: 30px; /* Set the line-height to the same as the height of the progress bar container, to center it vertically */
-    color: white;
-}
-</style>
-<script>
 
-function move() {
-    var elem = document.getElementById("myBar");
-    var width = 10;
-    var id = setInterval(frame, 10);
-    function frame() {
-        if (width >= 100) {
-            clearInterval(id);
-        } else {
-            width++;
-            elem.style.width = width + '%';
-            document.getElementById("label").innerHTML = width * 1 + '%';
-        }
-    }
-}
+<script>
 
 var testIDs = {}
 var tests
@@ -239,6 +199,55 @@ $(document).ready(function() {
     }
   });
 
+  $("#update_btn_library_{{.Uuid}}").click(function() {
+    $("#save_library_error_{{.Uuid}}").hide()
+    $("#save_library_success_{{.Uuid}}").hide()
+
+    var data = {
+      name : $("#library_name_{{.Uuid}}").val(),
+      test_ids : listTests[{{.Uuid}}],
+    };
+
+        // construct an HTTP request
+      var xhr = new XMLHttpRequest();
+      xhr.open("PUT", 'http://localhost:9000/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}}, true);
+      xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+      // send the collected data as JSON
+      xhr.send(JSON.stringify(data));
+
+      xhr.onloadend = function () {
+        response = JSON.parse(xhr.responseText);
+        if (response["status"] != true) {
+
+          $("#save_library_error_{{.Uuid}}").slideDown()
+          $("#save_library_error_{{.Uuid}}").text(response["message"])
+        } else {
+          $("#save_library_success_{{.Uuid}}").slideDown()
+          $("#save_library_success_{{.Uuid}}").text(response["response"])
+          console.log(response["response"])
+        }
+      };
+  });
+
+  $("#delete_btn_library_{{.Uuid}}").click(function(){
+    $.ajax({
+        url: '/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}},
+        type: 'DELETE',
+        success: function(result) {
+          if (result["status"] != true) {
+
+            $("#save_library_error_{{.Uuid}}").slideDown()
+            $("#save_library_error_{{.Uuid}}").text(result["message"])
+          } else {
+            $("#panel_library_{{.Uuid}}").remove()
+          }
+            // Do something with the result
+        }
+    });
+  });
+
+
   $("#create_btn_library_{{.Uuid}}").click(function() {
      $("#save_library_error_{{.Uuid}}").hide()
      $("#save_library_success_{{.Uuid}}").hide()
@@ -276,7 +285,7 @@ $(document).ready(function() {
     $("#collapse_library_{{.Uuid}}").toggle()
   });
 
-  function run(libID) {
+  function run(libID, lib_uuid) {
     //console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
       url: 'http://localhost:9000/libraries/' + libID + '/run', // url where to submit the request
@@ -285,18 +294,69 @@ $(document).ready(function() {
       data : "libID=" + libID,
       success : function(data) {
         console.log(data)
-
+        $("#panel_lib_run_" + lib_uuid).slideDown()
         if (data["status"] == false) {
             alert(data["message"])
           } else {
+            nb_test = {{.Tests}}.length
+            width = 0
+            document.getElementById("myBar_" + lib_uuid).style.width = 0 + '%';
+            document.getElementById("label_" + lib_uuid).innerHTML = 0 * 1 + '%';
+            panel = $("#panel_output_lib_{{.Uuid}} .panel").each(function(k,v) {
+              current_uuid = ($(this).attr('id')).split("_")[3]
+              $(this).removeClass("panel-success")
+              $(this).removeClass("panel-danger")
+              $(this).addClass("panel-default")
+              output_script_history_test[current_uuid].setValue("")
+              event_ref_history_editor[current_uuid].setValue("")
+              event_log_history_editor[current_uuid].setValue("")
+            });
             uuid = data["response"]
             var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
             output = ""
             socket.onmessage = function(event) {
-              console.log(event.data)
+              output = JSON.parse(event.data)
+              testID = output["test_id"]
+              panel = $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel")
+              histUuid = panel.attr('id').split("_")[3]
+              if (output["response"]["event_type"] == "start_test") {
+                panel.addClass("panel-warning");
+                panel.removeClass("panel-default");
 
-              //output = JSON.parse(event.data)
-            //  console.log(output)
+                $("#save_test_run_error_history_" + histUuid).hide()
+                $("#save_test_run_success_history_" + histUuid).hide()
+
+                var myDate = new Date(output["response"]["time_runned"] / 1000000);
+               $("#collapser_history_" + histUuid).text(myDate.toString());
+
+                $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('show');
+              }
+              if (output["response"]["event_type"] == "exec_event") {
+                output_script_history_test[histUuid].setValue(output_script_history_test[histUuid].getValue() + output["response"]["body"])
+              }
+              if (output["response"]["event_type"] == "test_event") {
+                event_ref_history_editor[histUuid].setValue(event_ref_history_editor[histUuid].getValue() + output["response"]["body"]["ref_log_event"])
+                event_log_history_editor[histUuid].setValue(event_log_history_editor[histUuid].getValue() + output["response"]["body"]["test_log_event"])
+              }
+              if (output["response"]["event_type"] == "result_event") {
+                panel.removeClass("panel-warning");
+                if (output["status"] == true) {
+                  panel.addClass("panel-success");
+                  $("#save_test_run_success_history_" + histUuid).text(output["response"]["body"])
+                  $("#save_test_run_success_history_" + histUuid).slideDown()
+
+                } else {
+                  panel.addClass("panel-danger");
+                  $("#save_test_run_error_history_" + histUuid).text(output["response"]["body"])
+                  $("#save_test_run_error_history_" + histUuid).slideDown()
+                }
+                  width = width + 1 / nb_test * 100
+                  document.getElementById("myBar_" + lib_uuid).style.width = width + '%';
+
+                 //elem.style.width = width + '%';
+                 document.getElementById("label_" + lib_uuid).innerHTML = width * 1 + '%';
+                $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('hide');
+              }
             }
         }
       },
@@ -307,8 +367,7 @@ $(document).ready(function() {
   }
 
   $("#run_btn_library_{{.Uuid}}").click(function() {
-      run({{.LibraryID}});
-      move()
+      run({{.LibraryID}}, {{.Uuid}});
      });
   });
 </script>

@@ -41,6 +41,31 @@ func (c Libraries) Create() revel.Result {
 	return c.RenderJson(utils.NewResponse(true, "Successful lib creation", *lib))
 }
 
+func (c Libraries) Delete(id_lib int) revel.Result {
+	var lib models.Library
+	c.Txn.First(&lib, id_lib)
+	c.Txn.Delete(&lib)
+	return c.RenderJson(utils.NewResponse(true, "", "Library deleted"))
+}
+
+func (c Libraries) Update(id_lib int) revel.Result {
+	lib := &models.Library{}
+	fmt.Printf("id lib : %d\n", id_lib)
+	c.Txn.First(&lib, id_lib)
+
+	content, _ := ioutil.ReadAll(c.Request.Body)
+	if err := json.Unmarshal(content, lib); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	for _, v := range lib.TestIDs {
+		test := &models.Test{}
+		c.Txn.First(test, v)
+		lib.Tests = append(lib.Tests, *test)
+	}
+	c.Txn.Save(&lib)
+	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
+}
+
 func (c Libraries) Run(libID int) revel.Result {
 	lib := &models.Library{}
 	lib_uuid := uuid.NewV4()
@@ -57,7 +82,7 @@ func (c Libraries) Run(libID int) revel.Result {
 		//	room := socket.CreateRoom(test_uuid.String())
 
 		go func(test models.Test, ite int) {
-			RunTest(&test, test_uuid.String(), channel, c.Txn)
+			go RunTest(&test, test_uuid.String(), channel, c.Txn)
 
 			fmt.Printf("test id IN GO : %d\n", test.GetID())
 			for {
@@ -73,10 +98,8 @@ func (c Libraries) Run(libID int) revel.Result {
 					}
 				}
 
-				libmsg := make(map[string]interface{})
-				libmsg["test_id"] = test.GetID()
-				libmsg["event"] = msg
-				lib_room.Chan <- libmsg
+				msg["test_id"] = test.GetID()
+				lib_room.Chan <- msg
 				if msg["status"] != true {
 					fmt.Printf("ERROR : %s\n", msg["message"])
 					return

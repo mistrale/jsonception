@@ -11,24 +11,6 @@ import (
 	"github.com/mistrale/jsonception/app/utils"
 )
 
-const (
-	// REFLOGEVENT event log of reference
-	REFLOGEVENT = "ref_log_event"
-
-	// TESTLOGEVENT event log of current test uuid
-	TESTLOGEVENT = "test_log_event"
-
-	// RESULTEVENT for result of a test
-	RESULTEVENT = "result_event"
-
-	// TESTEVENT for event when test is running
-	TESTEVENT = "test_event"
-
-	EXEC_EVENT = "exec_event"
-
-	RESULT_EXEC = "result_exec"
-)
-
 // Test : script and logevent
 type Test struct {
 	TestID      int       `json:"test_id"  gorm:"primary_key"`
@@ -112,7 +94,7 @@ func (test Test) Run(response chan map[string]interface{}) {
 			return
 		}
 		resp := make(map[string]interface{})
-		resp["type"] = TESTEVENT
+		resp["event_type"] = TESTEVENT
 		var prettyJSON1 bytes.Buffer
 		err = json.Indent(&prettyJSON1, str1, "", "\t")
 		if err != nil {
@@ -134,7 +116,7 @@ func (test Test) Run(response chan map[string]interface{}) {
 	}
 	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
 	resp := make(map[string]interface{})
-	resp["type"] = RESULTEVENT
+	resp["event_type"] = RESULTEVENT
 	resp["body"] = "files match !"
 
 	response <- utils.NewResponse(true, "", resp)

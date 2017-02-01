@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/dispatcher"
@@ -54,6 +55,29 @@ func (c Tests) Create() revel.Result {
 	return c.RenderJson(utils.NewResponse(true, "Successful test creation", *test))
 }
 
+func (c Tests) Delete(id_test int) revel.Result {
+	var test models.Test
+	c.Txn.First(&test, id_test)
+	c.Txn.Delete(&test)
+	return c.RenderJson(utils.NewResponse(true, "", "Test deleted"))
+}
+
+func (c Tests) Update(id_test int) revel.Result {
+	if id_test == 0 {
+		return c.RenderJson(utils.NewResponse(false, "You need to provide id_test", ""))
+	}
+	test := &models.Test{}
+	fmt.Printf("id test : %d\n", id_test)
+	content, _ := ioutil.ReadAll(c.Request.Body)
+	c.Txn.First(&test, id_test)
+	if err := json.Unmarshal(content, test); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	fmt.Printf("content : %s\n", content)
+	c.Txn.Save(&test)
+	return c.RenderJson(utils.NewResponse(true, "", "Test updated"))
+}
+
 // Generic Run test method
 func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) bool {
 	fmt.Printf("test id in RUNTEST : %d\tand chan addr : %p\n", test.GetID(), room)
@@ -77,6 +101,10 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 			room <- response
 			return false
 		}
+		response["response"] = make(map[string]interface{})
+		response["response"].(map[string]interface{})["event_type"] = models.START_TEST
+		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
+		room <- response
 	}
 	go func() {
 
@@ -91,7 +119,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 					return
 				}
 				if response, ok := msg["response"].(map[string]interface{}); ok {
-					if response["type"] == models.RESULT_EXEC {
+					if response["event_type"] == models.RESULT_EXEC {
 						break
 					}
 					output += msg["response"].(map[string]interface{})["body"].(string)

@@ -51,7 +51,7 @@ func (e Execution) Run(response chan map[string]interface{}) {
 		for {
 			msg := <-ch
 			resp := make(map[string]interface{})
-			resp["type"] = EXEC_EVENT
+			resp["event_type"] = EXEC_EVENT
 			resp["body"] = msg
 			response <- utils.NewResponse(true, "", resp)
 			//room.Chan <- msg
@@ -59,7 +59,7 @@ func (e Execution) Run(response chan map[string]interface{}) {
 	}(ch)
 	cmd.Wait()
 	resp := make(map[string]interface{})
-	resp["type"] = RESULT_EXEC
+	resp["event_type"] = RESULT_EXEC
 	resp["body"] = "end_" + e.Uuid
 	response <- utils.NewResponse(true, "", resp)
 }

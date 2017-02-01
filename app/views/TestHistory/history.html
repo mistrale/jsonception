@@ -2,7 +2,7 @@
 <div class="panel panel-default" id=head_panel_history_{{.Uuid}}>
   <div class="panel-heading">
     <h4 class="panel-title">
-      <a data-toggle="collapse" id=collapser_history_{{.Uuid}}
+      <a data-toggle="collapse"  id=collapser_history_{{.Uuid}}
        href="#collapse_history_{{.Uuid}}" style="background-color:transparent;">
         {{.ID}}
       </a>
@@ -14,7 +14,7 @@
         <div  class="col-sm-12">
           <div class="form-group">
             <label>Output execution</label>
-            <textarea  id="output_script_area_history_{{.Uuid}}">{{.OutputExec}}</textarea>
+            <textarea class="output_class" id="output_script_area_history_{{.Uuid}}">{{.OutputExec}}</textarea>
           </div>
         </div>
       </div>
@@ -22,13 +22,13 @@
         <div  class="col-sm-6">
           <div class="form-group">
             <label>Log reference</label>
-            <textarea  id="event_ref_area_history_{{.Uuid}}">{{.Reflog}}</textarea>
+            <textarea class="log_ref_class" id="event_ref_area_history_{{.Uuid}}">{{.Reflog}}</textarea>
           </div>
         </div>
         <div  class="col-sm-6">
           <div class="form-group">
             <label>Log test</label>
-            <textarea id="event_log_area_history_{{.Uuid}}">{{.Testlog}}</textarea>
+            <textarea class="log_test_class" id="event_log_area_history_{{.Uuid}}">{{.Testlog}}</textarea>
           </div>
         </div>
       </div>
@@ -76,28 +76,25 @@ $(document).ready(function() {
   //
   // console.log({{.TimeRunned}})
    var myDate = new Date({{.TimeRunned}} / 1000000);
-  //
-  // console.log(myDate.toString());
-  // console.log(myDate.toLocaleString());
-  // console.log(myDate.toUTCString());
-
   $("#collapser_history_{{.Uuid}}").text(myDate.toString());
 
-  if ({{.Success}} == true) {
-    $("#head_panel_history_{{.Uuid}}").addClass("panel-success");
-    $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
-    $("#save_test_run_error_history_{{.Uuid}}").hide();
-    $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
+  if ({{.TestID}} != 0) {
 
+      if ({{.Success}} == true) {
+        $("#head_panel_history_{{.Uuid}}").addClass("panel-success");
+        $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
+        $("#save_test_run_error_history_{{.Uuid}}").hide();
+        $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
+
+      }
+
+      if ({{.Success}} == false) {
+        $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
+        $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
+        $("#save_test_run_success_history_{{.Uuid}}").hide();
+        $("#save_test_run_error_history_{{.Uuid}}").text({{.OutputTest}});
+      }
   }
-
-  if ({{.Success}} == false) {
-    $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
-    $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
-    $("#save_test_run_success_history_{{.Uuid}}").hide();
-    $("#save_test_run_error_history_{{.Uuid}}").text({{.OutputTest}});
-  }
-
 
   $("#collapse_history_{{.Uuid}}").on('shown.bs.collapse', function() {
     event_ref_history_editor[{{.Uuid}}].refresh();

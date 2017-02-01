@@ -7,18 +7,22 @@ module:testrunner
 # model REST Execution
 GET     /execution/run                          Executions.Run
 POST    /execution                              Executions.Create
+DELETE  /execution/:id                          Executions.Delete
+PUT     /execution/:id                          Executions.Update
 GET     /execution                              Executions.Get
 # GUI Controller
 GET     /execution/all                          Executions.All
-#GET     /execution/test                         Executions.GetOneTemplate
+#GET     /execution/test                        Executions.GetOneTemplate
 GET     /                                       Executions.Index
 
 # model REST Test
-POST     /test/:id/run                          Tests.Run
+POST    /test/:id/run                           Tests.Run
 #GET    /test/:id                               Tests.Show
-GET    /test/:id/history                        Tests.GetHistory
+GET     /test/:id/history                       Tests.GetHistory
 POST    /test/                                  Tests.Create
 GET     /test                                   Tests.Get
+DELETE  /test/:id                               Tests.Delete
+PUT     /test/:id                               Tests.Update
 # GUI Controller
 GET     /test/all                               Tests.All
 GET     /test/:id/template                      Tests.GetOneTemplate
@@ -27,14 +31,16 @@ GET    /test/:id/history_template               Tests.GetHistoryTemplate
 
 
 # model REST TestHistory
-GET     /test_history                           TestHistory.Get
+GET     /test_history                               TestHistory.Get
 
 # model REST Libraries
 GET     /libraries                                  Libraries.Get
-#GET     /libraries/:id                             Libraries.GetOne
+#GET    /libraries/:id                              Libraries.GetOne
 POST    /libraries/                                 Libraries.Create
-POST     /libraries/:id/run                         Libraries.Run
-GET    /libraries/:id/history                        Libraries.GetHistory
+POST    /libraries/:id/run                          Libraries.Run
+GET     /libraries/:id/history                      Libraries.GetHistory
+DELETE  /libraries/:id                              Libraries.Delete
+PUT     /libraries/:id                              Libraries.Update
 # GUI Controller
 GET     /libraries/all                              Libraries.All
 GET     /libraries/new                              Libraries.Index

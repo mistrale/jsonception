@@ -98,6 +98,33 @@ func (c Executions) Create() revel.Result {
 	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
 
+func (c Executions) Delete(id_exec int) revel.Result {
+	if id_exec == 0 {
+		return c.RenderJson(utils.NewResponse(false, "You need to provide id_exec", ""))
+	}
+	var exec models.Execution
+	fmt.Printf("id : %d\n", id_exec)
+	c.Txn.First(&exec, id_exec)
+	c.Txn.Delete(&exec)
+	return c.RenderJson(utils.NewResponse(true, "", "Execution deleted"))
+}
+
+func (c Executions) Update(id_exec int) revel.Result {
+	if id_exec == 0 {
+		return c.RenderJson(utils.NewResponse(false, "You need to provide id_exec", ""))
+	}
+	exec := &models.Execution{}
+	c.Txn.First(&exec, id_exec)
+	content, _ := ioutil.ReadAll(c.Request.Body)
+	if err := json.Unmarshal(content, exec); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	c.Txn.Save(&exec)
+	//	fmt.Printf("id exec : %d\tname : %s\n", id_exec, name)
+	//  db.Model(&exec).Update("Name", name, )
+	return c.RenderJson(utils.NewResponse(true, "", "Execution updated"))
+}
+
 // Run method to execute script
 func (c Executions) Run(id_exec int, script string) revel.Result {
 	uuid := uuid.NewV4()
@@ -128,6 +155,5 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 			room.Chan <- <-request.Response
 		}
 	}(request.Response)
-	fmt.Println("ALLELULIA")
 	return c.RenderJson(response)
 }

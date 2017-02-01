@@ -45,6 +45,7 @@
               <button id=run-btn_{{.Uuid}} class="run_exec_btn btn btn-success">Run execution</button>
               <button id=clear_exec_btn_{{.Uuid}} class="clear_exec_btn btn btn-warning">Clear script</button>
               <button id=clear_history_btn_{{.Uuid}} class="clear_history_btn btn btn-warning">Clear history</button>
+              <button id=delete_btn_{{.Uuid}} class="delete_btn btn btn-danger">Delete</button>
             </p>
           </div>
           <div class="form-group" >
@@ -66,6 +67,7 @@ var Uuids = []
 $(document).ready(function() {
   if ({{.ExecutionID}} == 0) {
     $("#save_btn_{{.Uuid}}").hide();
+    $("#delete_btn_{{.Uuid}}").hide();
   } else {
     $("#create_btn_{{.Uuid}}").hide()
   }
@@ -86,7 +88,6 @@ $(document).ready(function() {
     });
 
     $("#collapser_exec_{{.Uuid}}").on('click', function() {
-      console.log("LOOOOOL : " + this.id.split("_")[2])
       $("#collapse_exec_{{.Uuid}}").toggle()
       script_editor[{{.Uuid}}].refresh()
       output_script_editor[{{.Uuid}}].refresh()
@@ -121,6 +122,53 @@ $(document).ready(function() {
           }
         };
     });
+
+    $("#save_btn_{{.Uuid}}").click(function() {
+      var data = {
+        Name : $("#exec_name_{{.Uuid}}").val(),
+        Script : script_editor[{{.Uuid}}].getValue(),
+        ExecutionID : {{.ExecutionID}}
+      };
+
+          // construct an HTTP request
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", 'http://localhost:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+        // send the collected data as JSON
+        xhr.send(JSON.stringify(data));
+
+        xhr.onloadend = function () {
+          response = JSON.parse(xhr.responseText);
+          if (response["status"] != true) {
+
+            $("#save_error_{{.Uuid}}").slideDown()
+            $("#save_error_{{.Uuid}}").text(response["message"])
+          } else {
+            $("#save_success_{{.Uuid}}").slideDown()
+            $("#save_success_{{.Uuid}}").text(response["response"])
+            console.log(response)
+          }
+        };
+    });
+
+    $("#delete_btn_{{.Uuid}}").click(function(){
+      $.ajax({
+          url: '/execution/' + {{.ExecutionID}} + "?id_exec=" + {{.ExecutionID}},
+          type: 'DELETE',
+          success: function(result) {
+            if (result["status"] != true) {
+
+              $("#save_error_{{.Uuid}}").slideDown()
+              $("#save_error_{{.Uuid}}").text(result["message"])
+            } else {
+              $("#panel_exec_{{.Uuid}}_{{.ExecutionID}}").remove()
+            }
+              // Do something with the result
+          }
+      });
+    });
+
 
     $("#run-btn_{{.Uuid}}").click(function(){
       $.getJSON( "/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
