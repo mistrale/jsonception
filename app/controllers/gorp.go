@@ -12,6 +12,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/mistrale/jsonception/app/dispatcher"
+	"github.com/mistrale/jsonception/app/json_writer"
 	"github.com/mistrale/jsonception/app/models"
 
 	r "github.com/revel/revel"
@@ -22,6 +23,8 @@ var (
 )
 
 func InitDB() {
+	json_writer.Init()
+
 	db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
 
 	//db, err := gorm.Open("postgres", "user=Sikorav dbname=testata sslmode=disable")

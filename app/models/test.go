@@ -30,7 +30,6 @@ func (test Test) GetID() int {
 
 // Run method to realise test
 func (test Test) Run(response chan map[string]interface{}) {
-	//	uuid := uuid.NewV4()
 	b, err := ioutil.ReadFile(test.PathRefFile)
 	if err != nil {
 		response <- utils.NewResponse(false, "Error reading log reference file : "+err.Error(), nil)
@@ -43,13 +42,10 @@ func (test Test) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(false, err.Error(), nil)
 		return
 	}
-
 	if err := json.Unmarshal([]byte(test.Config), &config); err != nil {
 		response <- utils.NewResponse(false, err.Error(), nil)
 		return
 	}
-
-	//fmt.Printf(" test config : %s\n", test.Config)
 	// get json event from two files to differ
 	var testJson []interface{}
 	if err := utils.GetJsonArray(test.PathLogFile, &testJson); err != nil {
