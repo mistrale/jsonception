@@ -52,11 +52,11 @@ func Init() {
 
 	var err error
 	if runtime.GOOS == "windows" {
-		if dbusConn, err = dbus.SessionBus(); err != nil {
+		if dbusConn, err = dbus.SystemBus(); err != nil {
 			panic(err.Error())
 		}
 	} else {
-		if dbusConn, err = dbus.SystemBus(); err != nil {
+		if dbusConn, err = dbus.SessionBus(); err != nil {
 			panic(err.Error())
 		}
 	}
