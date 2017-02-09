@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"runtime"
 
 	"github.com/Nyks06/dbus"
 )
@@ -50,9 +51,16 @@ func Init() {
 	logger = &Writer{files: make(map[string]*FileInfo)}
 
 	var err error
-	if dbusConn, err = dbus.SessionBus(); err != nil {
-		panic(err.Error())
+	if runtime.GOOS == "windows" {
+		if dbusConn, err = dbus.SessionBus(); err != nil {
+			panic(err.Error())
+		}
+	} else {
+		if dbusConn, err = dbus.SystemBus(); err != nil {
+			panic(err.Error())
+		}
 	}
+
 	e := DbusExporter{}
 	dbusConn.RequestName(OBJECT_INTERFACE, dbus.NameFlagDoNotQueue)
 	if err = dbusConn.Export(&e, OBJECT_PATH, OBJECT_INTERFACE); err != nil {
