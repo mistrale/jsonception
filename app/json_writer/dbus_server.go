@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/Nyks06/dbus"
@@ -66,5 +67,6 @@ func Init() {
 	if err = dbusConn.Export(&e, OBJECT_PATH, OBJECT_INTERFACE); err != nil {
 		panic(err.Error())
 	}
+	os.Setenv("LOG_DEBUG", "1")
 	log.Println("DBus json writer well exported")
 }
