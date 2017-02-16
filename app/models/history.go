@@ -4,6 +4,7 @@ package models
 type TestHistory struct {
 	ID         int    `json:"id" gorm:"primary_key"`
 	TestID     int    `json:"test_id"`
+	TestName   string `json:"test_name"`
 	OutputExec string `json:"output_exec"`
 	Reflog     string `json:"ref_log"`
 	Testlog    string `json:"test_log"`
@@ -18,6 +19,7 @@ type TestHistory struct {
 type LibraryHistory struct {
 	ID         int           `json:"id" gorm:"primary_key"`
 	LibID      int           `json:"library_id"`
+	LibName    string        `json:"lib_name"`
 	Result     string        `json:"result"`
 	Success    bool          `json:"success"`
 	RunUUID    string        `json:"run_uuid"`

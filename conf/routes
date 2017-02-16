@@ -35,7 +35,7 @@ GET     /test_history                               TestHistory.Get
 
 # model REST Libraries
 GET     /libraries                                  Libraries.Get
-#GET    /libraries/:id                              Libraries.GetOne
+#GET     /libraries/:id                              Libraries.GetOne
 POST    /libraries/                                 Libraries.Create
 POST    /libraries/:id/run                          Libraries.Run
 GET     /libraries/:id/history                      Libraries.GetHistory
@@ -44,6 +44,7 @@ PUT     /libraries/:id                              Libraries.Update
 # GUI Controller
 GET     /libraries/all                              Libraries.All
 GET     /libraries/new                              Libraries.Index
+GET     /libraries/:id/history_template              Libraries.GetHistoryTemplate
 
 # Socket Controller
 WS      /websocket/room                         WebSocket.ListenExecutionRun

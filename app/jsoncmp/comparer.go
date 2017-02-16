@@ -7,20 +7,61 @@ import (
 	"github.com/mistrale/jsonception/app/utils"
 )
 
-func FindParameters(event, params map[string]interface{}) map[string]interface{} {
-	newParams := params["fields"].(map[string]interface{})
-	if typeParams, ok := params["event_type"].(map[string]interface{})[event["body"].(map[string]interface{})["event_type"].(string)]; ok {
-		if !utils.MergeMaps(newParams, typeParams.(map[string]interface{})) {
-			return nil
-		}
+func isConcerned(event interface{}, obj interface{}) bool {
+	eventObj, isEventObj := event.(map[string]interface{})
+	if isEventObj == false {
+		fmt.Printf("Warning : event is not an object and ref fields ask for an object in params :%s\n ", obj)
+		return false
 	}
-	if id, ok := event["body"].(map[string]interface{})["data"].(map[string]interface{})["block_uuid"].(string); ok {
-		if blockParams, ok2 := params["block_uuid"].(map[string]interface{})[id]; ok2 {
-			if !utils.MergeMaps(newParams, blockParams.(map[string]interface{})) {
+	if newObj, isObj := obj.(map[string]interface{}); isObj == true {
+		// if it is an object iterate on all fields
+		for newObj_key, newObj_value := range newObj {
+
+			// if iteration is an object call recursively isConcerned() function
+			if _, isObj = newObj_value.(map[string]interface{}); isObj == true {
+				// check if key in event is also an object
+
+				if !isConcerned(eventObj[newObj_key], newObj_value) {
+					return false
+				}
+			}
+
+			// if iteration is a string then check fields to check wheter it matchs or not
+			if newString, isString := newObj_value.(string); isString == true {
+
+				// check if field in event is also a string
+				if eventString, eventIsString := eventObj[newObj_key].(string); eventIsString == true {
+
+					if eventString == newString {
+						fmt.Printf("Success : event field  match ! event = :%s\t field = %s\n ", eventString, newString)
+						return true
+					} else /* if event field doesnt match*/ {
+						fmt.Printf("Warning : event field doesnt match : event = :%s\t field = %s\n ", eventString, newString)
+						return false
+					}
+				} else /* if event is not a string return false */ {
+					fmt.Printf("Warning : event is not an object and ref fields ask for an object in params :%s\n ", newObj_value)
+					return false
+				}
+			}
+
+		}
+	} else {
+		fmt.Printf("Warning : wrong config ref_fields in map :%s\n ", obj)
+		return false
+	}
+	return true
+}
+
+func FindParameters(event map[string]interface{}, params []interface{}) map[string]interface{} {
+	newParams := make(map[string]interface{})
+	for _, v := range params {
+		if isConcerned(event, v.(map[string]interface{})["ref_fields"]) {
+			findParams := v.(map[string]interface{})["config"]
+			if !utils.MergeMaps(newParams, findParams.(map[string]interface{})) {
 				return nil
 			}
 		}
-
 	}
 	return newParams
 }

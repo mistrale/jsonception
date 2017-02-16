@@ -320,6 +320,7 @@ $(document).ready(function() {
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
+            console.log("output : " + event.data)
             if (output["status"] == false) {
               $("#save_test_run_error_{{.Uuid}}").show();
               $("#save_test_run_error_{{.Uuid}}").text(output["message"]);
@@ -327,17 +328,17 @@ $(document).ready(function() {
               $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-danger" )
 
 
-            } else if (output["response"]["type"] == "exec_event") {
+            } else if (output["response"]["event_type"] == "exec_event") {
               output_script_test[{{.Uuid}}].setValue(output_script_test[{{.Uuid}}].getValue() + output["response"]["body"])
               output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
-            } else if (output["response"]["type"] == "test_event") {
+            } else if (output["response"]["event_type"] == "test_event") {
               event_log_editor[{{.Uuid}}].setValue(event_log_editor[{{.Uuid}}].getValue() + output["response"]["body"]["test_log_event"] + "\n")
               event_ref_editor[{{.Uuid}}].setValue(event_ref_editor[{{.Uuid}}].getValue() + output["response"]["body"]["ref_log_event"] + "\n")
 
               event_log_editor[{{.Uuid}}].scrollTo(0, 10000000)
               event_ref_editor[{{.Uuid}}].scrollTo(0, 10000000)
 
-            } else if (output["response"]["type"] == "result_event") {
+            } else if (output["response"]["event_type"] == "result_event") {
               $("#save_test_run_success_{{.Uuid}}").show();
               $("#save_test_run_success_{{.Uuid}}").text(output["response"]["body"]);
               $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-warning" )

@@ -80,7 +80,6 @@ func (c Tests) Update(id_test int) revel.Result {
 
 // Generic Run test method
 func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) bool {
-	fmt.Printf("test id in RUNTEST : %d\tand chan addr : %p\n", test.GetID(), room)
 	var request dispatcher.WorkRequest
 	output := ""
 
@@ -97,7 +96,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 		dispatcher.WorkQueue <- request
 		response := <-request.Response
 		if response["status"] != true {
-			updateEndHistory(db, history, "", "", "", response["message"].(string), false)
+			updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
 			room <- response
 			return false
 		}
@@ -106,6 +105,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
 		room <- response
 	}
+
 	go func() {
 
 		if test.ExecutionID != 0 {
@@ -115,7 +115,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 				room <- msg
 
 				if msg["status"] != true {
-					updateEndHistory(db, history, output, "", "", msg["message"].(string), false)
+					updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
 					return
 				}
 				if response, ok := msg["response"].(map[string]interface{}); ok {
@@ -138,20 +138,21 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 		testlog := ""
 
 		for {
+
 			msg := <-ch
+			//fmt.Printf("response : %s\n", msg)
 
 			if msg["status"] != true {
-				updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), false)
+				updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), test.Name, false)
 				room <- msg
 				return
 			}
-			//fmt.Printf("response : %s\n", msg)
 			response := msg["response"].(map[string]interface{})
-			if response["type"] == models.TESTEVENT {
+			if response["event_type"] == models.TESTEVENT {
 				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
 				testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
-			} else if response["type"] == models.RESULTEVENT {
-				updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), true)
+			} else if response["event_type"] == models.RESULTEVENT {
+				updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), test.Name, true)
 				room <- msg
 
 				return
@@ -180,7 +181,7 @@ func (c Tests) Run(testID int) revel.Result {
 // GetHistory method to get all history from one test
 func (c Tests) GetHistory(testID string) revel.Result {
 	var history []models.TestHistory
-	c.Txn.Where("run_uuid = ?", testID).Find(&history)
+	c.Txn.Where("test_id = ?", testID).Find(&history)
 	fmt.Printf("format uuid : %s\n", testID)
 	return c.RenderJson(history)
 }

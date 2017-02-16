@@ -46,6 +46,7 @@
             </div>
           </div>
       </div>
+
       <!-- output de test -->
       <div class="row">
         <div class="col-lg-12">
@@ -86,6 +87,23 @@
           </div>
         </div>
       </div>
+
+      <!-- history  -->
+      <div class="row" style="margin-top:20px;">
+        <div class="col-lg-12">
+          <div class="panel panel-warning" id=lib_history_panel_{{.Uuid}} style="display:none;">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#lib_history_collapse_{{.Uuid}}"  style="background-color:transparent;">History</a>
+                </h4>
+              </div>
+              <div id="lib_history_collapse_{{.Uuid}}" class="panel-collapse collapse in">
+                <div class="panel-body" id=lib_history_panel_body_{{.Uuid}}></div>
+              </div>
+            </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <button  class="btn btn-primary create_btn" id=create_btn_library_{{.Uuid}}>Create</button>
         <button  class="btn btn-primary update_btn" id=update_btn_library_{{.Uuid}}>Update</button>
@@ -349,6 +367,7 @@ $(document).ready(function() {
                   panel.addClass("panel-danger");
                   $("#save_test_run_error_history_" + histUuid).text(output["response"]["body"])
                   $("#save_test_run_error_history_" + histUuid).slideDown()
+                  $("#myBar_{{.Uuid}}").css('background-color', 'red');
                 }
                   width = width + 1 / nb_test * 100
                   document.getElementById("myBar_" + lib_uuid).style.width = width + '%';
@@ -369,5 +388,12 @@ $(document).ready(function() {
   $("#run_btn_library_{{.Uuid}}").click(function() {
       run({{.LibraryID}}, {{.Uuid}});
      });
+
+ $("#see_history_library_btn_{{.Uuid}}").click(function() {
+   $.get( "/libraries/{{.LibraryID}}/history_template?libID={{.LibraryID}}", function(data) {
+       $("#lib_history_panel_{{.Uuid}}").slideDown();
+       $("#lib_history_panel_body_{{.Uuid}}").html(data)
+     });
+    });
   });
 </script>

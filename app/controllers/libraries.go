@@ -101,6 +101,11 @@ func (c Libraries) Run(libID int) revel.Result {
 				msg["test_id"] = test.GetID()
 				lib_room.Chan <- msg
 				if msg["status"] != true {
+					var hist models.TestHistory
+
+					Dbm.Where("run_uuid = ?", test_uuid.String()).First(&hist)
+					history.Histories = append(history.Histories, hist)
+					end <- true
 					fmt.Printf("ERROR : %s\n", msg["message"])
 					return
 				}
@@ -113,6 +118,7 @@ func (c Libraries) Run(libID int) revel.Result {
 			<-end
 			nb_test++
 			if nb_test == len(lib.Tests) {
+				history.LibName = lib.Name
 				Dbm.Create(history)
 				return
 			}
@@ -127,10 +133,18 @@ func (c Libraries) GetHistory(libID int) revel.Result {
 	return c.RenderJson(history)
 }
 
+// GetHistory method to get all history from one librairie and template html
+func (c Libraries) GetHistoryTemplate(libID int) revel.Result {
+	var history []models.LibraryHistory
+	c.Txn.Preload("Histories").Where("lib_id = ?", libID).Find(&history)
+	c.Render(history)
+	return c.RenderTemplate("LibraryHistory/all.html")
+}
+
 // Get method to get all library in json
-func (c Libraries) GetOne(idLib int) revel.Result {
+func (c Libraries) GetOne(libID int) revel.Result {
 	lib := &models.Library{}
-	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, idLib)
+	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, libID)
 	return c.RenderJson(lib)
 }
 
@@ -151,7 +165,5 @@ func (c Libraries) Index() revel.Result {
 func (c Libraries) All() revel.Result {
 	var libs []models.Library
 	c.Txn.Preload("Tests.Execution").Preload("Tests").Find(&libs)
-	//spew.Dump(libs)
-
 	return c.Render(libs)
 }

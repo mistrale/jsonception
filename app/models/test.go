@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
@@ -30,13 +31,16 @@ func (test Test) GetID() int {
 
 // Run method to realise test
 func (test Test) Run(response chan map[string]interface{}) {
+	fmt.Println("Running teeeeeest")
+	errors := make([]string, 0)
+	status := true
 	b, err := ioutil.ReadFile(test.PathRefFile)
 	if err != nil {
 		response <- utils.NewResponse(false, "Error reading log reference file : "+err.Error(), nil)
 		return
 	}
 	refJSon := make([]interface{}, 0)
-	config := make(map[string]interface{})
+	config := make([]interface{}, 0)
 
 	if err := json.Unmarshal([]byte(b), &refJSon); err != nil {
 		response <- utils.NewResponse(false, err.Error(), nil)
@@ -62,7 +66,7 @@ func (test Test) Run(response chan map[string]interface{}) {
 
 	// iterate through reference file
 	for i, refEvent := range refJSon {
-		params1 := utils.CopyMap(config)
+		params1 := utils.CopyArray(config)
 
 		// get keys to compare for current event
 		eventParams := jsoncmp.FindParameters(refEvent.(map[string]interface{}), params1)
@@ -72,7 +76,9 @@ func (test Test) Run(response chan map[string]interface{}) {
 		// compare two events
 		if err := jsoncmp.CompareEvent(refEvent.(map[string]interface{}), testJson[i].(map[string]interface{}), eventParams); err != nil {
 			fmt.Printf("Error : %s\n", err.Error())
-			response <- utils.NewResponse(false, err.Error(), nil)
+			errors = append(errors, err.Error()+"\n")
+			status = false
+			continue
 		}
 		jsonlogresp := refEvent.(map[string]interface{})
 		jsonrefresp := testJson[i].(map[string]interface{})
@@ -110,11 +116,19 @@ func (test Test) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(true, "", resp)
 
 	}
-	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
 	resp := make(map[string]interface{})
 	resp["event_type"] = RESULTEVENT
-	resp["body"] = "files match !"
 
-	response <- utils.NewResponse(true, "", resp)
+	if status {
+		resp["body"] = "files match !"
+		response <- utils.NewResponse(true, "", resp)
+	} else {
+
+		resp["body"] = errors
+		response <- utils.NewResponse(false, strings.Join(errors[:], ""), resp)
+	}
+	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
+
 	log.Println("JOB DONE")
+	return
 }

@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"strconv"
@@ -30,17 +31,23 @@ func StartDispatcher(nb_workers int) {
 		for {
 			select {
 			case work := <-WorkQueue:
-
 				id := reflect.TypeOf(*work.Runner).String() + "_" + strconv.Itoa((*work.Runner).GetID())
+				fmt.Printf("receiv word :%s\n", id)
+
 				_, ok := workerQueue[id]
 				if !ok {
 					workerQueue[id] = make(chan chan WorkRequest)
 					worker := NewWorker(workerQueue[id])
 					worker.Start()
 				}
+				fmt.Println("On recupere un worker")
 				worker := <-workerQueue[id]
+				fmt.Println("On push")
+
 				//workerQueue[id] <- work
 				worker <- work
+				fmt.Println("On a push")
+
 			}
 		}
 	}()

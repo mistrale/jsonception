@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -21,13 +20,13 @@ func (c TestHistory) Get() revel.Result {
 	return c.RenderJson(hist)
 }
 
-func updateEndHistory(db *gorm.DB, history *models.TestHistory, outputexec, reflog, testlog, outputTest string, success bool) {
-	log.Printf("run uuid  : %s\n", history.RunUUID)
+func updateEndHistory(db *gorm.DB, history *models.TestHistory, outputexec, reflog, testlog, outputTest, testName string, success bool) {
 	history.OutputExec = outputexec
 	history.Reflog = reflog
 	history.Testlog = testlog
 	history.OutputTest = outputTest
 	history.Success = success
 	history.TimeRunned = time.Now().UnixNano()
+	history.TestName = testName
 	Dbm.Create(history)
 }

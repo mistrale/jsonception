@@ -76,7 +76,7 @@ $(document).ready(function() {
   //
   // console.log({{.TimeRunned}})
    var myDate = new Date({{.TimeRunned}} / 1000000);
-  $("#collapser_history_{{.Uuid}}").text(myDate.toString());
+  $("#collapser_history_{{.Uuid}}").text({{.TestName}} + " - " + myDate.toString());
 
   if ({{.TestID}} != 0) {
 
@@ -85,7 +85,6 @@ $(document).ready(function() {
         $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
         $("#save_test_run_error_history_{{.Uuid}}").hide();
         $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
-
       }
 
       if ({{.Success}} == false) {
@@ -101,8 +100,5 @@ $(document).ready(function() {
     event_log_history_editor[{{.Uuid}}].refresh();
     output_script_history_test[{{.Uuid}}].refresh();
   })
-
-
 });
-
 </script>

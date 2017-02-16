@@ -1,0 +1,51 @@
+<div class="panel panel-default" id=lib_panel_history_{{.RunUUID}}>
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a data-toggle="collapse"  id=lib_collapser_history_{{.RunUUID}}
+       href="#lib_collapse_history_{{.RunUUID}}" style="background-color:transparent;">
+       {{.ID}}
+      </a>
+    </h4>
+  </div>
+  <div id="lib_collapse_history_{{.RunUUID}}" class="panel-collapse collapse">
+    <div class="panel-body">
+      <div class="row">
+        <div  class="col-sm-12">
+
+          <div class="form-group">
+            <div id="myProgress_{{.RunUUID}}" style="position: relative;width: 100%;height: 30px;background-color: #ddd;">
+              <div id="myBar_{{.RunUUID}}" style="position: absolute;width: 100%;height: 100%;background-color: #5cb85c;">
+                <div id="label_{{.RunUUID}}" style="text-align: center;line-height: 30px;color: white;">100%</div>
+              </div>
+            </div>
+          </div>
+
+        <div class="panel-group" id="panel_output_lib_{{.RunUUID}}">
+          {{range .Histories}}
+          <div class="test_id_{{.TestID}}">
+          {{template "TestHistory/history.html" .}}
+        </div>
+          {{end}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // console.log({{.TimeRunned}})
+   var myDate = new Date({{.TimeRunned}} / 1000000);
+  $("#lib_collapser_history_{{.RunUUID}}").text({{.LibName}} + " - " + myDate.toString());
+
+      if ({{.Success}} == true) {
+        $("#lib_panel_history_{{.RunUUID}}").addClass("panel-success");
+        $("#lib_panel_history_{{.RunUUID}}").removeClass("panel-default");
+      }
+
+      if ({{.Success}} == false) {
+        $("#lib_panel_history_{{.RunUUID}}").addClass("panel-danger");
+        $("#lib_panel_history_{{.RunUUID}}").removeClass("panel-default");
+        $("#myBar_{{.RunUUID}}").css('background-color', 'red');
+      }
+
+</script>

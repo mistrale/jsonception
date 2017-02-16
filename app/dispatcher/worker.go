@@ -1,6 +1,9 @@
 package dispatcher
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type Worker struct {
 	Work        chan WorkRequest
@@ -23,7 +26,10 @@ func NewWorker(workerQueue chan chan WorkRequest) Worker {
 
 // Run function for worker doing job
 func (w *Worker) Run(Work WorkRequest) {
+	log.Println("run starting")
+
 	(*Work.Runner).Run(Work.Response)
+
 	log.Println("run done")
 }
 
@@ -38,8 +44,10 @@ func (w *Worker) Start() {
 
 			select {
 			case work := <-w.Work:
-
+				fmt.Println("on va wrok")
 				w.Run(work)
+				fmt.Println("on a wrok")
+
 				// Receive a work request.
 			}
 		}
