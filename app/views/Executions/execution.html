@@ -190,17 +190,22 @@ $(document).ready(function() {
           queues[{{.Uuid}}] = []
 
           timers[{{.Uuid}}] = window.setInterval(function() {
-            console.log("set interval")
             if (queues[{{.Uuid}}].length > 0) {
-              console.log("set interval in")
-
               var i = queues[{{.Uuid}}].shift();
-              output_script_editor[{{.Uuid}}].replaceRange(i, output_script_editor[{{.Uuid}}].getCursor())
+              console.log("avant")
+              console.log(output_script_editor[{{.Uuid}}].getCursor())
+              cursor = output_script_editor[{{.Uuid}}].getCursor()
+              if (cursor.ch >= 120) {
+                cursor.ch = 0
+                cursor.line += 1
+              }
+              output_script_editor[{{.Uuid}}].replaceRange(i, cursor)
+              console.log("apres")
+
+              console.log(cursor)
               output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
             }
             if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
-              console.log("set interval out")
-
               timers[{{.Uuid}}] = window.clearInterval(timers[{{.Uuid}}]);
             }
           }, 500 );
@@ -215,7 +220,7 @@ $(document).ready(function() {
               alert(output["message"])
               isFinished[{{.Uuid}}] = true
             } else if (output["response"]["body"] && output["response"]["event_type"] != "result_exec") {
-              console.log("on push dans la queue")
+              console.log("on push dans la queue : " + output["response"]["body"].match(/[\s\S]{1,1000}/g))
               new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
               for (var i = 0; i < new_array.length; i++) {
                 queues[{{.Uuid}}].push(new_array[i])

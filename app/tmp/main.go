@@ -30,6 +30,20 @@ func main() {
 	revel.Init(*runMode, *importPath, *srcPath)
 	revel.INFO.Println("Running revel server")
 	
+	revel.RegisterController((*controllers.WebSocket)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "ListenExecutionRun",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
 	revel.RegisterController((*controllers.GorpController)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -49,20 +63,6 @@ func main() {
 			&revel.MethodType{
 				Name: "Rollback",
 				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
-	revel.RegisterController((*controllers.WebSocket)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "ListenExecutionRun",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
 				},
@@ -130,96 +130,6 @@ func main() {
 					&revel.MethodArg{Name: "filepath", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
-	revel.RegisterController((*controllers.Libraries)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "Create",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Delete",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id_lib", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Update",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id_lib", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Run",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "GetHistory",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "GetHistoryTemplate",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-					140: []string{ 
-						"history",
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "GetOne",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Get",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Index",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					161: []string{ 
-						"library",
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "All",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					168: []string{ 
-						"libs",
-					},
 				},
 			},
 			
@@ -422,6 +332,96 @@ func main() {
 					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
+	revel.RegisterController((*controllers.Libraries)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Create",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Delete",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_lib", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Update",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_lib", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Run",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "GetHistory",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "GetHistoryTemplate",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					140: []string{ 
+						"history",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "GetOne",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Index",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					161: []string{ 
+						"library",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "All",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					168: []string{ 
+						"libs",
+					},
 				},
 			},
 			
