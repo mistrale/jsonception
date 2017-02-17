@@ -134,7 +134,7 @@ $(document).ready(function() {
   if (!tests) {
     $.ajax({
       dataType: "json",
-      url: "http://localhost:9000/test",
+      url: "http://{{getIP}}:9000/test",
       success: function (data) {
         tests = data
         $.each(tests, function(k,v){
@@ -206,7 +206,7 @@ $(document).ready(function() {
       testIDs[{{.Uuid}}] = 0
     } else {
       $.ajax({
-        url: "http://localhost:9000/test/" + elem.test_id + "/template?testID=" + elem.test_id,
+        url: "http://{{getIP}}:9000/test/" + elem.test_id + "/template?testID=" + elem.test_id,
         success: function (data) {
           currentData[{{.Uuid}}] = data
          $("#add_test_{{.Uuid}}").html(data)
@@ -228,7 +228,7 @@ $(document).ready(function() {
 
         // construct an HTTP request
       var xhr = new XMLHttpRequest();
-      xhr.open("PUT", 'http://localhost:9000/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}}, true);
+      xhr.open("PUT", 'http://{{getIP}}:9000/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}}, true);
       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
       // send the collected data as JSON
@@ -277,7 +277,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://localhost:9000/libraries/', true);
+        xhr.open("POST", 'http://{{getIP}}:9000/libraries/', true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
@@ -306,7 +306,7 @@ $(document).ready(function() {
   function run(libID, lib_uuid) {
     //console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
-      url: 'http://localhost:9000/libraries/' + libID + '/run', // url where to submit the request
+      url: 'http://{{getIP}}:9000/libraries/' + libID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
       dataType : 'json', // data type
       data : "libID=" + libID,
@@ -330,7 +330,7 @@ $(document).ready(function() {
               event_log_history_editor[current_uuid].setValue("")
             });
             uuid = data["response"]
-            var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
+            var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
             output = ""
             socket.onmessage = function(event) {
               output = JSON.parse(event.data)

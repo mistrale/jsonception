@@ -104,7 +104,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://localhost:9000/execution/', true);
+        xhr.open("POST", 'http://{{getIP}}:9000/execution/', true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
@@ -132,7 +132,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-        xhr.open("PUT", 'http://localhost:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
+        xhr.open("PUT", 'http://{{getIP}}:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
@@ -171,24 +171,34 @@ $(document).ready(function() {
 
 
     $("#run-btn_{{.Uuid}}").click(function(){
-      $.getJSON( "/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
+      $.getJSON( "http://{{getIP}}:9000/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
         if (data["success"] == false) {
           alert(data["message"])
         } else {
           $("#output_exec_{{.Uuid}}").slideDown()
           output_script_editor[{{.Uuid}}].refresh()
           room_Uuid = data["response"]
-          var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + room_Uuid)
+          var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + room_Uuid)
 
                // Message received on the socket
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
+            console.log("event : " + event.data)
             if (output["status"] == false) {
               alert(output["message"])
             } else if (output["response"]["body"] && output["response"]["body"] != "end_" + room_Uuid) {
               output_script_editor[{{.Uuid}}].setValue(output_script_editor[{{.Uuid}}].getValue() + output["response"]["body"])
               output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
+            } else if (output["response"]["body"] == "end_" + room_Uuid) {
+              if (output["status"] != true) {
+
+                $("#save_error_{{.Uuid}}").slideDown()
+                $("#save_error_{{.Uuid}}").text(output["message"])
+              } else {
+                $("#save_success_{{.Uuid}}").slideDown()
+                $("#save_success_{{.Uuid}}").text("Execution done !")
+              }
             }
           }
         }

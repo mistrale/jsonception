@@ -203,7 +203,7 @@ $(document).ready(function() {
   if (!array) {
     $.ajax({
       dataType: "json",
-      url: "http://localhost:9000/execution",
+      url: "http://{{getIP}}:9000/execution",
       success: function (data) {
         array = data["response"]
         $.each(array, function(k,v){
@@ -282,7 +282,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://localhost:9000/test/', true);
+        xhr.open("POST", 'http://{{getIP}}:9000/test/', true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
@@ -306,7 +306,7 @@ $(document).ready(function() {
   function run(testID, ruuid) {
     console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
-      url: 'http://localhost:9000/test/' + testID + '/run', // url where to submit the request
+      url: 'http://{{getIP}}:9000/test/' + testID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
       dataType : 'json', // data type
       data : "testID=" + testID,
@@ -316,7 +316,7 @@ $(document).ready(function() {
           } else {
 
           uuid = data["response"]
-          var socket = new WebSocket('ws://localhost:9000/websocket/room?room_name=' + uuid)
+          var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
@@ -403,7 +403,7 @@ $(document).ready(function() {
 
          // construct an HTTP request
        var xhr = new XMLHttpRequest();
-       xhr.open("PUT", 'http://localhost:9000/test/' + {{.TestID}} + "?id_test="+ {{.TestID}}, true);
+       xhr.open("PUT", 'http://{{getIP}}:9000/test/' + {{.TestID}} + "?id_test="+ {{.TestID}}, true);
        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
        // send the collected data as JSON
