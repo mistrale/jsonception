@@ -4,24 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"io/ioutil"
 
 	"github.com/satori/go.uuid"
 )
 
 type FileInfo struct {
 	name     string
-	file     *os.File
 	nb_event int
 	events   []map[string]interface{}
 }
-
-// type Event struct {
-// 	Id             int           `json:"id"`
-// 	Event_type     string        `json:"event_type"`
-// 	Str_logs       string        `json:"str_logs"`
-// 	Formatted_logs string        `json:"formatted_logs"`
-// 	Params         []interface{} `json:"params"`
-// }
 
 type Writer struct {
 	files map[string]*FileInfo
@@ -54,12 +46,6 @@ func (w *Writer) Write(token, params string) *responseWriter {
 	if _, ok := w.files[token]; ok {
 		fmt.Printf("Event : %s\n", params)
 		event := make(map[string]interface{})
-		//	event := Event{Id: v.nb_event, Event_type: eventType, Str_logs: format, Formatted_logs: fmt.Sprintf(format, a...), Params: a}
-		// j, err := json.MarshalIndent(event, "", "  ")
-		// if err != nil {
-		// 	fmt.Printf("Error marshal indent : %s\n", err.Error())
-		// 	return generateResponse(false, err.Error(), nil)
-		// }
 		if err := json.Unmarshal([]byte(params), &event); err != nil {
 			fmt.Printf("Bad json format : %s\n", params)
 			return generateResponse(false, "Bad json format : "+params, nil)
@@ -72,8 +58,8 @@ func (w *Writer) Write(token, params string) *responseWriter {
 		if err != nil {
 			return generateResponse(false, err.Error(), nil)
 		}
-		w.files[token].file.Truncate(0)
-		w.files[token].file.Write(b)
+		ioutil.WriteFile(w.files[token].name, b, 0644)
+		
 	} else {
 		fmt.Printf("Token not known : %s\n", token)
 		return generateResponse(false, "Token not known "+token, nil)
@@ -82,18 +68,12 @@ func (w *Writer) Write(token, params string) *responseWriter {
 }
 
 func (w *Writer) CreateFile(fileName string) *responseWriter {
-	if f, err := os.Create(fileName); err == nil {
 		token := uuid.NewV4().String()
-		w.files[token] = &FileInfo{name: fileName, file: f, nb_event: 0}
+		w.files[token] = &FileInfo{name: fileName, nb_event: 0}
 		return generateResponse(true, "", token)
-	} else {
-		fmt.Printf("Error for create file  :%s\n", err.Error())
-		return generateResponse(false, err.Error(), nil)
-	}
 }
 
 func (w *Writer) CloseFile(token string) *responseWriter {
-	w.files[token].file.Close()
 	delete(w.files, token)
 	return generateResponse(true, "", nil)
 }
