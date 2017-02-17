@@ -3,7 +3,6 @@ package json_writer
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"io/ioutil"
 
 	"github.com/satori/go.uuid"
@@ -59,7 +58,7 @@ func (w *Writer) Write(token, params string) *responseWriter {
 			return generateResponse(false, err.Error(), nil)
 		}
 		ioutil.WriteFile(w.files[token].name, b, 0644)
-		
+
 	} else {
 		fmt.Printf("Token not known : %s\n", token)
 		return generateResponse(false, "Token not known "+token, nil)
@@ -68,9 +67,9 @@ func (w *Writer) Write(token, params string) *responseWriter {
 }
 
 func (w *Writer) CreateFile(fileName string) *responseWriter {
-		token := uuid.NewV4().String()
-		w.files[token] = &FileInfo{name: fileName, nb_event: 0}
-		return generateResponse(true, "", token)
+	token := uuid.NewV4().String()
+	w.files[token] = &FileInfo{name: fileName, nb_event: 0}
+	return generateResponse(true, "", token)
 }
 
 func (w *Writer) CloseFile(token string) *responseWriter {
