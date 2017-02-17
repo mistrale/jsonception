@@ -208,7 +208,7 @@ $(document).ready(function() {
             if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
               timers[{{.Uuid}}] = window.clearInterval(timers[{{.Uuid}}]);
             }
-          }, 500 );
+          }, 10 );
 
                // Message received on the socket
           output = ""
