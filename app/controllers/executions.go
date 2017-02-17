@@ -29,28 +29,24 @@ func init() {
 func (c Executions) Index() revel.Result {
 
 	exec := &models.Execution{ExecutionID: 0, Uuid: uuid.NewV4().String()}
-	return c.Render(exec)
+	ip := "10.177.17.101"
+
+	return c.Render(exec, ip)
 }
 
 // Index method to list all execution
 func (c Executions) All() revel.Result {
 	var execs []models.Execution
 	c.Txn.Find(&execs)
-
-	// _, err := c.Txn.Select(&execs,
-	// 	`select * from Execution`)
-	// if err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
-	// }
 	testID := 0
-	return c.Render(execs, testID)
+	ip := "10.177.17.101"
+	return c.Render(execs, testID, ip)
 }
 
 // Index method to list all execution
 func (c Executions) Get() revel.Result {
 	var execs []models.Execution
 	c.Txn.Find(&execs)
-
 	return c.RenderJson(utils.NewResponse(true, "", execs))
 }
 
