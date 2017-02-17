@@ -132,11 +132,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-<<<<<<< HEAD
-        xhr.open("PUT", 'http://10.177.17.69:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
-=======
         xhr.open("PUT", 'http://{{getIP}}:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
->>>>>>> 46123461c8f257aff88fdda4745a4e3252333f63
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
