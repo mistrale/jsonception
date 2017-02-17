@@ -58,6 +58,7 @@ func (e Execution) Run(response chan map[string]interface{}) {
 		}
 	}(ch)
 	cmd.Wait()
+	cmd.Process.Kill()
 	resp := make(map[string]interface{})
 	resp["event_type"] = RESULT_EXEC
 	resp["body"] = "end_" + e.Uuid

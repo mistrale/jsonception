@@ -63,6 +63,9 @@
 var script_editor = {}
 var output_script_editor = {}
 var Uuids = []
+var queues = {}
+var timers = {}
+var isFinished = {}
 
 $(document).ready(function() {
   if ({{.ExecutionID}} == 0) {
@@ -169,8 +172,10 @@ $(document).ready(function() {
       });
     });
 
-
     $("#run-btn_{{.Uuid}}").click(function(){
+      $("#save_error_{{.Uuid}}").slideUp()
+      $("#save_success_{{.Uuid}}").slideUp()
+
       $.getJSON( "http://{{getIP}}:9000/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
         if (data["success"] == false) {
           alert(data["message"])
@@ -178,19 +183,47 @@ $(document).ready(function() {
           $("#output_exec_{{.Uuid}}").slideDown()
           output_script_editor[{{.Uuid}}].refresh()
           room_Uuid = data["response"]
+
           var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + room_Uuid)
+          isFinished[{{.Uuid}}] = false
+
+          queues[{{.Uuid}}] = []
+
+          timers[{{.Uuid}}] = window.setInterval(function() {
+            console.log("set interval")
+            if (queues[{{.Uuid}}].length > 0) {
+              console.log("set interval in")
+
+              var i = queues[{{.Uuid}}].shift();
+              output_script_editor[{{.Uuid}}].replaceRange(i, output_script_editor[{{.Uuid}}].getCursor())
+              output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
+            }
+            if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
+              console.log("set interval out")
+
+              timers[{{.Uuid}}] = window.clearInterval(timers[{{.Uuid}}]);
+            }
+          }, 500 );
 
                // Message received on the socket
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
-            console.log("event : " + event.data)
+            console.log(event.data)
+
             if (output["status"] == false) {
               alert(output["message"])
-            } else if (output["response"]["body"] && output["response"]["body"] != "end_" + room_Uuid) {
-              output_script_editor[{{.Uuid}}].setValue(output_script_editor[{{.Uuid}}].getValue() + output["response"]["body"])
-              output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
-            } else if (output["response"]["body"] == "end_" + room_Uuid) {
+              isFinished[{{.Uuid}}] = true
+            } else if (output["response"]["body"] && output["response"]["event_type"] != "result_exec") {
+              console.log("on push dans la queue")
+              new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
+              for (var i = 0; i < new_array.length; i++) {
+                queues[{{.Uuid}}].push(new_array[i])
+              }
+              //queues[{{.Uuid}}].push(output["response"]["body"]);
+            } else if (output["response"]["event_type"] == "result_exec") {
+              isFinished[{{.Uuid}}] = true
+
               if (output["status"] != true) {
 
                 $("#save_error_{{.Uuid}}").slideDown()
