@@ -42,10 +42,6 @@ func (c Tests) Create() revel.Result {
 		return c.RenderJson(utils.NewResponse(false, "Path log file name cannot be empty.", nil))
 	}
 
-	if _, err := ioutil.ReadFile(test.PathLogFile); err != nil {
-		return c.RenderJson(utils.NewResponse(false, "Error reading log file.", nil))
-	}
-
 	if _, err := ioutil.ReadFile(test.PathRefFile); err != nil {
 		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file.", nil))
 	}
