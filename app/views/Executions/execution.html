@@ -197,7 +197,7 @@ $(document).ready(function() {
               cursor = output_script_editor[{{.Uuid}}].getCursor()
               if (cursor.ch >= 120) {
                 cursor.ch = 0
-                cursor.line += 1
+                i += "\n"
               }
               output_script_editor[{{.Uuid}}].replaceRange(i, cursor)
               console.log("apres")
