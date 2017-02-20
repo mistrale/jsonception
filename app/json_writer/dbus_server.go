@@ -39,9 +39,6 @@ func (exp *DbusExporter) Connect(file string) (string, *dbus.Error) {
 }
 
 func (exp *DbusExporter) Write(token, params string) (string, *dbus.Error) {
-	fmt.Println("test write")
-	fmt.Printf("params : %s\n", params)
-	//w.Printf(token, event_type, format, a...)
 	resp := logger.Write(token, params)
 	b, _ := json.Marshal(resp)
 	return string(b), nil

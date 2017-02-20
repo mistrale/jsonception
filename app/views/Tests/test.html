@@ -157,7 +157,10 @@ var config_editor = {}
 var event_log_editor= {}
 var event_ref_editor = {}
 var output_script_test = {}
-
+var queues_test_test = {}
+var timers_test = {}
+var isFinished_test = {}
+var queues_test_ref = {}
 //executionIDs[this.id] = 0
 
 // load at beginning
@@ -314,10 +317,56 @@ $(document).ready(function() {
         if (data["status"] == false) {
             alert(data["message"])
           } else {
-
           uuid = data["response"]
+          console.log("SUCCESS : uuid " + uuid)
+
           var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
+
+          // print test
+          queues_test_test[{{.Uuid}}] = []
+          queues_test_ref[{{.Uuid}}] = []
+
+          timers_test[{{.Uuid}}] = window.setInterval(function() {
+            if (queues_test_test[{{.Uuid}}].length > 0) {
+              var i = queues_test_test[{{.Uuid}}].shift();
+              cursor = event_log_editor[{{.Uuid}}].getCursor()
+              event_log_editor[{{.Uuid}}].replaceRange(i, cursor)
+              event_log_editor[{{.Uuid}}].scrollTo(0, 10000000)
+            }
+
+            if (queues_test_ref[{{.Uuid}}].length > 0) {
+              var i = queues_test_ref[{{.Uuid}}].shift();
+              cursor = event_ref_editor[{{.Uuid}}].getCursor()
+              event_ref_editor[{{.Uuid}}].replaceRange(i, cursor)
+              event_ref_editor[{{.Uuid}}].scrollTo(0, 10000000)
+            }
+            if (isFinished_test[{{.Uuid}}] == true && queues_test_test[{{.Uuid}}].length == 0 && queues_test_ref[{{.Uuid}}].length == 0) {
+              window.clearInterval(timers_test[{{.Uuid}}]);
+            }
+          }, 1 );
+
+          // print exec_event
+          queues[{{.Uuid}}] = []
+
+          timers[{{.Uuid}}] = window.setInterval(function() {
+            if (queues[{{.Uuid}}].length > 0) {
+              var i = queues[{{.Uuid}}].shift();
+              cursor = output_script_test[{{.Uuid}}].getCursor()
+              if (cursor.ch >= 120) {
+                cursor.ch = 0
+                cursor.line += 1
+              }
+              output_script_test[{{.Uuid}}].replaceRange(i, cursor)
+              output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
+            }
+            if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
+              window.clearInterval(timers[{{.Uuid}}]);
+            }
+          }, 0.1 );
+
+
           output = ""
+          console.log("uuid test: " + uuid)
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
             console.log("output : " + event.data)
@@ -329,15 +378,24 @@ $(document).ready(function() {
 
 
             } else if (output["response"]["event_type"] == "exec_event") {
-              output_script_test[{{.Uuid}}].setValue(output_script_test[{{.Uuid}}].getValue() + output["response"]["body"])
-              output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
+
+              new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
+              for (var i = 0; i < new_array.length; i++) {
+                queues[{{.Uuid}}].push(new_array[i])
+              }
+            } else if (output["response"]["event_type"] == "result_exec") {
+              isFinished[{{.Uuid}}] = true
+
             } else if (output["response"]["event_type"] == "test_event") {
-              event_log_editor[{{.Uuid}}].setValue(event_log_editor[{{.Uuid}}].getValue() + output["response"]["body"]["test_log_event"] + "\n")
-              event_ref_editor[{{.Uuid}}].setValue(event_ref_editor[{{.Uuid}}].getValue() + output["response"]["body"]["ref_log_event"] + "\n")
+              new_array_ref = output["response"]["body"]["ref_log_event"] .match(/[\s\S]{1,1000}/g)
+              for (var i = 0; i < new_array_ref.length; i++) {
+                queues_test_ref[{{.Uuid}}].push(new_array_ref[i])
+              }
 
-              event_log_editor[{{.Uuid}}].scrollTo(0, 10000000)
-              event_ref_editor[{{.Uuid}}].scrollTo(0, 10000000)
-
+              new_array_log = output["response"]["body"]["test_log_event"].match(/[\s\S]{1,1000}/g)
+              for (var i = 0; i < new_array_log.length; i++) {
+                queues_test_test[{{.Uuid}}].push(new_array_log[i])
+              }
             } else if (output["response"]["event_type"] == "result_event") {
               $("#save_test_run_success_{{.Uuid}}").show();
               $("#save_test_run_success_{{.Uuid}}").text(output["response"]["body"]);

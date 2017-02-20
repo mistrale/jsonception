@@ -43,7 +43,6 @@ func generateResponse(status bool, message string, response interface{}) *respon
 // Printf method
 func (w *Writer) Write(token, params string) *responseWriter {
 	if _, ok := w.files[token]; ok {
-		fmt.Printf("Event : %s\n", params)
 		event := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(params), &event); err != nil {
 			fmt.Printf("Bad json format : %s\n", params)

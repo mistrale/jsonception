@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"os/exec"
 
 	"github.com/mistrale/jsonception/app/utils"
@@ -35,6 +36,7 @@ func (e Execution) GetID() int {
 
 // Run method to start script
 func (e Execution) Run(response chan map[string]interface{}) {
+	fmt.Println("ON RUN")
 	var cmd *exec.Cmd
 	cmd = exec.Command("bash", "-c", e.Script)
 
@@ -46,21 +48,30 @@ func (e Execution) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(false, err.Error(), nil)
 		//log.Fatal(err)
 	}
+	fmt.Println("on va push un msg DE STARTD")
+
 	response <- utils.NewResponse(true, "ok", e.Uuid)
+	fmt.Println("on a push un msg DE ENDED")
+
 	go func(ch chan string) {
 		for {
 			msg := <-ch
 			resp := make(map[string]interface{})
 			resp["event_type"] = EXEC_EVENT
 			resp["body"] = msg
+
 			response <- utils.NewResponse(true, "", resp)
+			fmt.Printf("[execution] on va push un msg : %s\n", resp)
 			//room.Chan <- msg
 		}
 	}(ch)
 	cmd.Wait()
 	cmd.Process.Kill()
 	resp := make(map[string]interface{})
+	fmt.Println("on va push un msg EXEC END")
 	resp["event_type"] = RESULT_EXEC
 	resp["body"] = "end_" + e.Uuid
 	response <- utils.NewResponse(true, "", resp)
+	fmt.Println("on va push un msg EXEND END")
+
 }

@@ -206,9 +206,9 @@ $(document).ready(function() {
               output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
             }
             if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
-              timers[{{.Uuid}}] = window.clearInterval(timers[{{.Uuid}}]);
+              window.clearInterval(timers[{{.Uuid}}]);
             }
-          }, 10 );
+          }, 0.1 );
 
                // Message received on the socket
           output = ""

@@ -86,33 +86,39 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 	test.Uuid = n_uuid
 	test.Execution.Uuid = n_uuid
 	// create history
-	history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
-
-	var runner models.IRunnable = test.Execution
-
-	// if there is an execution
-	if test.ExecutionID != 0 {
-		request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue <- request
-		response := <-request.Response
-		if response["status"] != true {
-			updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
-			room <- response
-			return false
-		}
-		response["response"] = make(map[string]interface{})
-		response["response"].(map[string]interface{})["event_type"] = models.START_TEST
-		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
-		room <- response
-	}
 
 	go func() {
+		history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
 
+		var runner models.IRunnable = test.Execution
+		fmt.Printf("on run test id : %d\n", test.TestID)
+		// if there is an execution
+		if test.ExecutionID != 0 {
+			request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+			dispatcher.WorkQueue <- request
+			response := <-request.Response
+			if response["status"] != true {
+				updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
+				room <- response
+				//return false
+			}
+
+			response["response"] = make(map[string]interface{})
+			response["response"].(map[string]interface{})["event_type"] = models.START_TEST
+			response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
+			fmt.Printf("reponse : %s\n", response)
+
+			room <- response
+			fmt.Printf("reponse : %s\n", response)
+
+		}
 		if test.ExecutionID != 0 {
 			for {
-				fmt.Printf("chaann addr 2 : %p\n", room)
 				msg := <-request.Response
+				fmt.Printf("[test] on recoit : %s\n", msg)
+
 				room <- msg
+				fmt.Printf("[test] on envoie : %s\n", msg)
 
 				if msg["status"] != true {
 					updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
@@ -127,6 +133,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 				//				fmt.Printf("OUTPUT : %s\n", msg)
 			}
 		}
+		fmt.Println("on a finit l 'exec'")
 		runner = test
 		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
 		dispatcher.WorkQueue <- request
@@ -175,6 +182,7 @@ func (c Tests) Run(testID int) revel.Result {
 	if !RunTest(&test, test_uuid.String(), room.Chan, c.Txn) {
 		return c.RenderJson(<-room.Chan)
 	}
+	fmt.Printf("On return :D %s\n", test_uuid.String())
 	return c.RenderJson(utils.NewResponse(true, "", test_uuid.String()))
 }
 
