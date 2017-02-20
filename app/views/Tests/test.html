@@ -353,8 +353,7 @@ $(document).ready(function() {
               var i = queues[{{.Uuid}}].shift();
               cursor = output_script_test[{{.Uuid}}].getCursor()
               if (cursor.ch >= 120) {
-                cursor.ch = 0
-                cursor.line += 1
+                i += "\n"
               }
               output_script_test[{{.Uuid}}].replaceRange(i, cursor)
               output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
