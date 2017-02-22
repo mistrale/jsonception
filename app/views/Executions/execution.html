@@ -59,13 +59,12 @@
     </div>
   </div>
 </div>
+<script src="/public/js/runner.js"></script>
+
 <script>
-var script_editor = {}
-var output_script_editor = {}
+
 var Uuids = []
-var queues = {}
-var timers = {}
-var isFinished = {}
+
 
 $(document).ready(function() {
   if ({{.ExecutionID}} == 0) {
@@ -75,20 +74,7 @@ $(document).ready(function() {
     $("#create_btn_{{.Uuid}}").hide()
   }
 
-  script_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("script_area_{{.Uuid}}"), {
-    lineNumbers: true,
-    theme:"mdn-like",
-    mode: "text/x-sh",
-    styleActiveLine:true,
-    matchBrackets: true
-    });
-
-  output_script_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_{{.Uuid}}"), {
-    matchBrackets: true,
-    theme:"mdn-like",
-    lineNumbers: true,
-    styleActiveLine:true
-    });
+  init({{.Uuid}})
 
     $("#collapser_exec_{{.Uuid}}").on('click', function() {
       $("#collapse_exec_{{.Uuid}}").toggle()
@@ -185,31 +171,8 @@ $(document).ready(function() {
           room_Uuid = data["response"]
 
           var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + room_Uuid)
-          isFinished[{{.Uuid}}] = false
+          init_run({{.Uuid}})
 
-          queues[{{.Uuid}}] = []
-
-          timers[{{.Uuid}}] = window.setInterval(function() {
-            if (queues[{{.Uuid}}].length > 0) {
-              var i = queues[{{.Uuid}}].shift();
-              console.log("avant")
-              console.log(output_script_editor[{{.Uuid}}].getCursor())
-              cursor = output_script_editor[{{.Uuid}}].getCursor()
-              if (cursor.ch >= 120) {
-                i += "\n"
-              }
-              output_script_editor[{{.Uuid}}].replaceRange(i, cursor)
-              console.log("apres")
-
-              console.log(cursor)
-              output_script_editor[{{.Uuid}}].scrollTo(0, 10000000)
-            }
-            if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
-              window.clearInterval(timers[{{.Uuid}}]);
-            }
-          }, 0.1 );
-
-               // Message received on the socket
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)

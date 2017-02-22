@@ -95,6 +95,7 @@
               <div class="panel-heading">
                 <h4 class="panel-title">
                   <a data-toggle="collapse" href="#lib_history_collapse_{{.Uuid}}"  style="background-color:transparent;">History</a>
+                  <button  class="btn btn-danger delete_btn" id=clear_lib_history_btn_{{.Uuid}}>Clear</button>
                 </h4>
               </div>
               <div id="lib_history_collapse_{{.Uuid}}" class="panel-collapse collapse in">
@@ -187,9 +188,6 @@ $(document).ready(function() {
       testIDs[{{.Uuid}}] = 0
        currentData[{{.Uuid}}] = null
     }
-
-
-    //$('#select_library_{{.Uuid}}').trigger("change")
   });
 
   $('#select_library_{{.Uuid}}').on('change', function() {
@@ -200,9 +198,6 @@ $(document).ready(function() {
     }
     elem = tests.find(getElement)
     if (!elem) {
-
-      //$("#add_test_{{.Uuid}} .panel").css({"display":"none"});
-
       testIDs[{{.Uuid}}] = 0
     } else {
       $.ajax({
@@ -210,7 +205,6 @@ $(document).ready(function() {
         success: function (data) {
           currentData[{{.Uuid}}] = data
          $("#add_test_{{.Uuid}}").html(data)
-      //    $("#add_test_{{.Uuid}} .panel-collapse").css({"display":"block"});
         }
       });
       testIDs[{{.Uuid}}] = elem.test_id
@@ -322,12 +316,13 @@ $(document).ready(function() {
             document.getElementById("label_" + lib_uuid).innerHTML = 0 * 1 + '%';
             panel = $("#panel_output_lib_{{.Uuid}} .panel").each(function(k,v) {
               current_uuid = ($(this).attr('id')).split("_")[3]
+              console.log("CURRENT IUID : " + current_uuid)
               $(this).removeClass("panel-success")
               $(this).removeClass("panel-danger")
               $(this).addClass("panel-default")
-              output_script_history_test[current_uuid].setValue("")
-              event_ref_history_editor[current_uuid].setValue("")
-              event_log_history_editor[current_uuid].setValue("")
+
+              init_run(current_uuid)
+              init_run_test(current_uuid)
             });
             uuid = data["response"]
             var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
@@ -350,14 +345,29 @@ $(document).ready(function() {
                 $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('show');
               }
               if (output["response"]["event_type"] == "exec_event") {
-                output_script_history_test[histUuid].setValue(output_script_history_test[histUuid].getValue() + output["response"]["body"])
+
+                new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
+                for (var i = 0; i < new_array.length; i++) {
+                  queues[histUuid].push(new_array[i])
+                }
+                console.log("current uuid : " + histUuid + " msg : " + event.data)
               }
               if (output["response"]["event_type"] == "test_event") {
-                event_ref_history_editor[histUuid].setValue(event_ref_history_editor[histUuid].getValue() + output["response"]["body"]["ref_log_event"])
-                event_log_history_editor[histUuid].setValue(event_log_history_editor[histUuid].getValue() + output["response"]["body"]["test_log_event"])
+                new_array_ref = output["response"]["body"]["ref_log_event"] .match(/[\s\S]{1,1000}/g)
+                for (var i = 0; i < new_array_ref.length; i++) {
+                  queues_test_ref[histUuid].push(new_array_ref[i])
+                }
+
+                new_array_log = output["response"]["body"]["test_log_event"].match(/[\s\S]{1,1000}/g)
+                for (var i = 0; i < new_array_log.length; i++) {
+                  queues_test_test[histUuid].push(new_array_log[i])
+                }
               }
               if (output["response"]["event_type"] == "result_event") {
                 panel.removeClass("panel-warning");
+                console.log("C EST FINI : uuid : " + histUuid)
+                isFinished[histUuid] = true
+                isFinished_test[histUuid] = true
                 if (output["status"] == true) {
                   panel.addClass("panel-success");
                   $("#save_test_run_success_history_" + histUuid).text(output["response"]["body"])
@@ -371,8 +381,6 @@ $(document).ready(function() {
                 }
                   width = width + 1 / nb_test * 100
                   document.getElementById("myBar_" + lib_uuid).style.width = width + '%';
-
-                 //elem.style.width = width + '%';
                  document.getElementById("label_" + lib_uuid).innerHTML = width * 1 + '%';
                 $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('hide');
               }
@@ -394,6 +402,17 @@ $(document).ready(function() {
        $("#lib_history_panel_{{.Uuid}}").slideDown();
        $("#lib_history_panel_body_{{.Uuid}}").html(data)
      });
+    });
+
+    $("#clear_lib_history_btn_{{.Uuid}}").click(function() {
+      $.ajax({
+          url: '/libraries/' + {{.LibraryID}} + "/history?id_lib=" + {{.LibraryID}},
+          type: 'DELETE',
+          success: function(result) {
+            $("#lib_history_panel_{{.Uuid}}").slideUp();
+              // Do something with the result
+          }
+      });
     });
   });
 </script>

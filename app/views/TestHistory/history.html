@@ -8,7 +8,11 @@
       </a>
     </h4>
   </div>
-  <div id="collapse_history_{{.Uuid}}" class="panel-collapse collapse">
+    {{if eq .ID 0}}
+  <div id="collapse_history_{{.Uuid}}" class="panel-collapse collapse in">
+    {{else}}
+    <div id="collapse_history_{{.Uuid}}" class="panel-collapse collapse">
+    {{end}}
     <div class="panel-body">
       <div class="row">
         <div  class="col-sm-12">
@@ -35,8 +39,8 @@
       <div class="row">
         <div class="col-lg-12">
           <ul class="list-group">
-            <li id=save_test_run_error_history_{{.Uuid}} class="list-group-item list-group-item-danger"></li>
-            <li id=save_test_run_success_history_{{.Uuid}} class="list-group-item list-group-item-success"></li>
+            <li id=save_test_run_error_history_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-danger"></li>
+            <li id=save_test_run_success_history_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-success"></li>
           </ul>
         </div>
       </div>
@@ -49,32 +53,8 @@ var event_ref_history_editor = {}
 var output_script_history_test = {}
 
 $(document).ready(function() {
-  output_script_history_test[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_history_{{.Uuid}}"), {
-    matchBrackets: true,
-    theme:"mdn-like",
-    lineNumbers: true,
-    styleActiveLine:true
-    });
+  init_history({{.Uuid}})
 
-  event_ref_history_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_history_{{.Uuid}}"), {
-  matchBrackets: true,
-  theme:"mdn-like",
-  lineNumbers: true,
-  styleActiveLine:true,
-  readOnly : true,
-  mode : "javascript",
-  });
-
-  event_log_history_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_log_area_history_{{.Uuid}}"), {
-  matchBrackets: true,
-  theme:"mdn-like",
-  lineNumbers: true,
-  styleActiveLine:true,
-  readOnly : true,
-  mode : "javascript",
-  });
-  //
-  // console.log({{.TimeRunned}})
    var myDate = new Date({{.TimeRunned}} / 1000000);
   $("#collapser_history_{{.Uuid}}").text({{.TestName}} + " - " + myDate.toString());
 
@@ -83,14 +63,14 @@ $(document).ready(function() {
       if ({{.Success}} == true) {
         $("#head_panel_history_{{.Uuid}}").addClass("panel-success");
         $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
-        $("#save_test_run_error_history_{{.Uuid}}").hide();
         $("#save_test_run_success_history_{{.Uuid}}").text({{.OutputTest}});
+        $("#save_test_run_success_history_{{.Uuid}}").show();
       }
 
       if ({{.Success}} == false) {
         $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
         $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
-        $("#save_test_run_success_history_{{.Uuid}}").hide();
+        $("#save_test_run_error_history_{{.Uuid}}").show();
         $("#save_test_run_error_history_{{.Uuid}}").text({{.OutputTest}});
       }
   }

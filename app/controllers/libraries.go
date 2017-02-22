@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"time"
 
 	"github.com/mistrale/jsonception/app/models"
@@ -34,10 +35,7 @@ func (c Libraries) Create() revel.Result {
 		c.Txn.First(test, v)
 		lib.Tests = append(lib.Tests, *test)
 	}
-	//fmt.Printf("name : %s\tids : %d\n", lib.Name, lib.TestIDs[0])
 	c.Txn.Create(lib)
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
 	return c.RenderJson(utils.NewResponse(true, "Successful lib creation", *lib))
 }
 
@@ -87,19 +85,20 @@ func (c Libraries) Run(libID int) revel.Result {
 			fmt.Printf("test id IN GO : %d\n", test.GetID())
 			for {
 				msg := <-channel
+				msg["test_id"] = test.GetID()
+				lib_room.Chan <- msg
 				if response, ok := msg["response"].(map[string]interface{}); ok {
-					if response["type"] == models.RESULTEVENT {
+					if response["event_type"] == models.RESULTEVENT {
 						var hist models.TestHistory
 
-						Dbm.Where("run_uuid = ?", lib_uuid.String()).First(&hist)
+						Dbm.Where("run_uuid = ? and test_id = ?", lib_uuid.String(), test.GetID()).First(&hist)
 						history.Histories = append(history.Histories, hist)
+						log.Printf("on rnetre ici %d\n", hist.TestID)
+
 						end <- true
 						return
 					}
 				}
-
-				msg["test_id"] = test.GetID()
-				lib_room.Chan <- msg
 				if msg["status"] != true {
 					var hist models.TestHistory
 
@@ -117,6 +116,7 @@ func (c Libraries) Run(libID int) revel.Result {
 		for {
 			<-end
 			nb_test++
+			fmt.Printf("NB TEST : %d\n", len(lib.Tests))
 			if nb_test == len(lib.Tests) {
 				history.LibName = lib.Name
 				Dbm.Create(history)
@@ -131,6 +131,19 @@ func (c Libraries) GetHistory(libID int) revel.Result {
 	var history []models.LibraryHistory
 	c.Txn.Preload("Histories").Where("lib_id = ?", libID).Find(&history)
 	return c.RenderJson(history)
+}
+
+// DeleteHistory method to delete all history
+func (c Libraries) DeleteHistory(id_lib int) revel.Result {
+	var history []models.LibraryHistory
+	c.Txn.Preload("Histories").Where("lib_id = ?", id_lib).Find(&history)
+	for _, v := range history {
+		for _, testHist := range v.Histories {
+			c.Txn.Delete(&testHist)
+		}
+	}
+	c.Txn.Delete(&history)
+	return c.RenderJson(utils.NewResponse(true, "", "Library history deleted"))
 }
 
 // GetHistory method to get all history from one librairie and template html

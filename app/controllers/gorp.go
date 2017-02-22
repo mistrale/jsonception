@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"net"
 	"os"
@@ -93,17 +94,25 @@ func InitDB() {
 
 	dispatcher.StartDispatcher(len(exec_counts))
 	revel.TemplateFuncs["set_exec_uuid"] = func(exec *models.Execution) template.JS {
-		exec.Uuid = uuid.NewV4().String()
+		fmt.Printf("uuid : %s\n", exec.Uuid)
+		if exec.Uuid == "" {
+			exec.Uuid = uuid.NewV4().String()
+		}
+		fmt.Printf("uuid after : %s\n", exec.Uuid)
+
 		return template.JS("")
 	}
 
 	revel.TemplateFuncs["set_test_uuid"] = func(test *models.Test) template.JS {
 		test.Uuid = uuid.NewV4().String()
+		test.Execution.Uuid = test.Uuid
 		return template.JS("")
 	}
 
 	revel.TemplateFuncs["set_test_history_uuid"] = func(test *models.TestHistory) template.JS {
-		test.Uuid = uuid.NewV4().String()
+		if test.Uuid == "" {
+			test.Uuid = uuid.NewV4().String()
+		}
 		return template.JS("")
 	}
 

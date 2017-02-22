@@ -66,41 +66,7 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="panel panel-warning" id=panel_test_run_{{.Uuid}} style="display:none; margin-top:20px;">
-            <div class="panel-heading">
-              <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i>{{.Name}} run</h3>
-            </div>
-            <div class="panel-body">
-              <div class="row">
-                <div  class="col-sm-12">
-                  <div class="form-group">
-                    <label>Output execution</label>
-                    <textarea  id="output_script_area_{{.Uuid}}"></textarea>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div  class="col-sm-6">
-                  <div class="form-group">
-                    <label>Log reference</label>
-                    <textarea  id="event_ref_area_{{.Uuid}}"></textarea>
-                  </div>
-                </div>
-                <div  class="col-sm-6">
-                  <div class="form-group">
-                    <label>Log test</label>
-                    <textarea id="event_log_area_{{.Uuid}}"></textarea>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-12">
-                  <ul class="list-group">
-                    <li id=save_test_run_error_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-danger"></li>
-                    <li id=save_test_run_success_{{.Uuid}}  style="display:none;" class="list-group-item list-group-item-success"></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -149,60 +115,10 @@
 
 <script>
 var executionIDs = {};
-var execUUIDs = {}
 var array
 
-var config_editor = {}
-
-var event_log_editor= {}
-var event_ref_editor = {}
-var output_script_test = {}
-var queues_test_test = {}
-var timers_test = {}
-var isFinished_test = {}
-var queues_test_ref = {}
-//executionIDs[this.id] = 0
-
-// load at beginning
 $(document).ready(function() {
-  exec_uuid = $("#exec_form_{{.Uuid}} .panel_exec" + " a").attr("id").split("_")[2]
-
-  execUUIDs[{{.Uuid}}] = exec_uuid
-  executionIDs[{{.Uuid}}] = {{.ExecutionID}}
-
-  output_script_test[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("output_script_area_{{.Uuid}}"), {
-    matchBrackets: true,
-    theme:"mdn-like",
-    lineNumbers: true,
-    styleActiveLine:true
-    });
-
-  event_ref_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_ref_area_{{.Uuid}}"), {
-  matchBrackets: true,
-  theme:"mdn-like",
-  lineNumbers: true,
-  styleActiveLine:true,
-  readOnly : true,
-  mode : "javascript",
-  });
-
-  event_log_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("event_log_area_{{.Uuid}}"), {
-  matchBrackets: true,
-  theme:"mdn-like",
-  lineNumbers: true,
-  styleActiveLine:true,
-  readOnly : true,
-  mode : "javascript",
-  });
-
-  config_editor[{{.Uuid}}] = CodeMirror.fromTextArea(document.getElementById("config_area_{{.Uuid}}"), {
-  matchBrackets: true,
-  theme:"mdn-like",
-  mode : "javascript",
-  lineNumbers: true,
-  styleActiveLine:true
-  });
-
+  init_test({{.Uuid}})
   if (!array) {
     $.ajax({
       dataType: "json",
@@ -229,7 +145,7 @@ $(document).ready(function() {
 
 
   if ({{.ExecutionID}} == 0) {
-    $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"none"});
+    $('#collapse_exec_' +{{.Uuid}}).css({"display":"none"});
   }
 
   $('#select_exec_{{.Uuid}}').on('change', function() {
@@ -240,19 +156,19 @@ $(document).ready(function() {
     }
     elem = array.find(getElement)
     if (!elem) {
-      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"none"});
-      script_editor[execUUIDs[{{.Uuid}}]].setValue("")
-      output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
-      $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value","")
-      $("#create_btn_" + execUUIDs[{{.Uuid}}]).show()
+      $('#collapse_exec_' + {{.Uuid}}).css({"display":"none"});
+      script_editor[{{.Uuid}}].setValue("")
+      output_script_editor[{{.Uuid}}].setValue("")
+      $("#exec_name_" + {{.Uuid}}).attr("value","")
+      $("#create_btn_" + {{.Uuid}}).show()
       executionIDs[{{.Uuid}}] = 0
     } else {
-      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
-      script_editor[execUUIDs[{{.Uuid}}]].setValue(elem.script)
-      script_editor[execUUIDs[{{.Uuid}}]].refresh()
-      output_script_editor[execUUIDs[{{.Uuid}}]].setValue("")
-      $("#exec_name_" + execUUIDs[{{.Uuid}}]).attr("value", elem.name)
-      $("#create_btn_" + execUUIDs[{{.Uuid}}]).hide()
+      $('#collapse_exec_' + {{.Uuid}}).css({"display":"inherit"});
+      script_editor[{{.Uuid}}].setValue(elem.script)
+      script_editor[{{.Uuid}}].refresh()
+      output_script_editor[{{.Uuid}}].setValue("")
+      $("#exec_name_" + {{.Uuid}}).attr("value", elem.name)
+      $("#create_btn_" + {{.Uuid}}).hide()
       executionIDs[{{.Uuid}}] = elem.executionID
     }
   });
@@ -262,13 +178,13 @@ $(document).ready(function() {
     console.log("uuid : " + {{.Uuid}})
     if ({{.ExecutionID}} != 0) {
       $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
-      $('#collapse_exec_' + execUUIDs[{{.Uuid}}]).css({"display":"inherit"});
+      $('#collapse_exec_' + {{.Uuid}}).css({"display":"inherit"});
     }
     config_editor[{{.Uuid}}].refresh()
-    output_script_test[{{.Uuid}}].refresh()
-    script_editor[execUUIDs[{{.Uuid}}]].setValue({{.Execution.Script}})
-    script_editor[execUUIDs[{{.Uuid}}]].refresh()
-    output_script_editor[execUUIDs[{{.Uuid}}]].refresh()
+    //output_script_test[{{.Uuid}}].refresh()
+    script_editor[{{.Uuid}}].setValue({{.Execution.Script}})
+    script_editor[{{.Uuid}}].refresh()
+    output_script_editor[{{.Uuid}}].refresh()
   });
 
   $("#create_test_btn_{{.Uuid}}").click(function() {
@@ -307,7 +223,6 @@ $(document).ready(function() {
   });
 
   function run(testID, ruuid) {
-    console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
       url: 'http://{{getIP}}:9000/test/' + testID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
@@ -322,58 +237,22 @@ $(document).ready(function() {
 
           var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
 
-          // print test
-          queues_test_test[{{.Uuid}}] = []
-          queues_test_ref[{{.Uuid}}] = []
+          isFinished_test[{{.Uuid}}] = false
+          isFinished[{{.Uuid}}] = false
 
-          timers_test[{{.Uuid}}] = window.setInterval(function() {
-            if (queues_test_test[{{.Uuid}}].length > 0) {
-              var i = queues_test_test[{{.Uuid}}].shift();
-              cursor = event_log_editor[{{.Uuid}}].getCursor()
-              event_log_editor[{{.Uuid}}].replaceRange(i, cursor)
-              event_log_editor[{{.Uuid}}].scrollTo(0, 10000000)
-            }
-
-            if (queues_test_ref[{{.Uuid}}].length > 0) {
-              var i = queues_test_ref[{{.Uuid}}].shift();
-              cursor = event_ref_editor[{{.Uuid}}].getCursor()
-              event_ref_editor[{{.Uuid}}].replaceRange(i, cursor)
-              event_ref_editor[{{.Uuid}}].scrollTo(0, 10000000)
-            }
-            if (isFinished_test[{{.Uuid}}] == true && queues_test_test[{{.Uuid}}].length == 0 && queues_test_ref[{{.Uuid}}].length == 0) {
-              window.clearInterval(timers_test[{{.Uuid}}]);
-            }
-          }, 1 );
-
-          // print exec_event
-          queues[{{.Uuid}}] = []
-
-          timers[{{.Uuid}}] = window.setInterval(function() {
-            if (queues[{{.Uuid}}].length > 0) {
-              var i = queues[{{.Uuid}}].shift();
-              cursor = output_script_test[{{.Uuid}}].getCursor()
-              if (cursor.ch >= 120) {
-                i += "\n"
-              }
-              output_script_test[{{.Uuid}}].replaceRange(i, cursor)
-              output_script_test[{{.Uuid}}].scrollTo(0, 10000000)
-            }
-            if (isFinished[{{.Uuid}}] == true && queues[{{.Uuid}}].length == 0) {
-              window.clearInterval(timers[{{.Uuid}}]);
-            }
-          }, 0.1 );
+          init_run({{.Uuid}})
+          init_run_test({{.Uuid}})
 
 
           output = ""
           console.log("uuid test: " + uuid)
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
-            console.log("output : " + event.data)
             if (output["status"] == false) {
-              $("#save_test_run_error_{{.Uuid}}").show();
-              $("#save_test_run_error_{{.Uuid}}").text(output["message"]);
-              $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-warning" )
-              $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-danger" )
+              $("#save_test_run_error_history_{{.Uuid}}").show();
+              $("#save_test_run_error_history_{{.Uuid}}").text(output["message"]);
+              $( "#head_panel_history_{{.Uuid}}" ).removeClass( "panel-warning" )
+              $( "#head_panel_history_{{.Uuid}}" ).addClass( "panel-danger" )
 
 
             } else if (output["response"]["event_type"] == "exec_event") {
@@ -396,10 +275,11 @@ $(document).ready(function() {
                 queues_test_test[{{.Uuid}}].push(new_array_log[i])
               }
             } else if (output["response"]["event_type"] == "result_event") {
-              $("#save_test_run_success_{{.Uuid}}").show();
-              $("#save_test_run_success_{{.Uuid}}").text(output["response"]["body"]);
-              $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-warning" )
-              $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-success" )
+              isFinished_test[{{.Uuid}}] = true
+              $("#save_test_run_success_history_{{.Uuid}}").show();
+              $("#save_test_run_success_history_{{.Uuid}}").text(output["response"]["body"]);
+              $( "#head_panel_history_{{.Uuid}}" ).removeClass( "panel-warning" )
+              $( "#head_panel_history_{{.Uuid}}" ).addClass( "panel-success" )
             }
           }
         }
@@ -411,23 +291,16 @@ $(document).ready(function() {
   }
 
    $("#run_test_btn_{{.Uuid}}").click(function() {
-     $( "#panel_test_run_{{.Uuid}}" ).addClass( "panel-warning" )
-     $( "#panel_test_run_{{.Uuid}}" ).removeClass( "panel-success panel-danger" )
-      $("#panel_test_run_{{.Uuid}}").slideDown(function() {
-        $("#save_test_run_success_{{.Uuid}}").hide();
-        $("#save_test_run_error_{{.Uuid}}").hide();
+     $.get( "/history?uuid=" + {{.Uuid}}, function(data) {
+       console.log("data  : " + data)
 
-        output_script_test[{{.Uuid}}].setValue("")
-        event_log_editor[{{.Uuid}}].setValue("")
-        event_ref_editor[{{.Uuid}}].setValue("")
-
-       output_script_test[{{.Uuid}}].refresh()
-       event_log_editor[{{.Uuid}}].refresh()
-       event_ref_editor[{{.Uuid}}].refresh()
-       $("#exit_test_btn_{{.Uuid}}").slideDown(function() {
-         run({{.TestID}}, {{.Uuid}});
-       });
-      });
+          $("#panel_test_run_{{.Uuid}}").slideUp(function() {
+            $("#panel_test_run_{{.Uuid}}").slideDown(function() {
+              $("#panel_test_run_{{.Uuid}}").html(data)
+              run({{.TestID}}, {{.Uuid}});
+            });
+          });
+     });
    });
 
    $("#exit_test_btn_{{.Uuid}}").click(function() {
@@ -515,7 +388,6 @@ $(document).ready(function() {
     $(".create_test_btn").hide();
   }
 });
-
 //
 
 // //

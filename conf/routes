@@ -27,8 +27,9 @@ PUT     /test/:id                               Tests.Update
 GET     /test/all                               Tests.All
 GET     /test/:id/template                      Tests.GetOneTemplate
 GET     /test/new                               Tests.Index
-GET    /test/:id/history_template               Tests.GetHistoryTemplate
+GET     /test/:id/history_template               Tests.GetHistoryTemplate
 
+GET     /history                                TestHistory.GetOne
 
 # model REST TestHistory
 GET     /test_history                               TestHistory.Get
@@ -40,6 +41,7 @@ POST    /libraries/                                 Libraries.Create
 POST    /libraries/:id/run                          Libraries.Run
 GET     /libraries/:id/history                      Libraries.GetHistory
 DELETE  /libraries/:id                              Libraries.Delete
+DELETE  /libraries/:id/history                      Libraries.DeleteHistory
 PUT     /libraries/:id                              Libraries.Update
 # GUI Controller
 GET     /libraries/all                              Libraries.All
