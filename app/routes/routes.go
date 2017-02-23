@@ -4,22 +4,6 @@ package routes
 import "github.com/revel/revel"
 
 
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) ListenExecutionRun(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.ListenExecutionRun", args).Url
-}
-
-
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -43,6 +27,22 @@ func (_ tGorpController) Rollback(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("GorpController.Rollback", args).Url
+}
+
+
+type tWebSocket struct {}
+var WebSocket tWebSocket
+
+
+func (_ tWebSocket) ListenExecutionRun(
+		room_name string,
+		ws interface{},
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.ListenExecutionRun", args).Url
 }
 
 
@@ -111,102 +111,6 @@ func (_ tTestRunner) List(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("TestRunner.List", args).Url
-}
-
-
-type tTests struct {}
-var Tests tTests
-
-
-func (_ tTests) Create(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Tests.Create", args).Url
-}
-
-func (_ tTests) Delete(
-		id_test int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "id_test", id_test)
-	return revel.MainRouter.Reverse("Tests.Delete", args).Url
-}
-
-func (_ tTests) Update(
-		id_test int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "id_test", id_test)
-	return revel.MainRouter.Reverse("Tests.Update", args).Url
-}
-
-func (_ tTests) Run(
-		testID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "testID", testID)
-	return revel.MainRouter.Reverse("Tests.Run", args).Url
-}
-
-func (_ tTests) GetHistory(
-		testID string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "testID", testID)
-	return revel.MainRouter.Reverse("Tests.GetHistory", args).Url
-}
-
-func (_ tTests) GetHistoryTemplate(
-		testID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "testID", testID)
-	return revel.MainRouter.Reverse("Tests.GetHistoryTemplate", args).Url
-}
-
-func (_ tTests) Show(
-		testID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "testID", testID)
-	return revel.MainRouter.Reverse("Tests.Show", args).Url
-}
-
-func (_ tTests) Index(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Tests.Index", args).Url
-}
-
-func (_ tTests) All(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Tests.All", args).Url
-}
-
-func (_ tTests) Get(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Tests.Get", args).Url
-}
-
-func (_ tTests) GetOneTemplate(
-		testID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "testID", testID)
-	return revel.MainRouter.Reverse("Tests.GetOneTemplate", args).Url
 }
 
 
@@ -404,6 +308,102 @@ func (_ tTestHistory) GetOne(
 	
 	revel.Unbind(args, "uuid", uuid)
 	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
+}
+
+
+type tTests struct {}
+var Tests tTests
+
+
+func (_ tTests) Create(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Create", args).Url
+}
+
+func (_ tTests) Delete(
+		id_test int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "id_test", id_test)
+	return revel.MainRouter.Reverse("Tests.Delete", args).Url
+}
+
+func (_ tTests) Update(
+		id_test int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "id_test", id_test)
+	return revel.MainRouter.Reverse("Tests.Update", args).Url
+}
+
+func (_ tTests) Run(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.Run", args).Url
+}
+
+func (_ tTests) GetHistory(
+		testID string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.GetHistory", args).Url
+}
+
+func (_ tTests) GetHistoryTemplate(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.GetHistoryTemplate", args).Url
+}
+
+func (_ tTests) Show(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.Show", args).Url
+}
+
+func (_ tTests) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Index", args).Url
+}
+
+func (_ tTests) All(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.All", args).Url
+}
+
+func (_ tTests) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Tests.Get", args).Url
+}
+
+func (_ tTests) GetOneTemplate(
+		testID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "testID", testID)
+	return revel.MainRouter.Reverse("Tests.GetOneTemplate", args).Url
 }
 
 

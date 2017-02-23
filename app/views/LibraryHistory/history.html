@@ -20,12 +20,13 @@
             </div>
           </div>
 
-        <div class="panel-group" id="panel_output_lib_{{.RunUUID}}">
-          {{range .Histories}}
-          <div class="test_id_{{.TestID}}">
-          {{template "TestHistory/history.html" .}}
-        </div>
-          {{end}}
+          <div class="panel-group" id="panel_output_lib_{{.RunUUID}}">
+            {{range .Histories}}
+            <div class="test_id_{{.TestID}}">
+              {{template "TestHistory/history.html" .}}
+            </div>
+            {{end}}
+          </div>
         </div>
       </div>
     </div>

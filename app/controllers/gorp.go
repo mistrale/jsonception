@@ -121,7 +121,7 @@ func InitDB() {
 		return template.JS("")
 	}
 	revel.TemplateFuncs["newHistory"] = func() *models.TestHistory {
-		return &models.TestHistory{}
+		return &models.TestHistory{ID: -1}
 	}
 	revel.TemplateFuncs["newUuid"] = func() string {
 		return uuid.NewV4().String()
