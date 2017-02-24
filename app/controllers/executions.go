@@ -146,10 +146,14 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 	}
 	room := socket.CreateRoom(uuid.String())
 
-	go func(ch chan map[string]interface{}) {
+	go func(ch chan map[string]interface{}, exec_uuid string) {
 		for {
-			room.Chan <- <-request.Response
+			msg := <-request.Response
+			room.Chan <- msg
+			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_EXEC {
+				room.Chan <- utils.NewResponse(true, "", "end_"+exec_uuid)
+			}
 		}
-	}(request.Response)
+	}(request.Response, exec.Uuid)
 	return c.RenderJson(response)
 }

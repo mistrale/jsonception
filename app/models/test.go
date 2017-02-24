@@ -63,7 +63,6 @@ func (test Test) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(false, "File diverg from different events number", nil)
 		return
 	}
-
 	// iterate through reference file
 	for i, refEvent := range refJSon {
 		params1 := utils.CopyArray(config)
@@ -82,8 +81,6 @@ func (test Test) Run(response chan map[string]interface{}) {
 		}
 		jsonlogresp := refEvent.(map[string]interface{})
 		jsonrefresp := testJson[i].(map[string]interface{})
-
-		//json.MarshalIndent(jsonresp, "", "    ")
 		str1, err := json.Marshal(jsonlogresp)
 		if err != nil {
 			response <- utils.NewResponse(false, err.Error(), nil)
@@ -91,8 +88,9 @@ func (test Test) Run(response chan map[string]interface{}) {
 
 		}
 		str2, err2 := json.Marshal(jsonrefresp)
+
 		if err2 != nil {
-			response <- utils.NewResponse(false, err.Error(), nil)
+			response <- utils.NewResponse(false, err2.Error(), nil)
 			return
 		}
 		resp := make(map[string]interface{})
@@ -112,9 +110,7 @@ func (test Test) Run(response chan map[string]interface{}) {
 		resp["body"] = make(map[string]interface{})
 		resp["body"].(map[string]interface{})[TESTLOGEVENT] = string(prettyJSON1.Bytes())
 		resp["body"].(map[string]interface{})[REFLOGEVENT] = string(prettyJSON2.Bytes())
-
 		response <- utils.NewResponse(true, "", resp)
-
 	}
 	resp := make(map[string]interface{})
 	resp["event_type"] = RESULTEVENT
@@ -127,8 +123,6 @@ func (test Test) Run(response chan map[string]interface{}) {
 		resp["body"] = errors
 		response <- utils.NewResponse(false, strings.Join(errors[:], ""), resp)
 	}
-	//success := jsoncmp.CompareJSON(test.PathLogFile, refJSon, config)
-
 	log.Println("JOB DONE")
 	return
 }

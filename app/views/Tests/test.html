@@ -291,7 +291,7 @@ $(document).ready(function() {
   }
 
    $("#run_test_btn_{{.Uuid}}").click(function() {
-     $.get( "/history?uuid=" + {{.Uuid}}, function(data) {
+     $.get( "/history?uuid=" + {{.Uuid}} + "&testName=" + {{.Name}}, function(data) {
        console.log("data  : " + data)
 
           $("#panel_test_run_{{.Uuid}}").slideUp(function() {

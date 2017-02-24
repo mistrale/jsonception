@@ -75,7 +75,7 @@ func (c Tests) Update(id_test int) revel.Result {
 }
 
 // Generic Run test method
-func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) bool {
+func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) {
 	var request dispatcher.WorkRequest
 	output := ""
 
@@ -83,7 +83,7 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 	test.Execution.Uuid = n_uuid
 	// create history
 
-	go func() {
+	go func(room chan map[string]interface{}) {
 		history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
 
 		var runner models.IRunnable = test.Execution
@@ -102,20 +102,10 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 			response["response"] = make(map[string]interface{})
 			response["response"].(map[string]interface{})["event_type"] = models.START_TEST
 			response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
-			fmt.Printf("reponse : %s\n", response)
-
 			room <- response
-			fmt.Printf("reponse : %s\n", response)
-
-		}
-		if test.ExecutionID != 0 {
 			for {
 				msg := <-request.Response
-				fmt.Printf("[test] on recoit : %s\n", msg)
-
 				room <- msg
-				fmt.Printf("[test] on envoie : %s\n", msg)
-
 				if msg["status"] != true {
 					updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
 					return
@@ -129,7 +119,6 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 				//				fmt.Printf("OUTPUT : %s\n", msg)
 			}
 		}
-		fmt.Println("on a finit l 'exec'")
 		runner = test
 		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
 		dispatcher.WorkQueue <- request
@@ -141,29 +130,26 @@ func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{},
 		testlog := ""
 
 		for {
-
 			msg := <-ch
-			//fmt.Printf("response : %s\n", msg)
-
 			if msg["status"] != true {
 				updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), test.Name, false)
 				room <- msg
-				return
+				break
 			}
 			response := msg["response"].(map[string]interface{})
 			if response["event_type"] == models.TESTEVENT {
 				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
 				testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
 			} else if response["event_type"] == models.RESULTEVENT {
+				fmt.Println("on a fini le test")
 				updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), test.Name, true)
 				room <- msg
-
-				return
+				break
 			}
 			room <- msg
 		}
-	}()
-	return true
+		room <- utils.NewResponse(true, "", "end_"+test.Uuid)
+	}(room)
 }
 
 // Run method to start a test
@@ -175,9 +161,7 @@ func (c Tests) Run(testID int) revel.Result {
 	c.Txn.Preload("Execution").First(&test, testID)
 
 	// run test
-	if !RunTest(&test, test_uuid.String(), room.Chan, c.Txn) {
-		return c.RenderJson(<-room.Chan)
-	}
+	RunTest(&test, test_uuid.String(), room.Chan, c.Txn)
 	fmt.Printf("On return :D %s\n", test_uuid.String())
 	return c.RenderJson(utils.NewResponse(true, "", test_uuid.String()))
 }

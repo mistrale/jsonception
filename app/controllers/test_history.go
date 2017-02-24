@@ -21,9 +21,10 @@ func (c TestHistory) Get() revel.Result {
 }
 
 // Get method to get one history
-func (c TestHistory) GetOne(uuid string) revel.Result {
+func (c TestHistory) GetOne(uuid, testName string) revel.Result {
 	hist := &models.TestHistory{}
 	hist.Uuid = uuid
+	hist.TestName = testName
 	c.Render(hist)
 	return c.RenderTemplate("TestHistory/one.html")
 }

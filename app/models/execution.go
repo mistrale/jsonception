@@ -48,11 +48,7 @@ func (e Execution) Run(response chan map[string]interface{}) {
 		response <- utils.NewResponse(false, err.Error(), nil)
 		//log.Fatal(err)
 	}
-	fmt.Println("on va push un msg DE STARTD")
-
 	response <- utils.NewResponse(true, "ok", e.Uuid)
-	fmt.Println("on a push un msg DE ENDED")
-
 	go func(ch chan string) {
 		for {
 			msg := <-ch
@@ -68,10 +64,8 @@ func (e Execution) Run(response chan map[string]interface{}) {
 	cmd.Wait()
 	cmd.Process.Kill()
 	resp := make(map[string]interface{})
-	fmt.Println("on va push un msg EXEC END")
 	resp["event_type"] = RESULT_EXEC
-	resp["body"] = "end_" + e.Uuid
+	resp["body"] = "Execution done !"
 	response <- utils.NewResponse(true, "", resp)
-	fmt.Println("on va push un msg EXEND END")
 
 }

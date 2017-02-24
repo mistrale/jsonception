@@ -41,13 +41,14 @@ func StartDispatcher(nb_workers int) {
 					worker.Start()
 				}
 				fmt.Println("On recupere un worker")
-				worker := <-workerQueue[id]
-				fmt.Println("On push")
+				go func() {
+					worker := <-workerQueue[id]
+					fmt.Println("On push")
 
-				//workerQueue[id] <- work
-				worker <- work
-				fmt.Println("On a push")
-
+					//workerQueue[id] <- work
+					worker <- work
+					fmt.Println("On a push")
+				}()
 			}
 		}
 	}()

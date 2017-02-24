@@ -68,7 +68,7 @@ func (c Libraries) Run(libID int) revel.Result {
 	lib := &models.Library{}
 	lib_uuid := uuid.NewV4()
 	lib_room := socket.CreateRoom(lib_uuid.String())
-	end := make(chan bool, len(lib.Tests))
+	end := make(chan int, len(lib.Tests))
 
 	history := &models.LibraryHistory{LibID: libID, TimeRunned: time.Now().UnixNano(), Histories: make([]models.TestHistory, 0),
 		RunUUID: lib_uuid.String()}
@@ -76,11 +76,11 @@ func (c Libraries) Run(libID int) revel.Result {
 	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, libID)
 	for i, v := range lib.Tests {
 		channel := make(chan map[string]interface{})
-		//test_uuid := uuid.NewV4()
+		test_uuid := uuid.NewV4()
 		//	room := socket.CreateRoom(test_uuid.String())
 
 		go func(test models.Test, ite int) {
-			go RunTest(&test, lib_uuid.String(), channel, c.Txn)
+			go RunTest(&test, test_uuid.String(), channel, c.Txn)
 
 			fmt.Printf("test id IN GO : %d\n", test.GetID())
 			for {
@@ -91,35 +91,43 @@ func (c Libraries) Run(libID int) revel.Result {
 					if response["event_type"] == models.RESULTEVENT {
 						var hist models.TestHistory
 
-						Dbm.Where("run_uuid = ? and test_id = ?", lib_uuid.String(), test.GetID()).First(&hist)
+						Dbm.Where("run_uuid = ? and test_id = ?", test_uuid.String(), test.GetID()).First(&hist)
 						history.Histories = append(history.Histories, hist)
 						log.Printf("on rnetre ici %d\n", hist.TestID)
-
-						end <- true
+						if msg["status"] == true {
+							end <- 1
+						} else {
+							end <- 0
+						}
 						return
 					}
 				}
 				if msg["status"] != true {
 					var hist models.TestHistory
 
-					Dbm.Where("run_uuid = ?", lib_uuid.String()).First(&hist)
+					Dbm.Where("run_uuid = ?", test_uuid.String()).First(&hist)
 					history.Histories = append(history.Histories, hist)
-					end <- true
+					end <- 0
 					fmt.Printf("ERROR : %s\n", msg["message"])
 					return
 				}
 			}
 		}(v, i)
 	}
-	go func(end chan bool) {
+	go func(end chan int) {
+		history.Success = true
 		nb_test := 0
 		for {
-			<-end
+			v := <-end
+			if v == 0 {
+				history.Success = false
+			}
 			nb_test++
 			fmt.Printf("NB TEST : %d\n", len(lib.Tests))
 			if nb_test == len(lib.Tests) {
 				history.LibName = lib.Name
 				Dbm.Create(history)
+				lib_room.Chan <- utils.NewResponse(true, "", "end_"+lib_uuid.String())
 				return
 			}
 		}

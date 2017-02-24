@@ -48,8 +48,9 @@
   </div>
 </div>
 <script>
+init_history({{.Uuid}})
+
 $(document).ready(function() {
-  init_history({{.Uuid}})
 
    var myDate = new Date({{.TimeRunned}} / 1000000);
   $("#collapser_history_{{.Uuid}}").text({{.TestName}} + " - " + myDate.toString());
