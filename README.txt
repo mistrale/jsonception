@@ -1,0 +1,7 @@
+- install revel
+- install Gorp
+- install sqlite3
+- install go.uuid satori
+- install dbus
+- install gorm
+- install lib/pq
