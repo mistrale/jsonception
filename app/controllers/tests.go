@@ -43,7 +43,7 @@ func (c Tests) Create() revel.Result {
 	}
 
 	if _, err := ioutil.ReadFile(test.PathRefFile); err != nil {
-		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file.", nil))
+		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file : " + err.Error(), nil))
 	}
 
 	// insert ref with ExecutionID
