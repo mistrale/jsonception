@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
@@ -124,22 +123,19 @@ func (c Executions) Update(id_exec int) revel.Result {
 // Run method to execute script
 func (c Executions) Run(id_exec int, script string) revel.Result {
 	uuid := uuid.NewV4()
-
-	var request dispatcher.WorkRequest
+	channel := make(chan map[string]interface{})
 	var exec models.Execution
 
 	if id_exec != 0 {
 		c.Txn.First(&exec, id_exec)
+
 	} else {
 		exec.Script = script
 	}
 	exec.Uuid = uuid.String()
 
-	var runner models.IRunnable = exec
-	request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-	dispatcher.WorkQueue <- request
-
-	response := <-request.Response
+	go exec.Run(channel)
+	response := <-channel
 	if response["status"] != true {
 		fmt.Printf("status : %s\n", response)
 		return c.RenderJson(response)
@@ -148,12 +144,12 @@ func (c Executions) Run(id_exec int, script string) revel.Result {
 
 	go func(ch chan map[string]interface{}, exec_uuid string) {
 		for {
-			msg := <-request.Response
+			msg := <-channel
 			room.Chan <- msg
 			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_EXEC {
 				room.Chan <- utils.NewResponse(true, "", "end_"+exec_uuid)
 			}
 		}
-	}(request.Response, exec.Uuid)
+	}(channel, exec.Uuid)
 	return c.RenderJson(response)
 }

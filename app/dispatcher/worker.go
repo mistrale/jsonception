@@ -26,7 +26,7 @@ func NewWorker(workerQueue chan chan WorkRequest) Worker {
 
 // Run function for worker doing job
 func (w *Worker) Run(Work WorkRequest) {
-	log.Println("run starting")
+	log.Printf("run starting with runner id : %d\n", (*Work.Runner).GetID())
 
 	(*Work.Runner).Run(Work.Response)
 

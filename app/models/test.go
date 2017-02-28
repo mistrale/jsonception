@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strings"
+	"time"
 
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
@@ -21,8 +21,12 @@ type Test struct {
 	PathLogFile string    `json:"path_log"`
 	ExecutionID int       `json:"executionID"`
 	Execution   Execution `json:"execution" gorm:"ForeignKey:ExecutionID;AssociationForeignKey:ExecutionID"`
+	Order       string    `json:"-" sql:"-"`
+	Uuid        string    `json:"-" sql:"-"`
+}
 
-	Uuid string `json:"-" db:"-"`
+func (test Test) GetOrder() string {
+	return test.Order
 }
 
 func (test Test) GetID() int {
@@ -30,7 +34,7 @@ func (test Test) GetID() int {
 }
 
 // Run method to realise test
-func (test Test) Run(response chan map[string]interface{}) {
+func (test Test) Compare(response chan map[string]interface{}) {
 	fmt.Println("Running teeeeeest")
 	errors := make([]string, 0)
 	status := true
@@ -123,6 +127,75 @@ func (test Test) Run(response chan map[string]interface{}) {
 		resp["body"] = errors
 		response <- utils.NewResponse(false, strings.Join(errors[:], ""), resp)
 	}
-	log.Println("JOB DONE")
 	return
+}
+
+func (test Test) Run(room chan map[string]interface{}) {
+	//	history := &TestHistory{TestID: test.TestID, RunUUID: test.Uuid}
+	channel := make(chan map[string]interface{})
+	output := ""
+
+	//var runner IRunnable = test.Execution
+	fmt.Printf("on run test id : %d\n", test.TestID)
+	// if there is an execution
+	if test.ExecutionID != 0 {
+
+		go test.Execution.Run(channel)
+
+		response := <-channel
+		fmt.Printf("response test : %s\n", response)
+		if response["status"] != true {
+			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, TimeRunned: time.Now().UnixNano()}
+			room <- response
+			return
+		}
+
+		response["response"] = make(map[string]interface{})
+		response["response"].(map[string]interface{})["event_type"] = START_TEST
+		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
+		room <- response
+
+		for {
+			msg := <-channel
+			fmt.Printf("OUTPUT : %s\n", msg)
+
+			if msg["status"] != true {
+				response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, OutputExec: output, OutputTest: msg["message"].(string)}
+				room <- msg
+				return
+			}
+			room <- msg
+			if response2, ok := msg["response"].(map[string]interface{}); ok {
+				if response2["event_type"] == RESULT_EXEC {
+					break
+				}
+				output += msg["response"].(map[string]interface{})["body"].(string)
+			}
+		}
+	}
+	go test.Compare(channel)
+	reflog := ""
+	testlog := ""
+
+	for {
+		msg := <-channel
+		if msg["status"] != true {
+			msg["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false,
+				OutputExec: output, OutputTest: msg["message"].(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
+			room <- msg
+			break
+		}
+		response := msg["response"].(map[string]interface{})
+		if response["event_type"] == TESTEVENT {
+			reflog += response["body"].(map[string]interface{})[REFLOGEVENT].(string)
+			testlog += response["body"].(map[string]interface{})[TESTLOGEVENT].(string)
+		} else if response["event_type"] == RESULTEVENT {
+			fmt.Printf("on a fini le test : %d\n", test.TestID)
+			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: true,
+				OutputExec: output, OutputTest: response["body"].(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
+			room <- msg
+			break
+		}
+		room <- msg
+	}
 }

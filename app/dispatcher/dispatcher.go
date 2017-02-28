@@ -3,15 +3,17 @@ package dispatcher
 import (
 	"fmt"
 	"log"
-	"reflect"
-	"strconv"
 	"time"
-
-	"github.com/mistrale/jsonception/app/models"
 )
 
+type IRunnable interface {
+	GetOrder() string
+	GetID() int
+	Run(chan map[string]interface{})
+}
+
 type WorkRequest struct {
-	Runner   *models.IRunnable
+	Runner   *IRunnable
 	Delay    time.Duration
 	Response chan map[string]interface{}
 }
@@ -31,24 +33,24 @@ func StartDispatcher(nb_workers int) {
 		for {
 			select {
 			case work := <-WorkQueue:
-				id := reflect.TypeOf(*work.Runner).String() + "_" + strconv.Itoa((*work.Runner).GetID())
-				fmt.Printf("receiv word :%s\n", id)
+				id := (*work.Runner).GetOrder()
+				fmt.Printf("receiv word :%s\nand runner id : %d\n", id, (*work.Runner).GetID())
 
 				_, ok := workerQueue[id]
 				if !ok {
 					workerQueue[id] = make(chan chan WorkRequest)
 					worker := NewWorker(workerQueue[id])
-					worker.Start()
+					go worker.Start()
 				}
 				fmt.Println("On recupere un worker")
-				go func() {
-					worker := <-workerQueue[id]
-					fmt.Println("On push")
+				//		go func() {
+				worker := <-workerQueue[id]
+				fmt.Println("On push")
 
-					//workerQueue[id] <- work
-					worker <- work
-					fmt.Println("On a push")
-				}()
+				//workerQueue[id] <- work
+				worker <- work
+				fmt.Println("On a push")
+				//		}()
 			}
 		}
 	}()

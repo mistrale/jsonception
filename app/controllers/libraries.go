@@ -2,16 +2,17 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"sort"
 	"time"
 
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
 	"github.com/revel/revel"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 )
 
 // Libraries controller
@@ -64,74 +65,82 @@ func (c Libraries) Update(id_lib int) revel.Result {
 	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
 }
 
-func (c Libraries) Run(libID int) revel.Result {
-	lib := &models.Library{}
-	lib_uuid := uuid.NewV4()
-	lib_room := socket.CreateRoom(lib_uuid.String())
+func (c Libraries) initRun(lib_uuid string, lib *models.Library, orders *models.LibraryOrder) error {
+	content, _ := ioutil.ReadAll(c.Request.Body)
+	if err := json.Unmarshal(content, orders); err != nil {
+		fmt.Printf("err : %s\n", err.Error())
+		return err
+	}
+	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, orders.IdLib)
+	fmt.Printf("lib : %d\n", orders.IdLib)
+
+	// check if all test are present
+	tests := make(map[int]int)
+	for _, v := range orders.Orders {
+		tests[v.IdTest] += 1
+	}
+	for i, v := range lib.Tests {
+		tests[v.TestID] -= 1
+		lib.Tests[i].Uuid = uuid.NewV4().String()
+		if tests[v.TestID] == 0 {
+			delete(tests, v.TestID)
+		}
+	}
+	if len(tests) > 0 {
+		return errors.New("Ordering for running lib is wrong")
+	}
+	sort.Sort(orders.Orders)
+
+	fmt.Println("\nSorted")
+	for _, c := range orders.Orders {
+		fmt.Printf("test order : %d\tid : %d\n", c.Orders, c.IdTest)
+	}
+	return nil
+}
+
+func (c Libraries) Start(lib_uuid string, lib *models.Library) {
+	fmt.Println("Starting lib")
+	lib_room := socket.CreateRoom(lib_uuid)
+	testsOrders := make(map[int]int)
+	nb_test := len(lib.Tests)
 	end := make(chan int, len(lib.Tests))
 
-	history := &models.LibraryHistory{LibID: libID, TimeRunned: time.Now().UnixNano(), Histories: make([]models.TestHistory, 0),
-		RunUUID: lib_uuid.String()}
+	history := &models.LibraryHistory{LibID: lib.LibraryID, TimeRunned: time.Now().UnixNano(), Histories: make([]models.TestHistory, 0),
+		RunUUID: lib_uuid}
 
-	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, libID)
-	for i, v := range lib.Tests {
-		channel := make(chan map[string]interface{})
-		test_uuid := uuid.NewV4()
-		//	room := socket.CreateRoom(test_uuid.String())
+	go lib.Run(testsOrders, end, history, lib_room.Chan)
 
-		go func(test models.Test, ite int) {
-			go RunTest(&test, test_uuid.String(), channel, c.Txn)
-
-			fmt.Printf("test id IN GO : %d\n", test.GetID())
-			for {
-				msg := <-channel
-				msg["test_id"] = test.GetID()
-				lib_room.Chan <- msg
-				if response, ok := msg["response"].(map[string]interface{}); ok {
-					if response["event_type"] == models.RESULTEVENT {
-						var hist models.TestHistory
-
-						Dbm.Where("run_uuid = ? and test_id = ?", test_uuid.String(), test.GetID()).First(&hist)
-						history.Histories = append(history.Histories, hist)
-						log.Printf("on rnetre ici %d\n", hist.TestID)
-						if msg["status"] == true {
-							end <- 1
-						} else {
-							end <- 0
-						}
-						return
-					}
-				}
-				if msg["status"] != true {
-					var hist models.TestHistory
-
-					Dbm.Where("run_uuid = ?", test_uuid.String()).First(&hist)
-					history.Histories = append(history.Histories, hist)
-					end <- 0
-					fmt.Printf("ERROR : %s\n", msg["message"])
-					return
-				}
-			}
-		}(v, i)
-	}
+	// check end of test
 	go func(end chan int) {
 		history.Success = true
-		nb_test := 0
 		for {
 			v := <-end
 			if v == 0 {
 				history.Success = false
 			}
-			nb_test++
-			fmt.Printf("NB TEST : %d\n", len(lib.Tests))
-			if nb_test == len(lib.Tests) {
+			nb_test--
+			fmt.Printf("NB TEST : %d\n", nb_test)
+			if nb_test == 0 {
 				history.LibName = lib.Name
 				Dbm.Create(history)
-				lib_room.Chan <- utils.NewResponse(true, "", "end_"+lib_uuid.String())
+
+				lib_room.Chan <- utils.NewResponse(true, "", "end_"+lib_uuid)
 				return
 			}
 		}
 	}(end)
+}
+
+func (c Libraries) Run() revel.Result {
+	lib_uuid := uuid.NewV4()
+	lib := &models.Library{}
+	orders := &models.LibraryOrder{}
+
+	if err := c.initRun(lib_uuid.String(), lib, orders); err != nil {
+		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
+	}
+	lib.TestOrder = *orders
+	c.Start(lib_uuid.String(), lib)
 	return c.RenderJson(utils.NewResponse(true, "", lib_uuid.String()))
 }
 

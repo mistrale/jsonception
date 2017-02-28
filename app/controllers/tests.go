@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"time"
+	"strconv"
 
 	"github.com/jinzhu/gorm"
-	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
@@ -76,94 +75,122 @@ func (c Tests) Update(id_test int) revel.Result {
 
 // Generic Run test method
 func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) {
-	var request dispatcher.WorkRequest
-	output := ""
-
-	test.Uuid = n_uuid
-	test.Execution.Uuid = n_uuid
-	// create history
-
-	go func(room chan map[string]interface{}) {
-		history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
-
-		var runner models.IRunnable = test.Execution
-		fmt.Printf("on run test id : %d\n", test.TestID)
-		// if there is an execution
-		if test.ExecutionID != 0 {
-			request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-			dispatcher.WorkQueue <- request
-			response := <-request.Response
-			if response["status"] != true {
-				updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
-				room <- response
-				//return false
-			}
-
-			response["response"] = make(map[string]interface{})
-			response["response"].(map[string]interface{})["event_type"] = models.START_TEST
-			response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
-			room <- response
-			for {
-				msg := <-request.Response
-				room <- msg
-				if msg["status"] != true {
-					updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
-					return
-				}
-				if response, ok := msg["response"].(map[string]interface{}); ok {
-					if response["event_type"] == models.RESULT_EXEC {
-						break
-					}
-					output += msg["response"].(map[string]interface{})["body"].(string)
-				}
-				//				fmt.Printf("OUTPUT : %s\n", msg)
-			}
-		}
-		runner = test
-		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-		dispatcher.WorkQueue <- request
-		ch := request.Response
-
-		//go test.Run(ch)
-
-		reflog := ""
-		testlog := ""
-
-		for {
-			msg := <-ch
-			if msg["status"] != true {
-				updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), test.Name, false)
-				room <- msg
-				break
-			}
-			response := msg["response"].(map[string]interface{})
-			if response["event_type"] == models.TESTEVENT {
-				reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
-				testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
-			} else if response["event_type"] == models.RESULTEVENT {
-				fmt.Println("on a fini le test")
-				updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), test.Name, true)
-				room <- msg
-				break
-			}
-			room <- msg
-		}
-		room <- utils.NewResponse(true, "", "end_"+test.Uuid)
-	}(room)
+	// //var request dispatcher.WorkRequest
+	// output := ""
+	// channel := make(chan map[string]interface{})
+	//
+	// test.Uuid = n_uuid
+	// test.Execution.Uuid = n_uuid
+	// //test.Execution.Order = "exec_" + test.Order
+	// // create history
+	//
+	// go func(room chan map[string]interface{}) {
+	// 	history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
+	//
+	// 	var runner models.IRunnable = test.Execution
+	// 	fmt.Printf("on run test id : %d\n", test.TestID)
+	// 	// if there is an execution
+	// 	if test.ExecutionID != 0 {
+	//
+	// 		//test.Execution.Run(channel)
+	// 		// request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+	// 		// dispatcher.WorkQueue <- request
+	// 		response := <-channel
+	//
+	// 		if response["status"] != true {
+	// 			updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
+	// 			room <- response
+	// 			//return false
+	// 		}
+	//
+	// 		response["response"] = make(map[string]interface{})
+	// 		response["response"].(map[string]interface{})["event_type"] = models.START_TEST
+	// 		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
+	// 		room <- response
+	// 		for {
+	// 			msg := <-request.Response
+	// 			room <- msg
+	// 			if msg["status"] != true {
+	// 				updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
+	// 				return
+	// 			}
+	// 			if response2, ok := msg["response"].(map[string]interface{}); ok {
+	// 				if response2["event_type"] == models.RESULT_EXEC {
+	// 					break
+	// 				}
+	// 				output += msg["response"].(map[string]interface{})["body"].(string)
+	// 			}
+	// 			//				fmt.Printf("OUTPUT : %s\n", msg)
+	// 		}
+	// 	}
+	// 	runner = test
+	// 	request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+	// 	dispatcher.WorkQueue <- request
+	// 	ch := request.Response
+	//
+	// 	//go test.Run(ch)
+	//
+	// 	reflog := ""
+	// 	testlog := ""
+	//
+	// 	for {
+	// 		msg := <-ch
+	// 		if msg["status"] != true {
+	// 			updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), test.Name, false)
+	// 			room <- msg
+	// 			break
+	// 		}
+	// 		response := msg["response"].(map[string]interface{})
+	// 		if response["event_type"] == models.TESTEVENT {
+	// 			reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
+	// 			testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
+	// 		} else if response["event_type"] == models.RESULTEVENT {
+	// 			fmt.Printf("on a fini le test : %d\n", test.TestID)
+	// 			updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), test.Name, true)
+	// 			room <- msg
+	// 			break
+	// 		}
+	// 		room <- msg
+	// 	}
+	// 	room <- utils.NewResponse(true, "", "end_"+test.Uuid)
+	// }(room)
 }
 
 // Run method to start a test
 func (c Tests) Run(testID int) revel.Result {
 	var test models.Test
+	channel := make(chan map[string]interface{})
+	test_uuid := uuid.NewV4().String()
+	room := socket.CreateRoom(test_uuid)
 
-	test_uuid := uuid.NewV4()
-	room := socket.CreateRoom(test_uuid.String())
 	c.Txn.Preload("Execution").First(&test, testID)
+	test.Order = "order_test_" + strconv.Itoa(test.TestID)
+	test.Uuid = test_uuid
+
+	go func(channel chan map[string]interface{}, test_uuid string) {
+		go test.Run(channel)
+		for {
+			msg := <-channel
+			room.Chan <- msg
+			if msg["status"] == false {
+				room.Chan <- utils.NewResponse(true, "", "end_"+test_uuid)
+				history := msg["history"]
+				c.Txn.Create(history)
+				break
+			}
+			if msg["response"].(map[string]interface{})["event_type"] == models.RESULTEVENT {
+				room.Chan <- utils.NewResponse(true, "", "end_"+test_uuid)
+				history := msg["response"].(map[string]interface{})["history"]
+				Dbm.Create(history)
+				break
+			}
+		}
+	}(channel, test_uuid)
 
 	// run test
-	RunTest(&test, test_uuid.String(), room.Chan, c.Txn)
-	fmt.Printf("On return :D %s\n", test_uuid.String())
-	return c.RenderJson(utils.NewResponse(true, "", test_uuid.String()))
+	//	RunTest(&test, test_uuid.String(), room.Chan, c.Txn)
+	fmt.Printf("On return :D %s\n", test_uuid)
+	return c.RenderJson(utils.NewResponse(true, "", test_uuid))
 }
 
 // GetHistory method to get all history from one test
