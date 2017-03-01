@@ -21,6 +21,42 @@ type Tests struct {
 
 // Create method to add new execution in DB
 func (c Tests) Create() revel.Result {
+
+	// m := c.Request.MultipartForm
+	// upload_dir := "/Users/Sikorav/work/goget/src/github.com/mistrale/jsonception/"
+	// //var msg string
+	// for fname, _ := range m.File {
+	//
+	// 	fheaders := m.File[fname]
+	// 	for i, _ := range fheaders {
+	// 		//for each fileheader, get a handle to the actual file
+	// 		file, err := fheaders[i].Open()
+	// 		fmt.Println("tata")
+	// 		fmt.Println(file)
+	// 		defer file.Close() //close the source file handle on function return
+	// 		if err != nil {
+	// 			log.Println(err)
+	// 		}
+	// 		//create destination file making sure the path is writeable.
+	// 		dst_path := upload_dir + fheaders[i].Filename
+	// 		fmt.Printf("file path : %s\n", dst_path)
+	// 		dst, err := os.Create(dst_path)
+	// 		defer dst.Close()                             //close the destination file handle on function return
+	// 		defer os.Chmod(dst_path, (os.FileMode)(0644)) //limit access restrictions
+	// 		if err != nil {
+	// 			log.Println(err)
+	// 		}
+	// 		//copy the uploaded file to the destination file
+	// 		if _, err := io.Copy(dst, file); err != nil {
+	// 			log.Println(err)
+	// 		}
+	//
+	// 	}
+	// 	//display success message.
+	// 	log.Println(fname, "upload successful..")
+	// 	//msg = "upload successful.."
+	// }
+
 	test := &models.Test{}
 	content, _ := ioutil.ReadAll(c.Request.Body)
 	if err := json.Unmarshal(content, test); err != nil {
@@ -42,7 +78,7 @@ func (c Tests) Create() revel.Result {
 	}
 
 	if _, err := ioutil.ReadFile(test.PathRefFile); err != nil {
-		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file : " + err.Error(), nil))
+		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file : "+err.Error(), nil))
 	}
 
 	// insert ref with ExecutionID

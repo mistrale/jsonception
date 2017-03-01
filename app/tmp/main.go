@@ -135,93 +135,6 @@ func main() {
 			
 		})
 	
-	revel.RegisterController((*controllers.Executions)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "Index",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					33: []string{ 
-						"exec",
-						"ip",
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "All",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-					42: []string{ 
-						"execs",
-						"testID",
-						"ip",
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "Get",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "GetOne",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "GetOneTemplate",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-					66: []string{ 
-						"exec",
-						"uuid",
-					},
-				},
-			},
-			&revel.MethodType{
-				Name: "Create",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Delete",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Update",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "Run",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
-					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
 	revel.RegisterController((*controllers.Libraries)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -320,6 +233,30 @@ func main() {
 			
 		})
 	
+	revel.RegisterController((*controllers.TestHistory)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "GetOne",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "uuid", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "testName", Type: reflect.TypeOf((*string)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					28: []string{ 
+						"hist",
+					},
+				},
+			},
+			
+		})
+	
 	revel.RegisterController((*controllers.Tests)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -367,7 +304,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					204: []string{ 
+					240: []string{ 
 						"history",
 					},
 				},
@@ -378,7 +315,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					210: []string{ 
+					246: []string{ 
 					},
 				},
 			},
@@ -387,7 +324,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					216: []string{ 
+					252: []string{ 
 						"test",
 					},
 				},
@@ -397,7 +334,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					223: []string{ 
+					259: []string{ 
 						"tests",
 					},
 				},
@@ -415,7 +352,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					237: []string{ 
+					273: []string{ 
 						"test",
 					},
 				},
@@ -423,8 +360,31 @@ func main() {
 			
 		})
 	
-	revel.RegisterController((*controllers.TestHistory)(nil),
+	revel.RegisterController((*controllers.Executions)(nil),
 		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Index",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					33: []string{ 
+						"exec",
+						"ip",
+					},
+				},
+			},
+			&revel.MethodType{
+				Name: "All",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+					42: []string{ 
+						"execs",
+						"testID",
+						"ip",
+					},
+				},
+			},
 			&revel.MethodType{
 				Name: "Get",
 				Args: []*revel.MethodArg{ 
@@ -435,13 +395,53 @@ func main() {
 			&revel.MethodType{
 				Name: "GetOne",
 				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "uuid", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "testName", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					28: []string{ 
-						"hist",
+				},
+			},
+			&revel.MethodType{
+				Name: "GetOneTemplate",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					66: []string{ 
+						"exec",
+						"uuid",
 					},
+				},
+			},
+			&revel.MethodType{
+				Name: "Create",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Delete",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Update",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "Run",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "id_exec", Type: reflect.TypeOf((*int)(nil)) },
+					&revel.MethodArg{Name: "script", Type: reflect.TypeOf((*string)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
 				},
 			},
 			

@@ -188,6 +188,29 @@ $(document).ready(function() {
   });
 
   $("#create_test_btn_{{.Uuid}}").click(function() {
+    // var file_data = $('#exec_file_{{.Uuid}}').prop('files')[0];
+    // console.log(file_data)
+    // var form_data = new FormData();
+    //
+    // form_data.append("name", $("#exec_name_{{.Uuid}}").val());
+    // form_data.append("script", script_editor[{{.Uuid}}].getValue());
+    // form_data.append('file', file_data);
+    //
+    // console.log(form_data)
+    // $.ajax({
+    //             url: 'http://{{getIP}}:9000/execution/', // point to server-side PHP script
+    //             dataType: 'text',  // what to expect back from the PHP script, if anything
+    //             cache: false,
+    //             contentType: false,
+    //             processData: false,
+    //             data: form_data,
+    //             type: 'post',
+    //             success: function(php_script_response){
+    //                 alert(php_script_response); // display response from the PHP script, if any
+    //             }
+    //  });
+
+
       $("#save_test_error_{{.Uuid}}").hide()
       $("#save_test_success_{{.Uuid}}").hide()
 

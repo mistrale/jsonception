@@ -69,28 +69,27 @@ func (c Executions) GetOneTemplate(id int) revel.Result {
 
 // Create method to add new execution in DB
 func (c Executions) Create() revel.Result {
-	exec := &models.Execution{}
-	content, _ := ioutil.ReadAll(c.Request.Body)
-	if err := json.Unmarshal(content, exec); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	}
-	// check params
-	if exec.Name == "" {
-		return c.RenderJson(utils.NewResponse(false, "Execution name cannot be empty.", nil))
-	}
 
-	if exec.Script == "" {
-		return c.RenderJson(utils.NewResponse(false, "Script name cannot be empty.", nil))
-	}
-
-	fmt.Printf("name : %s\tscript : %s\n", exec.Name, exec.Script)
-
-	c.Txn.Create(exec)
-	// if err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, "", err.Error()))
+	//exec := &models.Execution{}
+	//	content, _ := ioutil.ReadAll(c.Request.Body)
+	//	fmt.Printf("content : %s\n", content)
+	// if err := json.Unmarshal(content, exec); err != nil {
+	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	// }
-	//dispatcher.AddWorker()
-	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
+	// // check params
+	// if exec.Name == "" {
+	// 	return c.RenderJson(utils.NewResponse(false, "Execution name cannot be empty.", nil))
+	// }
+	//
+	// if exec.Script == "" {
+	// 	return c.RenderJson(utils.NewResponse(false, "Script name cannot be empty.", nil))
+	// }
+	//
+	// fmt.Printf("name : %s\tscript : %s\n", exec.Name, exec.Script)
+	//
+	// c.Txn.Create(exec)
+	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", nil))
+	// return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
 
 func (c Executions) Delete(id_exec int) revel.Result {

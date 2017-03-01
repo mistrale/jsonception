@@ -10,7 +10,6 @@ import (
 	"github.com/revel/revel"
 
 	_ "github.com/mattn/go-sqlite3"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	uuid "github.com/satori/go.uuid"
 
 	_ "github.com/lib/pq"
@@ -90,10 +89,10 @@ func initExecutionDB() {
 	if !Dbm.HasTable(&models.Execution{}) {
 		Dbm.CreateTable(&models.Execution{})
 		execs := []*models.Execution{
- 		&models.Execution{Name: "Click_element_set_return", Script: "ScenarioEngine.exe -r click_set_return -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 5d84fccb-3836-42a8-a0c8-56bc93518cb4 -T 63432494-c134-4ebd-9dc5-de6f6150060f -o -1748335"},
- 	 	&models.Execution{Name: "gla func", Script: "ScenarioEngine.exe -r gla_func -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 03b77937-aacb-4e32-8933-1b44c22e77ea -T a8ac7bc1-561f-4657-a94b-118c498756f3 -o -2608857"},
- 		&models.Execution{Name: "test_amazone", Script: "ScenarioEngine.exe -r test_amazon -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 68ea0181-b048-4375-91bd-cd0cd6d7434c -T b9d19b1e-14df-410f-b97a-f871bf6094d6 -o -1160361"},
- 		}
+			&models.Execution{Name: "Click_element_set_return", Script: "ScenarioEngine.exe -r click_set_return -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 5d84fccb-3836-42a8-a0c8-56bc93518cb4 -T 63432494-c134-4ebd-9dc5-de6f6150060f -o -1748335"},
+			&models.Execution{Name: "gla func", Script: "ScenarioEngine.exe -r gla_func -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 03b77937-aacb-4e32-8933-1b44c22e77ea -T a8ac7bc1-561f-4657-a94b-118c498756f3 -o -2608857"},
+			&models.Execution{Name: "test_amazone", Script: "ScenarioEngine.exe -r test_amazon -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 68ea0181-b048-4375-91bd-cd0cd6d7434c -T b9d19b1e-14df-410f-b97a-f871bf6094d6 -o -1160361"},
+		}
 		for _, exec := range execs {
 			Dbm.Create(exec)
 		}
@@ -104,15 +103,15 @@ func initTestDB() {
 	if !Dbm.HasTable(&models.Test{}) {
 		Dbm.CreateTable(&models.Test{})
 		tests := []*models.Test{
-		&models.Test{Name: "test_click_element_set_return", PathRefFile:"C:\\json_file\\click_set_return_debug.json",
-			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ExecutionID:1,
-			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
-		&models.Test{Name: "test_gla_func", PathRefFile:"C:\\json_file\\gla_func_debug.json",
-			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ExecutionID:2,
-			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
-		&models.Test{Name: "test_amazon", PathRefFile:"C:\\json_file\\test_amazon_debug.json",
-			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ExecutionID:3,
-			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
+			&models.Test{Name: "test_click_element_set_return", PathRefFile: "C:\\json_file\\click_set_return_debug.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ExecutionID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
+			&models.Test{Name: "test_gla_func", PathRefFile: "C:\\json_file\\gla_func_debug.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ExecutionID: 2,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
+			&models.Test{Name: "test_amazon", PathRefFile: "C:\\json_file\\test_amazon_debug.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ExecutionID: 3,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
 		}
 		for _, test := range tests {
 			Dbm.Create(test)
@@ -130,7 +129,7 @@ func initLibraryDB() {
 
 		Dbm.Preload("Execution").Find(&tests)
 
-		lib := &models.Library{Name:"First lib", Tests: tests, OrderString:`[{"id_test" : 1, "order" : 3}, {"id_test" : 2, "order" : 2}, {"id_test" : 3, "order" : 1}]`}
+		lib := &models.Library{Name: "First lib", Tests: tests, OrderString: `[{"id_test" : 1, "order" : 3}, {"id_test" : 2, "order" : 2}, {"id_test" : 3, "order" : 1}]`}
 		Dbm.Create(lib)
 	}
 
@@ -142,8 +141,8 @@ func initLibraryDB() {
 func InitDB() {
 	json_writer.Init()
 
-	db, err := gorm.Open("postgres", "user=postgres dbname=jsonception sslmode=disable password=witbe77")
-	 //db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
+	db, err := gorm.Open("postgres", "user=admin dbname=jsonception sslmode=disable")
+	//db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
 	if err != nil {
 		panic(err)
 	}
