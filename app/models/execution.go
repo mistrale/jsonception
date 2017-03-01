@@ -58,7 +58,6 @@ func (e Execution) Run(response chan map[string]interface{}) {
 			resp["body"] = msg
 
 			response <- utils.NewResponse(true, "", resp)
-			fmt.Printf("[execution] on va push un msg : %s\n", resp)
 			//room.Chan <- msg
 		}
 	}(ch)

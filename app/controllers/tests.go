@@ -186,10 +186,6 @@ func (c Tests) Run(testID int) revel.Result {
 			}
 		}
 	}(channel, test_uuid)
-
-	// run test
-	//	RunTest(&test, test_uuid.String(), room.Chan, c.Txn)
-	fmt.Printf("On return :D %s\n", test_uuid)
 	return c.RenderJson(utils.NewResponse(true, "", test_uuid))
 }
 

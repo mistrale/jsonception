@@ -143,7 +143,6 @@ func (test Test) Run(room chan map[string]interface{}) {
 		go test.Execution.Run(channel)
 
 		response := <-channel
-		fmt.Printf("response test : %s\n", response)
 		if response["status"] != true {
 			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, TimeRunned: time.Now().UnixNano()}
 			room <- response
@@ -157,8 +156,6 @@ func (test Test) Run(room chan map[string]interface{}) {
 
 		for {
 			msg := <-channel
-			fmt.Printf("OUTPUT : %s\n", msg)
-
 			if msg["status"] != true {
 				response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, OutputExec: output, OutputTest: msg["message"].(string)}
 				room <- msg
