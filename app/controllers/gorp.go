@@ -130,7 +130,7 @@ func initLibraryDB() {
 
 		Dbm.Preload("Execution").Find(&tests)
 
-		lib := &models.Library{Name:"First lib", Tests: tests}
+		lib := &models.Library{Name:"First lib", Tests: tests, OrderString:`[{"id_test" : 1, "order" : 3}, {"id_test" : 2, "order" : 2}, {"id_test" : 3, "order" : 1}]`}
 		Dbm.Create(lib)
 	}
 
@@ -142,8 +142,8 @@ func initLibraryDB() {
 func InitDB() {
 	json_writer.Init()
 
-	//db, err := gorm.Open("postgres", "user=postgres dbname=jsonception sslmode=disable password=witbe77")
-	 db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
+	db, err := gorm.Open("postgres", "user=postgres dbname=jsonception sslmode=disable password=witbe77")
+	 //db, err := gorm.Open("sqlite3", "/tmp/post_db.bin")
 	if err != nil {
 		panic(err)
 	}
@@ -155,7 +155,9 @@ func InitDB() {
 	}
 	//
 	Dbm = db
-
+	initExecutionDB()
+	initTestDB()
+	initLibraryDB()
 	var exec_counts []models.Execution
 	Dbm.Find(&exec_counts)
 
