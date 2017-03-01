@@ -106,13 +106,13 @@ func initTestDB() {
 		tests := []*models.Test{
 		&models.Test{Name: "test_click_element_set_return", PathRefFile:"C:\\json_file\\click_set_return_debug.json",
 			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ExecutionID:1,
-			Config:`"[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]"`},
+			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
 		&models.Test{Name: "test_gla_func", PathRefFile:"C:\\json_file\\gla_func_debug.json",
 			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ExecutionID:2,
-			Config:`"[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]"`},
-		&models.Test{Name: "test_amazon", PathRefFile:"C:\\json_file\test_amazon_debug.json",
-			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\test_amazon_debug.json", ExecutionID:3,
-			Config:`"[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]"`},
+			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
+		&models.Test{Name: "test_amazon", PathRefFile:"C:\\json_file\\test_amazon_debug.json",
+			PathLogFile:"C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ExecutionID:3,
+			Config:`[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
 		}
 		for _, test := range tests {
 			Dbm.Create(test)
