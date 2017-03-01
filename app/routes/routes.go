@@ -4,22 +4,6 @@ package routes
 import "github.com/revel/revel"
 
 
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) ListenExecutionRun(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.ListenExecutionRun", args).Url
-}
-
-
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -43,6 +27,22 @@ func (_ tGorpController) Rollback(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("GorpController.Rollback", args).Url
+}
+
+
+type tWebSocket struct {}
+var WebSocket tWebSocket
+
+
+func (_ tWebSocket) ListenExecutionRun(
+		room_name string,
+		ws interface{},
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.ListenExecutionRun", args).Url
 }
 
 
@@ -224,11 +224,9 @@ func (_ tLibraries) Update(
 }
 
 func (_ tLibraries) Run(
-		libID int,
 		) string {
 	args := make(map[string]string)
 	
-	revel.Unbind(args, "libID", libID)
 	return revel.MainRouter.Reverse("Libraries.Run", args).Url
 }
 
@@ -287,29 +285,6 @@ func (_ tLibraries) All(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("Libraries.All", args).Url
-}
-
-
-type tTestHistory struct {}
-var TestHistory tTestHistory
-
-
-func (_ tTestHistory) Get(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
-}
-
-func (_ tTestHistory) GetOne(
-		uuid string,
-		testName string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "uuid", uuid)
-	revel.Unbind(args, "testName", testName)
-	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
 }
 
 
@@ -406,6 +381,29 @@ func (_ tTests) GetOneTemplate(
 	
 	revel.Unbind(args, "testID", testID)
 	return revel.MainRouter.Reverse("Tests.GetOneTemplate", args).Url
+}
+
+
+type tTestHistory struct {}
+var TestHistory tTestHistory
+
+
+func (_ tTestHistory) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
+}
+
+func (_ tTestHistory) GetOne(
+		uuid string,
+		testName string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "uuid", uuid)
+	revel.Unbind(args, "testName", testName)
+	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
 }
 
 

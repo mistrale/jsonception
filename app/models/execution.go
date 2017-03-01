@@ -13,6 +13,7 @@ type Execution struct {
 	Name        string `json:"name" sql:"unique"`
 	Script      string `json:"script"`
 	Uuid        string `json:"-" sql:"-"`
+	Order       string `json:"-" sql:"-"`
 }
 
 type outstream struct {
@@ -30,8 +31,8 @@ func (out outstream) Write(p []byte) (int, error) {
 }
 
 // GetID method to retrieve model's id
-func (e Execution) GetID() int {
-	return e.ExecutionID
+func (e Execution) GetOrder() string {
+	return e.Order
 }
 
 // Run method to start script

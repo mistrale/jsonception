@@ -5,4 +5,4 @@
 - install dbus
 - install gorm
 - install lib/pq
- 
+ - bash
