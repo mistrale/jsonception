@@ -24,6 +24,7 @@ type Libraries struct {
 func (c Libraries) Create() revel.Result {
 	lib := &models.Library{}
 	content, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Printf("content : %s\n", content)
 	if err := json.Unmarshal(content, lib); err != nil {
 		fmt.Printf("err : %s\n", err.Error())
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
@@ -36,7 +37,18 @@ func (c Libraries) Create() revel.Result {
 		c.Txn.First(test, v)
 		lib.Tests = append(lib.Tests, *test)
 	}
+	for _, v := range lib.Orders {
+		fmt.Printf("test id : %d\torder : %d\n", v.IdTest, v.Order)
+	}
+	if b, err := json.Marshal(lib.Orders); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	} else {
+		lib.OrderString = string(b)
+	}
+	fmt.Printf("lib order : %s\n", lib.OrderString)
 	c.Txn.Create(lib)
+	//	lib.Orders.IdLib = lib.LibraryID
+	//	c.Txn.Create(lib.Orders)
 	return c.RenderJson(utils.NewResponse(true, "Successful lib creation", *lib))
 }
 
@@ -61,22 +73,26 @@ func (c Libraries) Update(id_lib int) revel.Result {
 		c.Txn.First(test, v)
 		lib.Tests = append(lib.Tests, *test)
 	}
+	if b, err := json.Marshal(lib.Orders); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	} else {
+		lib.OrderString = string(b)
+	}
 	c.Txn.Save(&lib)
+
 	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
 }
 
-func (c Libraries) initRun(lib_uuid string, lib *models.Library, orders *models.LibraryOrder) error {
-	content, _ := ioutil.ReadAll(c.Request.Body)
-	if err := json.Unmarshal(content, orders); err != nil {
-		fmt.Printf("err : %s\n", err.Error())
+func (c Libraries) initRun(lib_uuid string, lib *models.Library) error {
+	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib)
+
+	if err := json.Unmarshal([]byte(lib.OrderString), &lib.Orders); err != nil {
 		return err
 	}
-	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, orders.IdLib)
-	fmt.Printf("lib : %d\n", orders.IdLib)
 
 	// check if all test are present
 	tests := make(map[int]int)
-	for _, v := range orders.Orders {
+	for _, v := range lib.Orders {
 		tests[v.IdTest] += 1
 	}
 	for i, v := range lib.Tests {
@@ -89,11 +105,11 @@ func (c Libraries) initRun(lib_uuid string, lib *models.Library, orders *models.
 	if len(tests) > 0 {
 		return errors.New("Ordering for running lib is wrong")
 	}
-	sort.Sort(orders.Orders)
+	sort.Sort(lib.Orders)
 
 	fmt.Println("\nSorted")
-	for _, c := range orders.Orders {
-		fmt.Printf("test order : %d\tid : %d\n", c.Orders, c.IdTest)
+	for _, c := range lib.Orders {
+		fmt.Printf("test order : %d\tid : %d\n", c.Order, c.IdTest)
 	}
 	return nil
 }
@@ -131,15 +147,13 @@ func (c Libraries) Start(lib_uuid string, lib *models.Library) {
 	}(end)
 }
 
-func (c Libraries) Run() revel.Result {
+func (c Libraries) Run(idLib int) revel.Result {
 	lib_uuid := uuid.NewV4()
 	lib := &models.Library{}
-	orders := &models.LibraryOrder{}
 
-	if err := c.initRun(lib_uuid.String(), lib, orders); err != nil {
+	if err := c.initRun(lib_uuid.String(), lib); err != nil {
 		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
-	lib.TestOrder = *orders
 	c.Start(lib_uuid.String(), lib)
 	return c.RenderJson(utils.NewResponse(true, "", lib_uuid.String()))
 }

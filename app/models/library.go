@@ -10,38 +10,33 @@ import (
 
 // Library : test container
 type Library struct {
-	LibraryID int          `json:"library_id" gorm:"primary_key"`
-	Name      string       `json:"name"`
-	TestIDs   []int        `json:"test_ids" sql:"-"`
-	Tests     []Test       `json:"tests" gorm:"many2many:library_tests;"`
-	Uuid      string       `json:"-" db:"-"`
-	TestOrder LibraryOrder `json:"-" db:"-"`
+	LibraryID   int           `json:"library_id" gorm:"primary_key"`
+	Name        string        `json:"name"`
+	TestIDs     []int         `json:"test_ids" sql:"-"`
+	Tests       []Test        `json:"tests" gorm:"many2many:library_tests;"`
+	Uuid        string        `json:"-" db:"-"`
+	Orders      LibraryOrders `json:"test_orders" db:"-"`
+	OrderString string        `json:"orders"`
 }
 
-type Orders []Order
+type LibraryOrders []Order
 
-func (slice Orders) Len() int {
+func (slice LibraryOrders) Len() int {
 	return len(slice)
 }
 
-func (slice Orders) Less(i, j int) bool {
-	return slice[i].Orders < slice[j].Orders
+func (slice LibraryOrders) Less(i, j int) bool {
+	return slice[i].Order < slice[j].Order
 }
 
-func (slice Orders) Swap(i, j int) {
+func (slice LibraryOrders) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
 // type Order to know when to run test
 type Order struct {
 	IdTest int `json:"id_test"`
-	Orders int `json:"order"`
-}
-
-// type Libraries order struct
-type LibraryOrder struct {
-	IdLib  int    `json:"id_library"`
-	Orders Orders `json:"orders"`
+	Order  int `json:"order"`
 }
 
 func (lib Library) findTest(order Order) *Test {
@@ -86,18 +81,18 @@ func (lib Library) dealTestExecution(test *Test, channel chan map[string]interfa
 
 func (lib Library) Run(testsOrders map[int]int, end chan int, history *LibraryHistory,
 	channel chan map[string]interface{}) {
-	for _, o := range lib.TestOrder.Orders {
+	for _, o := range lib.Orders {
 		test := lib.findTest(o)
-		testsOrders[o.Orders]++
+		testsOrders[o.Order]++
 
 		// if test needs to be runned in parallele
-		if testsOrders[o.Orders] > 1 {
-			test.Order = "lib_" + strconv.Itoa(lib.LibraryID) + "_" + strconv.Itoa(testsOrders[o.Orders])
+		if testsOrders[o.Order] > 1 {
+			test.Order = "lib_" + strconv.Itoa(lib.LibraryID) + "_" + strconv.Itoa(testsOrders[o.Order])
 		} else {
 			test.Order = "lib_" + strconv.Itoa(lib.LibraryID)
 		}
 
-		fmt.Printf("Order : %s\tfor test id :%d\tand size order : %d\n", test.Order, test.TestID, len(lib.TestOrder.Orders))
+		fmt.Printf("Order : %s\tfor test id :%d\tand size order : %d\n", test.Order, test.TestID, len(lib.Orders))
 
 		var runner dispatcher.IRunnable = test
 		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}

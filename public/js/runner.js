@@ -1,4 +1,3 @@
-console.log("Loading runner")
 var script_editor = {}
 var output_script_editor = {}
 
@@ -45,7 +44,7 @@ function init_test(uuid) {
 }
 
 function init_history(uuid) {
-  console.log("on init history : " + uuid)
+
   output_script_history_test[uuid] = CodeMirror.fromTextArea(document.getElementById("output_script_area_history_" + uuid), {
     matchBrackets: true,
     theme:"mdn-like",
@@ -70,14 +69,11 @@ function init_history(uuid) {
   readOnly : true,
   mode : "javascript",
   });
+  console.log(output_script_history_test)
+
 }
 
 function init_run_test(uuid) {
-  // print test
-  console.log("ici wtf : " + uuid)
-  console.log(" ???? " + output_script_history_test)
-  console.log(output_script_history_test)
-
   output_script_history_test[uuid].refresh()
   event_ref_history_editor[uuid].refresh()
   event_log_history_editor[uuid].refresh()

@@ -32,16 +32,33 @@
         <div class="col-lg-12">
           <div class="panel panel-warning">
             <div class="panel-heading">Test</div>
-              <div class="panel-body" id=panel_test_library_{{.Uuid}}>
+              <div class="panel-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Test name</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody  id=panel_test_library_{{.Uuid}}>
                 {{range .Tests}}
-                <div id=panel_one_test_{{.Uuid}}_{{.TestID}}>
-                  <div class="col-lg-11">
-                  {{template "Tests/test.html" .}}
-                  </div>
-                  <div class="col-lg-1">
-                    <button class="btn btn-danger" id=remove_test_from_list_btn_{{.Uuid}}_{{.TestID}}>Remove</button>
-                  </div>
+                <tr  id=panel_one_test_{{.TestID}}>
+
+                  <td class="col-lg-10">
+                    {{template "Tests/test.html" .}}
+                  </td>
+                  <td class="col-lg-1">
+                    <select class="form-control select_order" id="select_order_{{.Uuid}}_{{.TestID}}">
+                    </select>
+                  </td>
+                  <td>
+                    <button class="btn btn-danger remove_test_from_list" id=remove_test_from_list_btn_{{.Uuid}}_{{.TestID}}>Remove</button>
+                  </td>
+                </tr>
                 {{end}}
+              </tbody>
+            </table>
               </div>
             </div>
           </div>
@@ -121,8 +138,6 @@
 </div>
 
 <script>
-//var output_script_history_test = {}
-
 var testIDs = {}
 var tests
 
@@ -156,34 +171,82 @@ $(document).ready(function() {
       });
   }
 
+  if ({{.Tests}}) {
+    orders = JSON.parse({{.OrderString}});
+
+    for (i = 1; i <= {{.Tests}}.length; i++) {
+      listTests[{{.Uuid}}].push({{.Tests}}[i - 1].test_id)
+      $('#panel_test_library_{{.Uuid}} .select_order').each(function() {
+        $(this).append("<option>" + i + "</option>")
+      });
+    }
+
+    $('#panel_test_library_{{.Uuid}} .select_order').each(function() {
+      id = this.id.split('_')[3]
+      for (j = 0; j < orders.length; j++) {
+        console.log("test id : " +  id + " et order test id : " + orders[j].id_test)
+        if (id == orders[j].id_test) {
+          $(this).val(orders[j].order)
+        }
+      }
+    });
+  }
+
+
+
+
+  $(".remove_test_from_list").click(function() {
+    id = this.id.split('_')[6]
+    console.log(id)
+    console.log("#panel_one_test_{{.Uuid}}_" + id)
+
+    $("#panel_test_library_{{.Uuid}} #panel_one_test_" + id).remove()
+    listTests[{{.Uuid}}]=jQuery.grep(listTests[{{.Uuid}}],function(value) {return value != id;})
+    console.log("1on prit array size : " + listTests[{{.Uuid}}].length)
+    console.log(listTests[{{.Uuid}}])
+    $('#panel_test_library_{{.Uuid}} .select_order option:last').each(function() {
+      $(this).remove()
+    });
+
+  });
+
+
 
   $("#add_btn_test_{{.Uuid}}").click(function() {
     console.log("asdas : "  + testIDs[{{.Uuid}}])
 
     if (testIDs[{{.Uuid}}] != 0 && $.inArray(testIDs[{{.Uuid}}], listTests[{{.Uuid}}]) == -1) {
       console.log("asdas")
-      listTests[{{.Uuid}}].push(testIDs[{{.Uuid}}])
       $("#add_test_{{.Uuid}} .panel").remove()
 
-      $("#panel_test_library_{{.Uuid}}").append('<div id=panel_one_test_{{.Uuid}}_' + testIDs[{{.Uuid}}] + '><div class="col-lg-11">' + currentData[{{.Uuid}}] +
-      '</div><div class="col-lg-1"><button class="btn btn-danger" id="remove_test_from_list_btn_{{.Uuid}}_' + testIDs[{{.Uuid}}] +
-      '">Remove</button></div></div>')
+      $("#panel_test_library_{{.Uuid}}").append('<tr id=panel_one_test_' + testIDs[{{.Uuid}}] + '><td class="col-lg-1"><select class="form-control select_order" id=select_order_{{.Uuid}}_' + testIDs[{{.Uuid}}] + '></select></td><td class="col-lg-10">' + currentData[{{.Uuid}}] +
+      '</td><td class="col-lg-1"><button class="btn btn-danger remove_test_from_list" id="remove_test_from_list_btn_{{.Uuid}}_' + testIDs[{{.Uuid}}] +
+      '">Remove</button></td></td>')
+      for (i = 1; i <= listTests[{{.Uuid}}].length; i++) {
+          console.log("wtf : " + i + "select_order_{{.Uuid}}_" + testIDs[{{.Uuid}}])
+          $("#select_order_{{.Uuid}}_" + testIDs[{{.Uuid}}]).append("<option>" + i + "</option>")
+      }
 
-      $("#remove_test_from_list_btn_{{.Uuid}}_" + testIDs[{{.Uuid}}]).click(function() {
-        id = this.id.split('_')[6]
-        $("#panel_one_test_{{.Uuid}}_" + id).remove()
-        listTests[{{.Uuid}}]=jQuery.grep(listTests[{{.Uuid}}],function(value) {return value != id;})
+      listTests[{{.Uuid}}].push(testIDs[{{.Uuid}}])
+
+      $('#panel_test_library_{{.Uuid}} .select_order').each(function() {
+        $(this).append("<option>" + (listTests[{{.Uuid}}].length) + "</option>")
       });
 
-      $("#remove_test_from_list_btn_{{.Uuid}}_" + testIDs[{{.Uuid}}]).onclick = function () {
-        console.log('tata')
 
-      };
-      function test() {
-        $("#panel_one_test_{{.Uuid}}_" + testIDs[{{.Uuid}}]).remove();
-        listTests[{{.Uuid}}] = jQuery.grep(y, function(value) {return value !=  testIDs[{{.Uuid}}];})
+        $("#remove_test_from_list_btn_{{.Uuid}}_" +  testIDs[{{.Uuid}}]).click(function() {
+          id = this.id.split('_')[6]
+          console.log(id)
+          console.log("#panel_one_test_{{.Uuid}}_" + id)
 
-      }
+          $("#panel_test_library_{{.Uuid}} #panel_one_test_" + id).remove()
+          listTests[{{.Uuid}}]=jQuery.grep(listTests[{{.Uuid}}],function(value) {return value != id;})
+          console.log("1on prit array size : " + listTests[{{.Uuid}}].length)
+          console.log(listTests[{{.Uuid}}])
+          $('#panel_test_library_{{.Uuid}} .select_order option:last').each(function() {
+            $(this).remove()
+          });
+        });
 
       $('#select_library_{{.Uuid}}').val("0")
       testIDs[{{.Uuid}}] = 0
@@ -219,6 +282,7 @@ $(document).ready(function() {
     var data = {
       name : $("#library_name_{{.Uuid}}").val(),
       test_ids : listTests[{{.Uuid}}],
+      test_orders : getOrder()
     };
 
         // construct an HTTP request
@@ -261,6 +325,16 @@ $(document).ready(function() {
   });
 
 
+  function getOrder() {
+    listOrder = []
+    $('#panel_test_library_{{.Uuid}} .select_order').each(function() {
+      id = this.id.split('_')[3]
+      listOrder.push({id_test: parseInt(id), order: parseInt($(this).val())})
+    });
+    console.log(listOrder)
+    return listOrder
+  }
+
   $("#create_btn_library_{{.Uuid}}").click(function() {
      $("#save_library_error_{{.Uuid}}").hide()
      $("#save_library_success_{{.Uuid}}").hide()
@@ -268,6 +342,7 @@ $(document).ready(function() {
       var data = {
         name : $("#library_name_{{.Uuid}}").val(),
         test_ids : listTests[{{.Uuid}}],
+        test_orders : getOrder()
       };
 
           // construct an HTTP request

@@ -42,7 +42,6 @@ func InitDB() {
 	}
 
 	Dbm = db
-
 	Dbm.CreateTable(&models.Execution{})
 	Dbm.CreateTable(&models.Test{})
 	Dbm.CreateTable(&models.Library{})
