@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"reflect"
 
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
@@ -11,6 +12,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/revel/revel"
+)
+
+const (
+	CREATE = 1
+	UPDATE = 2
 )
 
 // References controller
@@ -27,10 +33,8 @@ func init() {
 
 func (c Executions) Index() revel.Result {
 
-	exec := &models.Execution{ExecutionID: 0, Uuid: uuid.NewV4().String()}
-	ip := "10.177.17.101"
-
-	return c.Render(exec, ip)
+	exec := &models.Execution{Uuid: uuid.NewV4().String()}
+	return c.Render(exec)
 }
 
 // Index method to list all execution
@@ -38,8 +42,7 @@ func (c Executions) All() revel.Result {
 	var execs []models.Execution
 	c.Txn.Find(&execs)
 	testID := 0
-	ip := "10.177.17.101"
-	return c.Render(execs, testID, ip)
+	return c.Render(execs, testID)
 }
 
 // Index method to list all execution
@@ -58,38 +61,59 @@ func (c Executions) GetOne(id int) revel.Result {
 }
 
 // GetOneTemplate method to routes GET /execution/:id throw template
-func (c Executions) GetOneTemplate(id int) revel.Result {
-	var exec models.Execution
-	c.Txn.First(&exec, id)
+func (c Executions) GetOneTemplate(executionID int, uuid string) revel.Result {
+	exec := &models.Execution{}
+	c.Txn.First(exec, executionID)
+	exec.Uuid = uuid
+	c.Render(exec)
+	return c.RenderTemplate("Executions/one.html")
+}
 
-	uuid := uuid.NewV4()
-	c.Render(exec, uuid)
-	return c.RenderTemplate("Executions/test.html")
+func (c Executions) InitExecutionModel(mode int) (*models.Execution, error) {
+	exec := &models.Execution{}
+	m := c.Request.MultipartForm
+	name := c.Request.FormValue("name")
+	script := c.Request.FormValue("script")
+	params := c.Request.FormValue("parameters")
+	fmt.Println(reflect.TypeOf(m))
+
+	if name == "" {
+		return nil, errors.New("Execution name cannot be empty.")
+	}
+	if mode == CREATE {
+		var execs []models.Execution
+		c.Txn.Find(&execs, "name = ?", name)
+		if len(execs) > 0 {
+			return nil, errors.New("Execution name already taken.")
+		}
+	}
+	if script == "" {
+		return nil, errors.New("Script name cannot be empty.")
+	}
+	parameters := &models.Parameters{}
+	if err := json.Unmarshal([]byte(params), parameters); err != nil {
+		return nil, err
+	}
+	if err := parameters.Check(); err != nil {
+		return nil, err
+	}
+	if err := parameters.UploadFileFromParameters(m); err != nil {
+		return nil, err
+	}
+	exec.Name = name
+	exec.Script = script
+	exec.Params = *parameters
+	return exec, nil
 }
 
 // Create method to add new execution in DB
 func (c Executions) Create() revel.Result {
-
-	//exec := &models.Execution{}
-	//	content, _ := ioutil.ReadAll(c.Request.Body)
-	//	fmt.Printf("content : %s\n", content)
-	// if err := json.Unmarshal(content, exec); err != nil {
-	// 	return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	// }
-	// // check params
-	// if exec.Name == "" {
-	// 	return c.RenderJson(utils.NewResponse(false, "Execution name cannot be empty.", nil))
-	// }
-	//
-	// if exec.Script == "" {
-	// 	return c.RenderJson(utils.NewResponse(false, "Script name cannot be empty.", nil))
-	// }
-	//
-	// fmt.Printf("name : %s\tscript : %s\n", exec.Name, exec.Script)
-	//
-	// c.Txn.Create(exec)
-	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", nil))
-	// return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
+	exec, err := c.InitExecutionModel(CREATE)
+	if err != nil {
+		c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	c.Txn.Create(exec)
+	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
 
 func (c Executions) Delete(id_exec int) revel.Result {
@@ -104,18 +128,21 @@ func (c Executions) Delete(id_exec int) revel.Result {
 }
 
 func (c Executions) Update(id_exec int) revel.Result {
+	fmt.Printf("id_exec : %d\n", id_exec)
 	if id_exec == 0 {
 		return c.RenderJson(utils.NewResponse(false, "You need to provide id_exec", ""))
 	}
 	exec := &models.Execution{}
 	c.Txn.First(&exec, id_exec)
-	content, _ := ioutil.ReadAll(c.Request.Body)
-	if err := json.Unmarshal(content, exec); err != nil {
+
+	new_exec, err := c.InitExecutionModel(UPDATE)
+	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	c.Txn.Save(&exec)
-	//	fmt.Printf("id exec : %d\tname : %s\n", id_exec, name)
-	//  db.Model(&exec).Update("Name", name, )
+	exec.Name = new_exec.Name
+	exec.Script = new_exec.Script
+	exec.Params = new_exec.Params
+	c.Txn.Save(exec)
 	return c.RenderJson(utils.NewResponse(true, "", "Execution updated"))
 }
 

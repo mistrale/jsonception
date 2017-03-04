@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/utils"
 )
 
 // Execution : script runned
 type Execution struct {
-	ExecutionID int    `json:"executionID" gorm:"primary_key"`
-	Name        string `json:"name" sql:"unique"`
-	Script      string `json:"script"`
-	Uuid        string `json:"-" sql:"-"`
-	Order       string `json:"-" sql:"-"`
+	gorm.Model
+	Name   string     `json:"name"`
+	Script string     `json:"script"`
+	Uuid   string     `json:"-" sql:"-"`
+	Order  string     `json:"-" sql:"-"`
+	Params Parameters `json:"parameters" sql:"type:jsonb"`
 }
 
 type outstream struct {

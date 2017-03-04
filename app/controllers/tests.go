@@ -2,11 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"strconv"
 
-	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
@@ -19,69 +18,73 @@ type Tests struct {
 	GorpController
 }
 
+func (c Tests) InitTestModel(mode int) (*models.Test, error) {
+	test := &models.Test{}
+	m := c.Request.MultipartForm
+	name := c.Request.FormValue("name")
+	config := c.Request.FormValue("config")
+	log_events := c.Request.FormValue("path_test_log")
+	path_log := c.Request.FormValue("path_ref_log")
+	params := c.Request.FormValue("parameters")
+	executionID, err := strconv.Atoi(c.Request.FormValue("executionID"))
+
+	fmt.Printf("name : %s\tconfig : %s\tlog_events : %s\tpath_log : %s\tparams : %s\texecution ID : %d\n", name, config, log_events, path_log, params, executionID)
+	if err != nil {
+		return nil, err
+	}
+	if name == "" {
+		return nil, errors.New("Test name cannot be empty.")
+	}
+	if mode == CREATE {
+		var tests []models.Test
+		c.Txn.Find(&tests, "name = ?", name)
+		if len(tests) > 0 {
+			return nil, errors.New("Test name already taken.")
+		}
+	}
+	if path_log == "" {
+		return nil, errors.New("path_log path name cannot be empty.")
+	}
+	if log_events == "" {
+		return nil, errors.New("Logs_event path name cannot be empty.")
+	}
+	if config == "" {
+		return nil, errors.New("Config name cannot be empty.")
+	}
+	var check_config []map[string]interface{}
+	if err := json.Unmarshal([]byte(config), &check_config); err != nil {
+		return nil, err
+	}
+	parameters := &models.Parameters{}
+	if err := json.Unmarshal([]byte(params), parameters); err != nil {
+		return nil, err
+	}
+	if err := parameters.Check(); err != nil {
+		return nil, err
+	}
+	if err := parameters.UploadFileFromParameters(m); err != nil {
+		return nil, err
+	}
+	test.Name = name
+	test.Config = config
+	test.Params = *parameters
+	test.PathLogFile = log_events
+	test.ExecutionID = executionID
+	test.PathRefFile = path_log
+	return test, nil
+}
+
 // Create method to add new execution in DB
 func (c Tests) Create() revel.Result {
-
-	// m := c.Request.MultipartForm
-	// upload_dir := "/Users/Sikorav/work/goget/src/github.com/mistrale/jsonception/"
-	// //var msg string
-	// for fname, _ := range m.File {
-	//
-	// 	fheaders := m.File[fname]
-	// 	for i, _ := range fheaders {
-	// 		//for each fileheader, get a handle to the actual file
-	// 		file, err := fheaders[i].Open()
-	// 		fmt.Println("tata")
-	// 		fmt.Println(file)
-	// 		defer file.Close() //close the source file handle on function return
-	// 		if err != nil {
-	// 			log.Println(err)
-	// 		}
-	// 		//create destination file making sure the path is writeable.
-	// 		dst_path := upload_dir + fheaders[i].Filename
-	// 		fmt.Printf("file path : %s\n", dst_path)
-	// 		dst, err := os.Create(dst_path)
-	// 		defer dst.Close()                             //close the destination file handle on function return
-	// 		defer os.Chmod(dst_path, (os.FileMode)(0644)) //limit access restrictions
-	// 		if err != nil {
-	// 			log.Println(err)
-	// 		}
-	// 		//copy the uploaded file to the destination file
-	// 		if _, err := io.Copy(dst, file); err != nil {
-	// 			log.Println(err)
-	// 		}
-	//
-	// 	}
-	// 	//display success message.
-	// 	log.Println(fname, "upload successful..")
-	// 	//msg = "upload successful.."
-	// }
-
-	test := &models.Test{}
-	content, _ := ioutil.ReadAll(c.Request.Body)
-	if err := json.Unmarshal(content, test); err != nil {
+	test, err := c.InitTestModel(CREATE)
+	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	fmt.Printf("Params : name = %s\tconfig = %s\tlogevent = %s\tpath_file : %s\t exeuc iD : %d\n", test.Name, test.Config, test.PathRefFile, test.PathLogFile, test.ExecutionID)
-
-	// check params
-	if test.Name == "" {
-		return c.RenderJson(utils.NewResponse(false, "Test name cannot be empty.", nil))
+	exec := &models.Execution{}
+	c.Txn.First(exec, test.ExecutionID)
+	if err := test.Params.CheckTestParamsWithExecParams(&exec.Params); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-
-	if test.Config == "" {
-		return c.RenderJson(utils.NewResponse(false, "Json Configuration name cannot be empty.", nil))
-	}
-
-	if test.PathLogFile == "" {
-		return c.RenderJson(utils.NewResponse(false, "Path log file name cannot be empty.", nil))
-	}
-
-	if _, err := ioutil.ReadFile(test.PathRefFile); err != nil {
-		return c.RenderJson(utils.NewResponse(false, "Error reading log reference file : "+err.Error(), nil))
-	}
-
-	// insert ref with ExecutionID
 	c.Txn.Create(test)
 	return c.RenderJson(utils.NewResponse(true, "Successful test creation", *test))
 }
@@ -98,98 +101,20 @@ func (c Tests) Update(id_test int) revel.Result {
 		return c.RenderJson(utils.NewResponse(false, "You need to provide id_test", ""))
 	}
 	test := &models.Test{}
-	fmt.Printf("id test : %d\n", id_test)
-	content, _ := ioutil.ReadAll(c.Request.Body)
-	c.Txn.First(&test, id_test)
-	if err := json.Unmarshal(content, test); err != nil {
+	c.Txn.Preload("Execution").First(&test, id_test)
+
+	new_test, err := c.InitTestModel(UPDATE)
+	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	fmt.Printf("content : %s\n", content)
-	c.Txn.Save(&test)
-	return c.RenderJson(utils.NewResponse(true, "", "Test updated"))
-}
+	c.Txn.First(&new_test.Execution, new_test.ExecutionID)
 
-// Generic Run test method
-func RunTest(test *models.Test, n_uuid string, room chan map[string]interface{}, db *gorm.DB) {
-	// //var request dispatcher.WorkRequest
-	// output := ""
-	// channel := make(chan map[string]interface{})
-	//
-	// test.Uuid = n_uuid
-	// test.Execution.Uuid = n_uuid
-	// //test.Execution.Order = "exec_" + test.Order
-	// // create history
-	//
-	// go func(room chan map[string]interface{}) {
-	// 	history := &models.TestHistory{TestID: test.TestID, RunUUID: n_uuid}
-	//
-	// 	var runner models.IRunnable = test.Execution
-	// 	fmt.Printf("on run test id : %d\n", test.TestID)
-	// 	// if there is an execution
-	// 	if test.ExecutionID != 0 {
-	//
-	// 		//test.Execution.Run(channel)
-	// 		// request = dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-	// 		// dispatcher.WorkQueue <- request
-	// 		response := <-channel
-	//
-	// 		if response["status"] != true {
-	// 			updateEndHistory(db, history, "", "", "", response["message"].(string), test.Name, false)
-	// 			room <- response
-	// 			//return false
-	// 		}
-	//
-	// 		response["response"] = make(map[string]interface{})
-	// 		response["response"].(map[string]interface{})["event_type"] = models.START_TEST
-	// 		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
-	// 		room <- response
-	// 		for {
-	// 			msg := <-request.Response
-	// 			room <- msg
-	// 			if msg["status"] != true {
-	// 				updateEndHistory(db, history, output, "", "", msg["message"].(string), test.Name, false)
-	// 				return
-	// 			}
-	// 			if response2, ok := msg["response"].(map[string]interface{}); ok {
-	// 				if response2["event_type"] == models.RESULT_EXEC {
-	// 					break
-	// 				}
-	// 				output += msg["response"].(map[string]interface{})["body"].(string)
-	// 			}
-	// 			//				fmt.Printf("OUTPUT : %s\n", msg)
-	// 		}
-	// 	}
-	// 	runner = test
-	// 	request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
-	// 	dispatcher.WorkQueue <- request
-	// 	ch := request.Response
-	//
-	// 	//go test.Run(ch)
-	//
-	// 	reflog := ""
-	// 	testlog := ""
-	//
-	// 	for {
-	// 		msg := <-ch
-	// 		if msg["status"] != true {
-	// 			updateEndHistory(db, history, output, reflog, testlog, msg["message"].(string), test.Name, false)
-	// 			room <- msg
-	// 			break
-	// 		}
-	// 		response := msg["response"].(map[string]interface{})
-	// 		if response["event_type"] == models.TESTEVENT {
-	// 			reflog += response["body"].(map[string]interface{})[models.REFLOGEVENT].(string)
-	// 			testlog += response["body"].(map[string]interface{})[models.TESTLOGEVENT].(string)
-	// 		} else if response["event_type"] == models.RESULTEVENT {
-	// 			fmt.Printf("on a fini le test : %d\n", test.TestID)
-	// 			updateEndHistory(db, history, output, reflog, testlog, response["body"].(string), test.Name, true)
-	// 			room <- msg
-	// 			break
-	// 		}
-	// 		room <- msg
-	// 	}
-	// 	room <- utils.NewResponse(true, "", "end_"+test.Uuid)
-	// }(room)
+	if err := new_test.Params.CheckTestParamsWithExecParams(&new_test.Execution.Params); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	new_test.TestID = test.TestID
+	c.Txn.Save(new_test)
+	return c.RenderJson(utils.NewResponse(true, "Test updated", *test))
 }
 
 // Run method to start a test
@@ -229,7 +154,6 @@ func (c Tests) Run(testID int) revel.Result {
 func (c Tests) GetHistory(testID string) revel.Result {
 	var history []models.TestHistory
 	c.Txn.Where("test_id = ?", testID).Find(&history)
-	fmt.Printf("format uuid : %s\n", testID)
 	return c.RenderJson(history)
 }
 

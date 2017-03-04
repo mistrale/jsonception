@@ -1,7 +1,7 @@
 {{set_exec_uuid . }}
-<div class="panel panel-info panel_exec" id=panel_exec_{{.Uuid}}_{{.ExecutionID}}>
+<div class="panel panel-info panel_exec" id=panel_exec_{{.Uuid}}_{{.ID}}>
   <div class="panel-heading" id=>
-    {{if eq .ExecutionID 0}}
+    {{if eq .ID 0}}
     <h4 class="panel-title">
       <a  id=collapser_exec_{{.Uuid}} style="background-color:transparent;"><span>New template execution</span></a>
     </h4>    {{else}}
@@ -10,7 +10,7 @@
     </h4>
     {{end}}
   </div>
-  {{if eq .ExecutionID 0}}
+  {{if eq .ID 0}}
   <div id="collapse_exec_{{.Uuid}}">
   {{else}}
   <div id="collapse_exec_{{.Uuid}}" class="panel-collapse" style="display:none;">
@@ -29,6 +29,72 @@
             <textarea id=script_area_{{.Uuid}}>{{.Script}}</textarea>
           </div>
 
+          <div class="form-group panel panel-info">
+            <div class="panel-heading">Parameters</div>
+            <div class="panel-body">
+              <table class="table" id=panel_exec_params_{{.Uuid}}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Default value</th>
+                    <th>Type</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id=panel_body_params_{{.Uuid}}>
+                {{range .Params}}
+                  <tr>
+                    <td class="col-lg-5">
+                      <input type="text" class="form-control name_params" value="{{.Name}}">
+                    </td>
+                    {{if eq .Type "file"}}
+                    <td class="col-lg-2">
+                      <input type="file"  class="value_params" value="{{.Value}}"></input>
+                      <span class="file_title">{{.Value}}</span>
+                    </td>
+                    {{else}}
+                    <td class="col-lg-5">
+                      <input type="text" class="form-control value_params" value="{{.Value}}">
+                    </td>
+                    {{end}}
+                    <td class="col-lg-2">
+                      <select class="form-control select_type_params">
+                        {{if eq .Type "bool"}}
+                        <option selected="selected">bool</option>
+                        {{else}}
+                        <option>bool</option>
+                        {{end}}
+
+                        {{if eq .Type "int"}}
+                        <option selected="selected">int</option>
+                        {{else}}
+                        <option>int</option>
+                        {{end}}
+
+                        {{if eq .Type "string"}}
+                        <option selected="selected">string</option>
+                        {{else}}
+                        <option>string</option>
+                        {{end}}
+
+                        {{if eq .Type "file"}}
+                        <option selected="selected">file</option>
+                        {{else}}
+                        <option>file</option>
+                        {{end}}
+                      </select>
+                    </td>
+                    <td>
+                      <button class="btn btn-danger remove_params_exec" style="display:none;">Remove</button>
+                    </td>
+                  </tr>
+                {{end}}
+                </tbody>
+              </table>
+              <button class="btn btn-success add_params_btn" style="display:none;" id=add_params_btn_{{.Uuid}}>Add parameter</button>
+            </div>
+          </div>
+
           <div class="form-group">
             <div class="panel panel-warning" id=output_exec_{{.Uuid}} style="display:none;">
               <div class="panel-heading">Output</div>
@@ -45,7 +111,7 @@
               <button id=run-btn_{{.Uuid}} class="run_exec_btn btn btn-success">Run execution</button>
               <button id=clear_exec_btn_{{.Uuid}} class="clear_exec_btn btn btn-warning">Clear script</button>
               <button id=clear_history_btn_{{.Uuid}} class="clear_history_btn btn btn-warning">Clear history</button>
-              <button id=delete_btn_{{.Uuid}} class="delete_btn btn btn-danger">Delete</button>
+              <button id=delete_btn_{{.Uuid}} style="display:none;" class="delete_exec_btn btn btn-danger">Delete</button>
             </p>
           </div>
           <div class="form-group" >
@@ -65,16 +131,16 @@
 
 var Uuids = []
 
+init({{.Uuid}})
 
 $(document).ready(function() {
-  if ({{.ExecutionID}} == 0) {
+  if ({{.ID}} == 0) {
     $("#save_btn_{{.Uuid}}").hide();
     $("#delete_btn_{{.Uuid}}").hide();
   } else {
     $("#create_btn_{{.Uuid}}").hide()
   }
 
-  init({{.Uuid}})
 
     $("#collapser_exec_{{.Uuid}}").on('click', function() {
       $("#collapse_exec_{{.Uuid}}").toggle()
@@ -82,68 +148,126 @@ $(document).ready(function() {
       output_script_editor[{{.Uuid}}].refresh()
     });
 
+    $('.select_type_params').on('change', function() {
+        if (this.value == "file") {
+          $(this).parent().parent().find(".value_params").attr("type", "file")
+          $(this).parent().parent().find(".value_params").removeClass("form-control")
+        } else {
+          $(this).parent().parent().find(".value_params").addClass("form-control")
+          $(this).parent().parent().find(".value_params").attr("type", "text")
+        }
+    })
+
+    function getParams(uuid) {
+      params = []
+      $('#panel_body_params_{{.Uuid}} tr').each(function() {
+        var value;
+
+        if ($(this).find(".select_type_params :selected").val() == "file") {
+          if ($(this).find(".value_params").prop('files')[0]) {
+            value = $(this).find(".value_params").prop('files')[0];
+          } else {
+            value = $(this).find(".file_title").text()
+          }
+        } else {
+          value = $(this).find(".value_params").val()
+        }
+        obj = {
+          name : $(this).find(".name_params").val(),
+          value : value,
+          type : $(this).find(".select_type_params :selected").val()
+        }
+        params.push(obj)
+      });
+      return params
+    }
+
     $("#create_btn_{{.Uuid}}").click(function() {
       $("#save_error_{{.Uuid}}").hide()
       $("#save_success_{{.Uuid}}").hide()
 
-      var data = {
-        name : $("#exec_name_{{.Uuid}}").val(),
-        script : script_editor[{{.Uuid}}].getValue(),
-      };
+      var form_data = new FormData()
+      var params = getParams({{.Uuid}})
 
-          // construct an HTTP request
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://{{getIP}}:9000/execution/', true);
-        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+       form_data.append("name", $("#exec_name_{{.Uuid}}").val());
+       form_data.append("script", script_editor[{{.Uuid}}].getValue());
+       form_data.append("parameters", JSON.stringify(params));
 
-        // send the collected data as JSON
-        xhr.send(JSON.stringify(data));
-
-        xhr.onloadend = function () {
-          response = JSON.parse(xhr.responseText);
-          if (response["status"] != true) {
-            $("#save_error_{{.Uuid}}").slideDown()
-            $("#save_error_{{.Uuid}}").text(response["message"])
-          } else {
-            $("#save_success_{{.Uuid}}").slideDown()
-            $("#save_success_{{.Uuid}}").text(response["message"])
-            console.log(response["response"])
-          }
-        };
+       for (i = 0; i < params.length; i++) {
+         if (params[i].type == "file") {
+           form_data.append(params[i].name, params[i].value);
+         }
+       }
+       $.ajax({
+                   url: 'http://{{getIP}}:9000/execution/', // point to server-side PHP script
+                   dataType: 'text',  // what to expect back from the PHP script, if anything
+                   cache: false,
+                   contentType: false,
+                   processData: false,
+                   data: form_data,
+                   type: 'post',
+                   success: function(php_script_response){
+                       response = JSON.parse(php_script_response);
+                       if (response["status"] != true) {
+                         $("#save_error_{{.Uuid}}").slideDown()
+                         $("#save_error_{{.Uuid}}").text(response["message"])
+                       } else {
+                         $("#save_success_{{.Uuid}}").slideDown()
+                         $("#save_success_{{.Uuid}}").text(response["response"])
+                         console.log(response["response"])
+                       }
+                   },
+                   error: function (request, error) {
+                        alert(" Can't do because: " + error);
+                    },
+        });
     });
 
     $("#save_btn_{{.Uuid}}").click(function() {
-      var data = {
-        Name : $("#exec_name_{{.Uuid}}").val(),
-        Script : script_editor[{{.Uuid}}].getValue(),
-        ExecutionID : {{.ExecutionID}}
-      };
+        $("#save_error_{{.Uuid}}").hide()
+        $("#save_success_{{.Uuid}}").hide()
 
-          // construct an HTTP request
-        var xhr = new XMLHttpRequest();
-        xhr.open("PUT", 'http://{{getIP}}:9000/execution/' + {{.ExecutionID}}  + "?id_exec=" + {{.ExecutionID}}, true);
-        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        var form_data = new FormData()
+        var params = getParams({{.Uuid}})
 
-        // send the collected data as JSON
-        xhr.send(JSON.stringify(data));
+         form_data.append("name", $("#exec_name_{{.Uuid}}").val());
+         form_data.append("script", script_editor[{{.Uuid}}].getValue());
+         form_data.append("parameters", JSON.stringify(params));
 
-        xhr.onloadend = function () {
-          response = JSON.parse(xhr.responseText);
-          if (response["status"] != true) {
-
-            $("#save_error_{{.Uuid}}").slideDown()
-            $("#save_error_{{.Uuid}}").text(response["message"])
-          } else {
-            $("#save_success_{{.Uuid}}").slideDown()
-            $("#save_success_{{.Uuid}}").text(response["response"])
-            console.log(response)
-          }
-        };
+         for (i = 0; i < params.length; i++) {
+           if (params[i].type == "file") {
+             console.log("on est ici : " + params[i].value)
+             form_data.append(params[i].name, params[i].value);
+           }
+         }
+         $.ajax({
+                     url: 'http://{{getIP}}:9000/execution/' + {{.ID}}  + "?id_exec=" + {{.ID}}, // point to server-side PHP script
+                     dataType: 'text',  // what to expect back from the PHP script, if anything
+                     cache: false,
+                     contentType: false,
+                     processData: false,
+                     data: form_data,
+                     type: 'put',
+                     success: function(php_script_response){
+                         response = JSON.parse(php_script_response);
+                         if (response["status"] != true) {
+                           $("#save_error_{{.Uuid}}").slideDown()
+                           $("#save_error_{{.Uuid}}").text(response["message"])
+                         } else {
+                           $("#save_success_{{.Uuid}}").slideDown()
+                           $("#save_success_{{.Uuid}}").text(response["response"])
+                           console.log(response["response"])
+                         }
+                     },
+                     error: function (request, error) {
+                          alert(" Can't do because: " + error);
+                      },
+          });
     });
 
     $("#delete_btn_{{.Uuid}}").click(function(){
       $.ajax({
-          url: '/execution/' + {{.ExecutionID}} + "?id_exec=" + {{.ExecutionID}},
+          url: '/execution/' + {{.ID}} + "?id_exec=" + {{.ID}},
           type: 'DELETE',
           success: function(result) {
             if (result["status"] != true) {
@@ -151,7 +275,7 @@ $(document).ready(function() {
               $("#save_error_{{.Uuid}}").slideDown()
               $("#save_error_{{.Uuid}}").text(result["message"])
             } else {
-              $("#panel_exec_{{.Uuid}}_{{.ExecutionID}}").remove()
+              $("#panel_exec_{{.Uuid}}_{{.ID}}").remove()
             }
               // Do something with the result
           }
@@ -162,7 +286,7 @@ $(document).ready(function() {
       $("#save_error_{{.Uuid}}").slideUp()
       $("#save_success_{{.Uuid}}").slideUp()
 
-      $.getJSON( "http://{{getIP}}:9000/execution/run?id_exec=" + encodeURIComponent({{.ExecutionID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
+      $.getJSON( "http://{{getIP}}:9000/execution/run?id_exec=" + encodeURIComponent({{.ID}}) + "&script=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
         if (data["success"] == false) {
           alert(data["message"])
         } else {
@@ -205,9 +329,6 @@ $(document).ready(function() {
       });
     });
 
-    $("#save_btn_{{.Uuid}}").click(function(){
-    });
-
     $("#clear_exec_btn_{{.Uuid}}").click(function() {
       script_editor[{{.Uuid}}].setValue("")
     });
@@ -216,5 +337,36 @@ $(document).ready(function() {
       $("#output_exec_{{.Uuid}}").slideUp()
       output_script_editor[{{.Uuid}}].setValue("")
     });
+
+    $(".remove_params_exec").click(function() {
+      $(this).parent().parent().remove()
+    });
+
+
+    $("#add_params_btn_{{.Uuid}}").click(function() {
+      console.log($("#panel_exec_params_{{.Uuid}}"))
+      $('#panel_exec_params_{{.Uuid}} > tbody:last-child').append('<tr><td class="col-lg-5"><input required type="text" class="form-control name_params" value=""></td><td class="col-lg-5"><input required  type="text" class="form-control value_params" value=""></td><td class="col-lg-2"><select class="form-control select_type_params"><option>bool</option><option>int</option><option>string</option><option>file</option></select></td><td><button class="btn btn-danger remove_params_exec">Remove</button></td></tr>');
+      $(".remove_params_exec").click(function() {
+        $(this).parent().parent().remove()
+      });
+      $('.select_type_params').on('change', function() {
+          if (this.value == "file") {
+            $(this).parent().parent().find(".value_params").attr("type", "file")
+            $(this).parent().parent().find(".value_params").removeClass("form-control")
+          } else {
+            $(this).parent().parent().find(".value_params").addClass("form-control")
+            $(this).parent().parent().find(".value_params").attr("type", "text")
+          }
+      })
+      $('.value_params').on("change", function(){
+        $(this).parent().find(".file_title").text($(this).val().split("\\")[2])
+      });
+
+    });
+
+    $('.value_params').on("change", function(){
+      $(this).parent().find(".file_title").text($(this).val().split("\\")[2])
+    });
+
 });
 </script>

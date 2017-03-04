@@ -1,21 +1,3 @@
-var script_editor = {}
-var output_script_editor = {}
-
-var output_script_history_test = {}
-var config_editor = {}
-var event_ref_history_editor= {}
-var event_log_history_editor = {}
-
-
-var queues = {}
-var timers = {}
-var isFinished = {}
-
-var queues_test_test = {}
-var timers_test = {}
-var isFinished_test = {}
-var queues_test_ref = {}
-
 function init(uuid) {
   script_editor[uuid] = CodeMirror.fromTextArea(document.getElementById("script_area_" + uuid), {
     lineNumbers: true,

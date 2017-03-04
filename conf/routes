@@ -12,7 +12,7 @@ PUT     /execution/:id                          Executions.Update
 GET     /execution                              Executions.Get
 # GUI Controller
 GET     /execution/all                          Executions.All
-#GET     /execution/test                        Executions.GetOneTemplate
+GET     /execution/template                        Executions.GetOneTemplate
 GET     /                                       Executions.Index
 
 # model REST Test

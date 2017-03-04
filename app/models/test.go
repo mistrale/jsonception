@@ -14,15 +14,16 @@ import (
 
 // Test : script and logevent
 type Test struct {
-	TestID      int       `json:"test_id"  gorm:"primary_key"`
-	Name        string    `json:"name"`
-	Config      string    `json:"config"`
-	PathRefFile string    `json:"log_events"`
-	PathLogFile string    `json:"path_log"`
-	ExecutionID int       `json:"executionID"`
-	Execution   Execution `json:"execution" gorm:"ForeignKey:ExecutionID;AssociationForeignKey:ExecutionID"`
-	Order       string    `json:"-" sql:"-"`
-	Uuid        string    `json:"-" sql:"-"`
+	TestID      int        `json:"test_id"  gorm:"primary_key"`
+	Name        string     `json:"name"`
+	Config      string     `json:"config"`
+	PathRefFile string     `json:"path_test_log"`
+	PathLogFile string     `json:"path_ref_log"`
+	ExecutionID int        `json:"executionID"`
+	Execution   Execution  `json:"execution" gorm:"ForeignKey:ExecutionID;AssociationForeignKey:ID"`
+	Params      Parameters `json:"parameters" sql:"type:jsonb"`
+	Order       string     `json:"-" sql:"-"`
+	Uuid        string     `json:"-" sql:"-"`
 }
 
 func (test Test) GetOrder() string {

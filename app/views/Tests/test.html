@@ -33,12 +33,13 @@
                 <input required id="test_name_{{.Uuid}}" type="text" class="form-control" value="{{.Name}}">
               </div>
               <div class="form-group">
-                <label for="path_file">Log test event path file</label>
-                <input required id="log_event_file_{{.Uuid}}" value="{{.PathLogFile}}" type="text" class="form-control"></input>
+                <label for="path_file">Log ref event path file</label>
+                <input required id="log_event_ref_file_{{.Uuid}}" value="{{.PathRefFile}}" type="file"></input>
+                <span id=log_event_ref_file_span_{{.Uuid}}>{{.PathRefFile}}</span>
               </div>
               <div class="form-group">
-                <label for="path_file">Log ref event path file</label>
-                <input required id="log_event_ref_file_{{.Uuid}}" value="{{.PathRefFile}}" type="text" class="form-control"></input>
+                <label for="path_file">Log test event path file</label>
+                <input required id="log_event_test_file_{{.Uuid}}" value="{{.PathLogFile}}" type="text" class="form-control"></input>
               </div>
               <div class="form-group" >
                 <div class="form-group" >
@@ -47,9 +48,53 @@
                 </div>
                 <textarea id="config_area_{{.Uuid}}" class="config_area">{{.Config}}</textarea>
               </div>
+
+              {{if .Params}}
+              <div class="form-group panel panel-info" id=params_test_{{.Uuid}}>
+              {{else}}
+              <div class="form-group panel panel-info" id=params_test_{{.Uuid}} style="display:none;">
+              {{end}}
+                <div class="panel-heading">Parameters</div>
+                <div class="panel-body">
+                  <table class="table" id=panel_test_params_{{.Uuid}}>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>value</th>
+                        <th>Type</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id=panel_body_params_test_{{.Uuid}}>
+                    {{range .Params}}
+                      <tr>
+                        <td>
+                          <h5 class="name_params_test">{{.Name}}<h5>
+                        </td>
+                          {{if eq .Type "file"}}
+                          <td class="col-lg-2">
+                            <input type="file"  class="value_params_test" value="{{.Value}}"></input>
+                            <span class="file_title_test">{{.Value}}</span>
+                          </td>
+                          {{else}}
+                          <td class="col-lg-5">
+                            <input type="text" class="form-control value_params_test" value="{{.Value}}">
+                          </td>
+                          {{end}}
+                        <td class="col-lg-2">
+                          <span class="label label-default type_params_test">{{.Type}}</span>
+                        </td>
+                      </tr>
+                    {{end}}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
+
         <div class="col-lg-6" id="exec_form_{{.Uuid}}">
           <div class="form-group"  >
             <label for="script">Add an execution</label>
@@ -58,7 +103,9 @@
 
             </select>
           </div>
+            <div id=selected_exec_{{.Uuid}}>
             {{template "Executions/execution.html" .Execution}}
+          </div>
       <!-- NE PAS OUBLIER LES EXECUTIONS -->
         </div>
       </div>
@@ -117,8 +164,10 @@
 var executionIDs = {};
 var array
 
+
+init_test({{.Uuid}})
+
 $(document).ready(function() {
-  init_test({{.Uuid}})
   if (!array) {
     $.ajax({
       dataType: "json",
@@ -127,7 +176,7 @@ $(document).ready(function() {
         array = data["response"]
         $.each(array, function(k,v){
           $('#select_exec_{{.Uuid}}').append($('<option>', {
-                value : v["executionID"],
+                value : v["ID"],
                 text: v["name"]
               }))
           });
@@ -135,114 +184,162 @@ $(document).ready(function() {
     });
   } else {
     $.each(array, function(k,v){
-      console.log("lol : " + v)
       $('#select_exec_{{.Uuid}}').append($('<option>', {
-            value : v["executionID"],
+            value : v["ID"],
             text: v["name"]
           }))
       });
   }
 
 
+$("#collapser_test_{{.Uuid}}").on('click', function() {
+  $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
+  });
+
   if ({{.ExecutionID}} == 0) {
     $('#collapse_exec_' +{{.Uuid}}).css({"display":"none"});
+  } else {
+    executionIDs[{{.Uuid}}]  = {{.ExecutionID}}
+
   }
 
   $('#select_exec_{{.Uuid}}').on('change', function() {
     var value = $('#select_exec_{{.Uuid}} :selected').text()
     function getElement(element) {
-      console.log(element.name)
       return element.name == value;
     }
     elem = array.find(getElement)
     if (!elem) {
-      $('#collapse_exec_' + {{.Uuid}}).css({"display":"none"});
-      script_editor[{{.Uuid}}].setValue("")
-      output_script_editor[{{.Uuid}}].setValue("")
-      $("#exec_name_" + {{.Uuid}}).attr("value","")
-      $("#create_btn_" + {{.Uuid}}).show()
       executionIDs[{{.Uuid}}] = 0
+      $("#params_test_{{.Uuid}}").css({"display":"none"})
     } else {
-      $('#collapse_exec_' + {{.Uuid}}).css({"display":"inherit"});
-      script_editor[{{.Uuid}}].setValue(elem.script)
-      script_editor[{{.Uuid}}].refresh()
-      output_script_editor[{{.Uuid}}].setValue("")
-      $("#exec_name_" + {{.Uuid}}).attr("value", elem.name)
-      $("#create_btn_" + {{.Uuid}}).hide()
-      executionIDs[{{.Uuid}}] = elem.executionID
+      $.get( "/execution/template?executionID=" + elem.ID + "&uuid=" + {{.Uuid}}, function(data) {
+        $("#selected_exec_{{.Uuid}}").html(data)
+      });
+      executionIDs[{{.Uuid}}] = elem.ID
+
+      $("#panel_body_params_test_{{.Uuid}}").html("")
+      //console.log("ici + " + elem.parameters.length)
+      if (elem.parameters && elem.parameters.length > 0) {
+        console.log("la")
+        $("#params_test_{{.Uuid}}").css({"display":"inherit"})
+      } else {
+        console.log("pwet")
+        $("#params_test_{{.Uuid}}").css({"display":"none"})
+        return
+      }
+      html = ""
+      for (i = 0 ; i < elem.parameters.length; i++) {
+        html += '<tr><td><h5 class="name_params_test">' + elem.parameters[i].name + '<h5></td>'
+        if (elem.parameters[i].type == "file") {
+          html += '<td class="col-lg-2"><input type="file"  class="value_params_test" value="' + elem.parameters[i].value + '"></input>' +
+                    '<span class="file_title_test">' + elem.parameters[i].value + '</span></td>'
+        } else {
+          html += '<td class="col-lg-5"><input type="text" class="form-control value_params_test" value="' + elem.parameters[i].value + '"></td>'
+        }
+        html += '<td class="col-lg-2"><span class="label label-default type_params_test">' + elem.parameters[i].type + '</span></td></tr>'
+      }
+      $("#panel_body_params_test_{{.Uuid}}").html(html)
+
+      $('.value_params_test').on("change", function(){
+        $(this).parent().find(".file_title_test").text($(this).val().split("\\")[2])
+      });
     }
   });
 
   $("#collapser_test_{{.Uuid}}").on('click', function() {
     $("#collapse_test_{{.Uuid}}").toggle()
-    console.log("uuid : " + {{.Uuid}})
-    if ({{.ExecutionID}} != 0) {
-      $("#select_exec_{{.Uuid}}").val({{.ExecutionID}});
-      $('#collapse_exec_' + {{.Uuid}}).css({"display":"inherit"});
-    }
     config_editor[{{.Uuid}}].refresh()
-    //output_script_test[{{.Uuid}}].refresh()
-    script_editor[{{.Uuid}}].setValue({{.Execution.Script}})
-    script_editor[{{.Uuid}}].refresh()
-    output_script_editor[{{.Uuid}}].refresh()
   });
 
+
+  function getTestParams(uuid) {
+    params = []
+    $('#panel_body_params_test_' + uuid +' tr').each(function() {
+      var value;
+      console.log("tout debut : " + $(this).find(".value_params_test").attr("type"))
+      if ($(this).find(".value_params_test").attr("type") == "file") {
+        console.log("ici")
+        if ($(this).find(".value_params_test").prop('files')[0]) {
+          console.log("ici 1")
+
+          value = $(this).find(".value_params_test").prop('files')[0];
+        } else {
+          console.log("ici 2 ")
+          value = $(this).find(".file_title_test").text()
+        }
+        console.log("ici 3 " + value)
+      } else {
+        value = $(this).find(".value_params_test").text()
+      }
+
+      obj = {
+        name : $(this).find(".name_params_test").text(),
+        value : value,
+        type : $(this).find(".type_params_test").text()
+      }
+      params.push(obj)
+    });
+    return params
+  }
+
+  function CreateOrUpdateTest(uuid, url, method) {
+    $("#save_test_error_" + uuid).hide()
+    $("#save_test_success_" + uuid).hide()
+    var form_data = new FormData()
+    var params = getTestParams(uuid)
+     form_data.append("name", $("#test_name_" + uuid).val());
+     form_data.append("config", config_editor[uuid].getValue());
+     if ($("#log_event_ref_file_{{.Uuid}}").prop('files')[0]) {
+       form_data.append("path_ref_log", $("#log_event_ref_file_" + uuid).prop('files')[0].name);
+       form_data.append("path_ref_log_file", $("#log_event_ref_file_" + uuid).prop('files')[0]);
+     } else {
+       form_data.append("path_ref_log", $("#log_event_ref_file_span_" + uuid).text());
+     }
+     form_data.append("path_test_log", $("#log_event_test_file_" + uuid).val());
+     form_data.append("parameters", JSON.stringify(params));
+     console.log(executionIDs[uuid])
+
+     if (executionIDs[uuid]) {
+       console.log(executionIDs[uuid])
+       form_data.append("executionID", executionIDs[uuid]);
+     } else {
+       console.log("la")
+
+       form_data.append("executionID", 0);
+     }
+     for (i = 0; i < params.length; i++) {
+       if (params[i].type == "file") {
+         console.log("on est ici : " + params[i].value + " " +  params[i].name)
+         form_data.append(params[i].name, params[i].value);
+       }
+     }
+     $.ajax({
+                 url: url, // point to server-side PHP script
+                 dataType: 'text',  // what to expect back from the PHP script, if anything
+                 cache: false,
+                 contentType: false,
+                 processData: false,
+                 data: form_data,
+                 type: method,
+                 success: function(php_script_response){
+                     response = JSON.parse(php_script_response);
+                     if (response["status"] != true) {
+                       $("#save_test_error_" + uuid).slideDown()
+                       $("#save_test_error_" + uuid).text(response["message"])
+                     } else {
+                       $("#save_test_success_" + uuid).slideDown()
+                       $("#save_test_success_" + uuid).text(response["message"])
+                     }
+                 },
+                 error: function (request, error) {
+                      alert(" Can't do because: " + error);
+                  },
+      });
+  }
+
   $("#create_test_btn_{{.Uuid}}").click(function() {
-    // var file_data = $('#exec_file_{{.Uuid}}').prop('files')[0];
-    // console.log(file_data)
-    // var form_data = new FormData();
-    //
-    // form_data.append("name", $("#exec_name_{{.Uuid}}").val());
-    // form_data.append("script", script_editor[{{.Uuid}}].getValue());
-    // form_data.append('file', file_data);
-    //
-    // console.log(form_data)
-    // $.ajax({
-    //             url: 'http://{{getIP}}:9000/execution/', // point to server-side PHP script
-    //             dataType: 'text',  // what to expect back from the PHP script, if anything
-    //             cache: false,
-    //             contentType: false,
-    //             processData: false,
-    //             data: form_data,
-    //             type: 'post',
-    //             success: function(php_script_response){
-    //                 alert(php_script_response); // display response from the PHP script, if any
-    //             }
-    //  });
-
-
-      $("#save_test_error_{{.Uuid}}").hide()
-      $("#save_test_success_{{.Uuid}}").hide()
-
-      var data = {
-        name : $("#test_name_{{.Uuid}}").val(),
-        config : config_editor[{{.Uuid}}].getValue(),
-        path_log : $("#log_event_file_{{.Uuid}}").val(),
-        log_events : $("#log_event_ref_file_{{.Uuid}}").val(),
-        executionID : executionIDs[{{.Uuid}}],
-      };
-
-          // construct an HTTP request
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://{{getIP}}:9000/test/', true);
-        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
-        // send the collected data as JSON
-        xhr.send(JSON.stringify(data));
-
-        xhr.onloadend = function () {
-          response = JSON.parse(xhr.responseText);
-          if (response["status"] != true) {
-
-            $("#save_test_error_{{.Uuid}}").slideDown()
-            $("#save_test_error_{{.Uuid}}").text(response["message"])
-          } else {
-            $("#save_test_success_{{.Uuid}}").slideDown()
-            $("#save_test_success_{{.Uuid}}").text(response["message"])
-            console.log(response["response"])
-            console.log(response["response"]["TestID"])
-          }
-        };
+    CreateOrUpdateTest({{.Uuid}}, 'http://{{getIP}}:9000/test/', 'post')
   });
 
   function run(testID, ruuid) {
@@ -256,8 +353,6 @@ $(document).ready(function() {
             alert(data["message"])
           } else {
           uuid = data["response"]
-          console.log("SUCCESS : uuid " + uuid)
-
           var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
 
           isFinished_test[{{.Uuid}}] = false
@@ -266,9 +361,7 @@ $(document).ready(function() {
           init_run({{.Uuid}})
           init_run_test({{.Uuid}})
 
-
           output = ""
-          console.log("uuid test: " + uuid)
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
             if (output["status"] == false) {
@@ -315,8 +408,6 @@ $(document).ready(function() {
 
    $("#run_test_btn_{{.Uuid}}").click(function() {
      $.get( "/history?uuid=" + {{.Uuid}} + "&testName=" + {{.Name}}, function(data) {
-       console.log("data  : " + data)
-
           $("#panel_test_run_{{.Uuid}}").slideUp(function() {
             $("#panel_test_run_{{.Uuid}}").slideDown(function() {
               $("#panel_test_run_{{.Uuid}}").html(data)
@@ -333,9 +424,6 @@ $(document).ready(function() {
 
    $("#history_test_btn_{{.Uuid}}").click(function() {
        $.get( "/test/{{.TestID}}/history_template?testID={{.TestID}}", function(data) {
-          console.log("#history_panel_{{.Uuid}}")
-          console.log("#history_panel_body_{{.Uuid}}")
-
            $("#history_panel_{{.Uuid}}").slideDown();
            $("#history_panel_body_{{.Uuid}}").html(data)
        });
@@ -343,37 +431,7 @@ $(document).ready(function() {
 
 
    $("#save_test_btn_{{.Uuid}}").click(function() {
-     $("#save_test_error_{{.Uuid}}").hide()
-     $("#save_test_success_{{.Uuid}}").hide()
-
-     var data = {
-       name : $("#test_name_{{.Uuid}}").val(),
-       config : config_editor[{{.Uuid}}].getValue(),
-       path_log : $("#log_event_file_{{.Uuid}}").val(),
-       log_events : $("#log_event_ref_file_{{.Uuid}}").val(),
-       executionID : executionIDs[{{.Uuid}}],
-     };
-
-         // construct an HTTP request
-       var xhr = new XMLHttpRequest();
-       xhr.open("PUT", 'http://{{getIP}}:9000/test/' + {{.TestID}} + "?id_test="+ {{.TestID}}, true);
-       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
-       // send the collected data as JSON
-       xhr.send(JSON.stringify(data));
-
-       xhr.onloadend = function () {
-         response = JSON.parse(xhr.responseText);
-         if (response["status"] != true) {
-
-           $("#save_test_error_{{.Uuid}}").slideDown()
-           $("#save_test_error_{{.Uuid}}").text(response["message"])
-         } else {
-           $("#save_test_success_{{.Uuid}}").slideDown()
-           $("#save_test_success_{{.Uuid}}").text(response["response"])
-           console.log(response["response"])
-         }
-       };
+     CreateOrUpdateTest({{.Uuid}}, 'http://{{getIP}}:9000/test/' + {{.TestID}} + "?id_test="+ {{.TestID}}, 'put')
    });
 
    $("#delete_test_btn_{{.Uuid}}").click(function(){
@@ -393,6 +451,7 @@ $(document).ready(function() {
      });
    });
 
+
     //Line number is zero based index
   //  var actualLineNumber = 2;
 
@@ -410,6 +469,16 @@ $(document).ready(function() {
   } else {
     $(".create_test_btn").hide();
   }
+
+  function FileChange() {
+    console.log($(this))
+    console.log($(this).val().split("\\")[2])
+    $(this).parent().find(".file_title_test").text($(this).val().split("\\")[2])
+  }
+
+  $('.value_params_test').on("change", function(){
+    $(this).parent().find(".file_title_test").text($(this).val().split("\\")[2])
+  });
 });
 //
 
