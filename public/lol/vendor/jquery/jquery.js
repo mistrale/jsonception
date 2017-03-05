@@ -3220,7 +3220,7 @@ jQuery.Callbacks = function( options ) {
 		// Actual callback list
 		list = [],
 
-		// Queue of execution data for repeatable lists
+		// Queue of Script data for repeatable lists
 		queue = [],
 
 		// Index of currently firing callback (modified by add/remove as needed)
@@ -3232,7 +3232,7 @@ jQuery.Callbacks = function( options ) {
 			// Enforce single-firing
 			locked = options.once;
 
-			// Execute callbacks for all pending executions,
+			// Execute callbacks for all pending Scripts,
 			// respecting firingIndex overrides and runtime changes
 			fired = firing = true;
 			for ( ; queue.length; firingIndex = -1 ) {
@@ -3338,7 +3338,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Disable .fire and .add
-			// Abort any current/pending executions
+			// Abort any current/pending Scripts
 			// Clear all callbacks and values
 			disable: function() {
 				locked = queue = [];
@@ -3351,7 +3351,7 @@ jQuery.Callbacks = function( options ) {
 
 			// Disable .fire
 			// Also disable .add unless we have memory (since it would have no effect)
-			// Abort any pending executions
+			// Abort any pending Scripts
 			lock: function() {
 				locked = queue = [];
 				if ( !memory && !firing ) {
@@ -3607,7 +3607,7 @@ jQuery.extend( {
 							} else {
 
 								// Call an optional hook to record the stack, in case of exception
-								// since it's otherwise lost when execution goes async
+								// since it's otherwise lost when Script goes async
 								if ( jQuery.Deferred.getStackHook ) {
 									process.stackTrace = jQuery.Deferred.getStackHook();
 								}
@@ -8337,7 +8337,7 @@ var
 	 *    - AFTER param serialization (s.data is a string if s.processData is true)
 	 * 3) key is the dataType
 	 * 4) the catchall symbol "*" can be used
-	 * 5) execution will start with transport dataType and THEN continue down to "*" if needed
+	 * 5) Script will start with transport dataType and THEN continue down to "*" if needed
 	 */
 	prefilters = {},
 
@@ -9411,7 +9411,7 @@ jQuery.ajaxTransport( function( options ) {
 
 
 
-// Prevent auto-execution of scripts when no explicit dataType was provided (See gh-2432)
+// Prevent auto-Script of scripts when no explicit dataType was provided (See gh-2432)
 jQuery.ajaxPrefilter( function( s ) {
 	if ( s.crossDomain ) {
 		s.contents.script = false;
@@ -9522,7 +9522,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			s.url += ( rquery.test( s.url ) ? "&" : "?" ) + s.jsonp + "=" + callbackName;
 		}
 
-		// Use data converter to retrieve json after script execution
+		// Use data converter to retrieve json after script Script
 		s.converters[ "script json" ] = function() {
 			if ( !responseContainer ) {
 				jQuery.error( callbackName + " was not called" );

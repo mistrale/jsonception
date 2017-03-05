@@ -20,7 +20,7 @@ const (
 )
 
 // References controller
-type Executions struct {
+type Scripts struct {
 	GorpController
 }
 
@@ -31,63 +31,63 @@ func init() {
 	revel.InterceptMethod((*GorpController).Rollback, revel.FINALLY)
 }
 
-func (c Executions) Index() revel.Result {
+func (c Scripts) Index() revel.Result {
 
-	exec := &models.Execution{Uuid: uuid.NewV4().String()}
+	exec := &models.Script{Uuid: uuid.NewV4().String()}
 	return c.Render(exec)
 }
 
-// Index method to list all execution
-func (c Executions) All() revel.Result {
-	var execs []models.Execution
+// Index method to list all Script
+func (c Scripts) All() revel.Result {
+	var execs []models.Script
 	c.Txn.Find(&execs)
 	testID := 0
 	return c.Render(execs, testID)
 }
 
-// Index method to list all execution
-func (c Executions) Get() revel.Result {
-	var execs []models.Execution
+// Index method to list all Script
+func (c Scripts) Get() revel.Result {
+	var execs []models.Script
 	c.Txn.Find(&execs)
 	return c.RenderJson(utils.NewResponse(true, "", execs))
 }
 
-// GetOne method to routes GET /execution/:id
-func (c Executions) GetOne(id int) revel.Result {
-	var exec models.Execution
+// GetOne method to routes GET /Script/:id
+func (c Scripts) GetOne(id int) revel.Result {
+	var exec models.Script
 	c.Txn.First(&exec, id)
 
 	return c.RenderJson(utils.NewResponse(true, "", exec))
 }
 
-// GetOneTemplate method to routes GET /execution/:id throw template
-func (c Executions) GetOneTemplate(executionID int, uuid string) revel.Result {
-	exec := &models.Execution{}
-	c.Txn.First(exec, executionID)
+// GetOneTemplate method to routes GET /Script/:id throw template
+func (c Scripts) GetOneTemplate(scriptID int, uuid string) revel.Result {
+	exec := &models.Script{}
+	c.Txn.First(exec, scriptID)
 	exec.Uuid = uuid
 	c.Render(exec)
-	return c.RenderTemplate("Executions/one.html")
+	return c.RenderTemplate("Scripts/one.html")
 }
 
-func (c Executions) InitExecutionModel(mode int) (*models.Execution, error) {
-	exec := &models.Execution{}
+func (c Scripts) InitScriptModel(mode int) (*models.Script, error) {
+	exec := &models.Script{}
 	m := c.Request.MultipartForm
 	name := c.Request.FormValue("name")
-	script := c.Request.FormValue("script")
+	content := c.Request.FormValue("content")
 	params := c.Request.FormValue("parameters")
 	fmt.Println(reflect.TypeOf(m))
 
 	if name == "" {
-		return nil, errors.New("Execution name cannot be empty.")
+		return nil, errors.New("Script name cannot be empty.")
 	}
 	if mode == CREATE {
-		var execs []models.Execution
+		var execs []models.Script
 		c.Txn.Find(&execs, "name = ?", name)
 		if len(execs) > 0 {
-			return nil, errors.New("Execution name already taken.")
+			return nil, errors.New("Script name already taken.")
 		}
 	}
-	if script == "" {
+	if content == "" {
 		return nil, errors.New("Script name cannot be empty.")
 	}
 	parameters := &models.Parameters{}
@@ -101,14 +101,14 @@ func (c Executions) InitExecutionModel(mode int) (*models.Execution, error) {
 		return nil, err
 	}
 	exec.Name = name
-	exec.Script = script
+	exec.Content = content
 	exec.Params = *parameters
 	return exec, nil
 }
 
-// Create method to add new execution in DB
-func (c Executions) Create() revel.Result {
-	exec, err := c.InitExecutionModel(CREATE)
+// Create method to add new Script in DB
+func (c Scripts) Create() revel.Result {
+	exec, err := c.InitScriptModel(CREATE)
 	if err != nil {
 		c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
@@ -116,50 +116,50 @@ func (c Executions) Create() revel.Result {
 		v.Print()
 	}
 	c.Txn.Create(exec)
-	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
+	return c.RenderJson(utils.NewResponse(true, "Script successfully created", *exec))
 }
 
-func (c Executions) Delete(id_exec int) revel.Result {
-	if id_exec == 0 {
+func (c Scripts) Delete(scriptID int) revel.Result {
+	if scriptID == 0 {
 		return c.RenderJson(utils.NewResponse(false, "You need to provide id_exec", ""))
 	}
-	var exec models.Execution
-	fmt.Printf("id : %d\n", id_exec)
-	c.Txn.First(&exec, id_exec)
+	var exec models.Script
+	fmt.Printf("id : %d\n", scriptID)
+	c.Txn.First(&exec, scriptID)
 	c.Txn.Delete(&exec)
-	return c.RenderJson(utils.NewResponse(true, "", "Execution deleted"))
+	return c.RenderJson(utils.NewResponse(true, "", "Script deleted"))
 }
 
-func (c Executions) Update(id_exec int) revel.Result {
-	fmt.Printf("id_exec : %d\n", id_exec)
-	if id_exec == 0 {
+func (c Scripts) Update(scriptID int) revel.Result {
+	fmt.Printf("id_exec : %d\n", scriptID)
+	if scriptID == 0 {
 		return c.RenderJson(utils.NewResponse(false, "You need to provide id_exec", ""))
 	}
-	exec := &models.Execution{}
-	c.Txn.First(&exec, id_exec)
+	exec := &models.Script{}
+	c.Txn.First(&exec, scriptID)
 
-	new_exec, err := c.InitExecutionModel(UPDATE)
+	new_exec, err := c.InitScriptModel(UPDATE)
 	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
 	exec.Name = new_exec.Name
-	exec.Script = new_exec.Script
+	exec.Content = new_exec.Content
 	exec.Params = new_exec.Params
 	c.Txn.Save(exec)
-	return c.RenderJson(utils.NewResponse(true, "", "Execution updated"))
+	return c.RenderJson(utils.NewResponse(true, "", "Script updated"))
 }
 
 // Run method to execute script
-func (c Executions) Run(id_exec int, script string, params []models.Parameters) revel.Result {
+func (c Scripts) Run(scriptID int, content string, params []models.Parameters) revel.Result {
 	uuid := uuid.NewV4()
 	channel := make(chan map[string]interface{})
-	var exec models.Execution
+	var exec models.Script
 
-	if id_exec != 0 {
-		c.Txn.First(&exec, id_exec)
+	if scriptID != 0 {
+		c.Txn.First(&exec, scriptID)
 
 	} else {
-		exec.Script = script
+		exec.Content = content
 	}
 	exec.Uuid = uuid.String()
 
@@ -175,7 +175,7 @@ func (c Executions) Run(id_exec int, script string, params []models.Parameters) 
 		for {
 			msg := <-channel
 			room.Chan <- msg
-			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_EXEC {
+			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_SCRIPT {
 				room.Chan <- utils.NewResponse(true, "", "end_"+exec_uuid)
 			}
 		}

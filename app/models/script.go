@@ -10,14 +10,14 @@ import (
 	"github.com/mistrale/jsonception/app/utils"
 )
 
-// Execution : script runned
-type Execution struct {
+// Script : script runned
+type Script struct {
 	gorm.Model
-	Name   string     `json:"name"`
-	Script string     `json:"script"`
-	Uuid   string     `json:"-" sql:"-"`
-	Order  string     `json:"-" sql:"-"`
-	Params Parameters `json:"parameters" sql:"type:jsonb"`
+	Name    string     `json:"name"`
+	Content string     `json:"content"`
+	Uuid    string     `json:"-" sql:"-"`
+	Order   string     `json:"-" sql:"-"`
+	Params  Parameters `json:"parameters" sql:"type:jsonb"`
 }
 
 type outstream struct {
@@ -35,35 +35,35 @@ func (out outstream) Write(p []byte) (int, error) {
 }
 
 // GetID method to retrieve model's id
-func (e *Execution) GetOrder() string {
+func (e *Script) GetOrder() string {
 	return e.Order
 }
 
-func (e *Execution) InitParams() {
+func (e *Script) InitParams() {
 	for _, v := range e.Params {
 		v.Print()
 		switch v.Type {
 		case "bool":
-			e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.FormatBool(v.Value.(bool)), -1)
+			e.Content = strings.Replace(e.Content, "$"+v.Name, strconv.FormatBool(v.Value.(bool)), -1)
 		case "int":
 			if value, ok := v.Value.(float64); ok {
-				e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.FormatFloat(value, 'g', -1, 64), -1)
+				e.Content = strings.Replace(e.Content, "$"+v.Name, strconv.FormatFloat(value, 'g', -1, 64), -1)
 			} else {
-				e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.Itoa(v.Value.(int)), -1)
+				e.Content = strings.Replace(e.Content, "$"+v.Name, strconv.Itoa(v.Value.(int)), -1)
 			}
 		default:
-			e.Script = strings.Replace(e.Script, "$"+v.Name, v.Value.(string), -1)
+			e.Content = strings.Replace(e.Content, "$"+v.Name, v.Value.(string), -1)
 		}
 	}
-	fmt.Printf("script : %s\n", e.Script)
+	fmt.Printf("Content : %s\n", e.Content)
 }
 
 // Run method to start script
-func (e Execution) Run(response chan map[string]interface{}) {
+func (e Script) Run(response chan map[string]interface{}) {
 	fmt.Println("ON RUN")
 	e.InitParams()
 	var cmd *exec.Cmd
-	cmd = exec.Command("bash", "-c", e.Script)
+	cmd = exec.Command("bash", "-c", e.Content)
 
 	ch := make(chan string)
 	out := newStream(ch)
@@ -78,7 +78,7 @@ func (e Execution) Run(response chan map[string]interface{}) {
 		for {
 			msg := <-ch
 			resp := make(map[string]interface{})
-			resp["event_type"] = EXEC_EVENT
+			resp["event_type"] = EVENT_SCRIPT
 			resp["body"] = msg
 
 			response <- utils.NewResponse(true, "", resp)
@@ -88,8 +88,8 @@ func (e Execution) Run(response chan map[string]interface{}) {
 	cmd.Wait()
 	cmd.Process.Kill()
 	resp := make(map[string]interface{})
-	resp["event_type"] = RESULT_EXEC
-	resp["body"] = "Execution done !"
+	resp["event_type"] = RESULT_SCRIPT
+	resp["body"] = "Script done !"
 	response <- utils.NewResponse(true, "", resp)
 
 }

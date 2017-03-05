@@ -49,7 +49,7 @@ func (lib Library) findTest(order Order) *Test {
 	return nil
 }
 
-func (lib Library) dealTestExecution(test *Test, channel chan map[string]interface{},
+func (lib Library) dealTestScript(test *Test, channel chan map[string]interface{},
 	end chan int, history *LibraryHistory, lib_room chan map[string]interface{}) {
 	fmt.Printf("test id IN GO : %s\n", test.GetOrder())
 	for {
@@ -57,7 +57,7 @@ func (lib Library) dealTestExecution(test *Test, channel chan map[string]interfa
 		msg["test_id"] = test.TestID
 		lib_room <- msg
 		if response, ok := msg["response"].(map[string]interface{}); ok {
-			if response["event_type"] == RESULTEVENT {
+			if response["event_type"] == RESULT_TEST {
 				hist := response["history"].(*TestHistory)
 				history.Histories = append(history.Histories, *hist)
 				log.Printf("on rnetre ici %d\n", hist.TestID)
@@ -98,6 +98,6 @@ func (lib Library) Run(testsOrders map[int]int, end chan int, history *LibraryHi
 		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
 		dispatcher.WorkQueue <- request
 
-		go lib.dealTestExecution(test, request.Response, end, history, channel)
+		go lib.dealTestScript(test, request.Response, end, history, channel)
 	}
 }

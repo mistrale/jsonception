@@ -19,8 +19,8 @@ type Test struct {
 	Config      string     `json:"config"`
 	PathRefFile string     `json:"path_test_log"`
 	PathLogFile string     `json:"path_ref_log"`
-	ExecutionID int        `json:"executionID"`
-	Execution   Execution  `json:"execution" gorm:"ForeignKey:ExecutionID;AssociationForeignKey:ID"`
+	ScriptID    int        `json:"scriptID"`
+	Script      Script     `json:"script" gorm:"ForeignKey:ScriptID;AssociationForeignKey:ID"`
 	Params      Parameters `json:"parameters" sql:"type:jsonb"`
 	Order       string     `json:"-" sql:"-"`
 	Uuid        string     `json:"-" sql:"-"`
@@ -99,7 +99,7 @@ func (test Test) Compare(response chan map[string]interface{}) {
 			return
 		}
 		resp := make(map[string]interface{})
-		resp["event_type"] = TESTEVENT
+		resp["event_type"] = EVENT_TEST
 		var prettyJSON1 bytes.Buffer
 		err = json.Indent(&prettyJSON1, str1, "", "\t")
 		if err != nil {
@@ -113,12 +113,12 @@ func (test Test) Compare(response chan map[string]interface{}) {
 			return
 		}
 		resp["body"] = make(map[string]interface{})
-		resp["body"].(map[string]interface{})[TESTLOGEVENT] = string(prettyJSON1.Bytes())
-		resp["body"].(map[string]interface{})[REFLOGEVENT] = string(prettyJSON2.Bytes())
+		resp["body"].(map[string]interface{})[TEST_LOG_EVENT] = string(prettyJSON1.Bytes())
+		resp["body"].(map[string]interface{})[REF_LOG_EVENT] = string(prettyJSON2.Bytes())
 		response <- utils.NewResponse(true, "", resp)
 	}
 	resp := make(map[string]interface{})
-	resp["event_type"] = RESULTEVENT
+	resp["event_type"] = RESULT_TEST
 
 	if status {
 		resp["body"] = "files match !"
@@ -136,12 +136,12 @@ func (test Test) Run(room chan map[string]interface{}) {
 	channel := make(chan map[string]interface{})
 	output := ""
 
-	//var runner IRunnable = test.Execution
+	//var runner IRunnable = test.Script
 	fmt.Printf("on run test id : %d\n", test.TestID)
-	// if there is an execution
-	if test.ExecutionID != 0 {
-		test.Execution.Params = test.Params
-		go test.Execution.Run(channel)
+	// if there is an Script
+	if test.ScriptID != 0 {
+		test.Script.Params = test.Params
+		go test.Script.Run(channel)
 
 		response := <-channel
 		if response["status"] != true {
@@ -164,7 +164,7 @@ func (test Test) Run(room chan map[string]interface{}) {
 			}
 			room <- msg
 			if response2, ok := msg["response"].(map[string]interface{}); ok {
-				if response2["event_type"] == RESULT_EXEC {
+				if response2["event_type"] == RESULT_SCRIPT {
 					break
 				}
 				output += msg["response"].(map[string]interface{})["body"].(string)
@@ -184,10 +184,10 @@ func (test Test) Run(room chan map[string]interface{}) {
 			break
 		}
 		response := msg["response"].(map[string]interface{})
-		if response["event_type"] == TESTEVENT {
-			reflog += response["body"].(map[string]interface{})[REFLOGEVENT].(string)
-			testlog += response["body"].(map[string]interface{})[TESTLOGEVENT].(string)
-		} else if response["event_type"] == RESULTEVENT {
+		if response["event_type"] == EVENT_TEST {
+			reflog += response["body"].(map[string]interface{})[REF_LOG_EVENT].(string)
+			testlog += response["body"].(map[string]interface{})[TEST_LOG_EVENT].(string)
+		} else if response["event_type"] == RESULT_TEST {
 			fmt.Printf("on a fini le test : %d\n", test.TestID)
 			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: true,
 				OutputExec: output, OutputTest: response["body"].(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}

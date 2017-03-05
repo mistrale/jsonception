@@ -26,7 +26,7 @@ var (
 )
 
 func initTemplate() {
-	revel.TemplateFuncs["set_exec_uuid"] = func(exec *models.Execution) template.JS {
+	revel.TemplateFuncs["set_exec_uuid"] = func(exec *models.Script) template.JS {
 		fmt.Printf("uuid : %s\n", exec.Uuid)
 		if exec.Uuid == "" {
 			exec.Uuid = uuid.NewV4().String()
@@ -38,7 +38,7 @@ func initTemplate() {
 
 	revel.TemplateFuncs["set_test_uuid"] = func(test *models.Test) template.JS {
 		test.Uuid = uuid.NewV4().String()
-		test.Execution.Uuid = test.Uuid
+		test.Script.Uuid = test.Uuid
 		return template.JS("")
 	}
 
@@ -85,18 +85,18 @@ func initTemplate() {
 	}
 }
 
-func initExecutionDB() {
-	if !Dbm.HasTable(&models.Execution{}) {
-		Dbm.CreateTable(&models.Execution{})
+func initScriptDB() {
+	if !Dbm.HasTable(&models.Script{}) {
+		Dbm.CreateTable(&models.Script{})
 		params := models.Parameters{
 			models.Parameter{Name: "test", Value: 5, Type: "int"},
 			models.Parameter{Name: "test2", Value: "tata", Type: "file"},
 		}
 
-		execs := []*models.Execution{
-			&models.Execution{Name: "Click_element_set_return", Script: "ScenarioEngine.exe -r click_set_return -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 5d84fccb-3836-42a8-a0c8-56bc93518cb4 -T 63432494-c134-4ebd-9dc5-de6f6150060f -o -1748335", Params: params},
-			&models.Execution{Name: "gla func", Script: "ScenarioEngine.exe -r gla_func -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 03b77937-aacb-4e32-8933-1b44c22e77ea -T a8ac7bc1-561f-4657-a94b-118c498756f3 -o -2608857"},
-			&models.Execution{Name: "test_amazone", Script: "ScenarioEngine.exe -r test_amazon -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 68ea0181-b048-4375-91bd-cd0cd6d7434c -T b9d19b1e-14df-410f-b97a-f871bf6094d6 -o -1160361"},
+		execs := []*models.Script{
+			&models.Script{Name: "Click_element_set_return", Content: "ScenarioEngine.exe -r click_set_return -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 5d84fccb-3836-42a8-a0c8-56bc93518cb4 -T 63432494-c134-4ebd-9dc5-de6f6150060f -o -1748335", Params: params},
+			&models.Script{Name: "gla func", Content: "ScenarioEngine.exe -r gla_func -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 03b77937-aacb-4e32-8933-1b44c22e77ea -T a8ac7bc1-561f-4657-a94b-118c498756f3 -o -2608857"},
+			&models.Script{Name: "test_amazone", Content: "ScenarioEngine.exe -r test_amazon -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 68ea0181-b048-4375-91bd-cd0cd6d7434c -T b9d19b1e-14df-410f-b97a-f871bf6094d6 -o -1160361"},
 		}
 		for _, exec := range execs {
 			Dbm.Create(exec)
@@ -113,13 +113,13 @@ func initTestDB() {
 		}
 		tests := []*models.Test{
 			&models.Test{Name: "test_click_element_set_return", PathRefFile: "C:\\json_file\\click_set_return_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ExecutionID: 1,
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ScriptID: 1,
 				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, Params: params},
 			&models.Test{Name: "test_gla_func", PathRefFile: "C:\\json_file\\gla_func_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ExecutionID: 2,
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ScriptID: 2,
 				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
 			&models.Test{Name: "test_amazon", PathRefFile: "C:\\json_file\\test_amazon_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ExecutionID: 3,
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ScriptID: 3,
 				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
 		}
 		for _, test := range tests {
@@ -136,7 +136,7 @@ func initLibraryDB() {
 		Dbm.CreateTable(&models.Library{})
 		var tests []models.Test
 
-		Dbm.Preload("Execution").Find(&tests)
+		Dbm.Preload("Script").Find(&tests)
 
 		lib := &models.Library{Name: "First lib", Tests: tests, OrderString: `[{"id_test" : 1, "order" : 3}, {"id_test" : 2, "order" : 2}, {"id_test" : 3, "order" : 1}]`}
 		Dbm.Create(lib)
@@ -163,10 +163,10 @@ func InitDB() {
 	}
 	//
 	Dbm = db
-	initExecutionDB()
+	initScriptDB()
 	initTestDB()
 	initLibraryDB()
-	var exec_counts []models.Execution
+	var exec_counts []models.Script
 	Dbm.Find(&exec_counts)
 
 	dispatcher.StartDispatcher(len(exec_counts))

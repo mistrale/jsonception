@@ -26,9 +26,9 @@ func (c Tests) InitTestModel(mode int) (*models.Test, error) {
 	log_events := c.Request.FormValue("path_test_log")
 	path_log := c.Request.FormValue("path_ref_log")
 	params := c.Request.FormValue("parameters")
-	executionID, err := strconv.Atoi(c.Request.FormValue("executionID"))
+	ScriptID, err := strconv.Atoi(c.Request.FormValue("scriptID"))
 
-	fmt.Printf("name : %s\tconfig : %s\tlog_events : %s\tpath_log : %s\tparams : %s\texecution ID : %d\n", name, config, log_events, path_log, params, executionID)
+	fmt.Printf("name : %s\tconfig : %s\tlog_events : %s\tpath_log : %s\tparams : %s\tScript ID : %d\n", name, config, log_events, path_log, params, ScriptID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +57,7 @@ func (c Tests) InitTestModel(mode int) (*models.Test, error) {
 	}
 	parameters := &models.Parameters{}
 	if err := json.Unmarshal([]byte(params), parameters); err != nil {
+		fmt.Printf("ici")
 		return nil, err
 	}
 	if err := parameters.Check(); err != nil {
@@ -69,19 +70,19 @@ func (c Tests) InitTestModel(mode int) (*models.Test, error) {
 	test.Config = config
 	test.Params = *parameters
 	test.PathLogFile = log_events
-	test.ExecutionID = executionID
+	test.ScriptID = ScriptID
 	test.PathRefFile = path_log
 	return test, nil
 }
 
-// Create method to add new execution in DB
+// Create method to add new Script in DB
 func (c Tests) Create() revel.Result {
 	test, err := c.InitTestModel(CREATE)
 	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	exec := &models.Execution{}
-	c.Txn.First(exec, test.ExecutionID)
+	exec := &models.Script{}
+	c.Txn.First(exec, test.ScriptID)
 	if err := test.Params.CheckTestParamsWithExecParams(&exec.Params); err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
@@ -101,15 +102,15 @@ func (c Tests) Update(id_test int) revel.Result {
 		return c.RenderJson(utils.NewResponse(false, "You need to provide id_test", ""))
 	}
 	test := &models.Test{}
-	c.Txn.Preload("Execution").First(&test, id_test)
+	c.Txn.Preload("Script").First(&test, id_test)
 
 	new_test, err := c.InitTestModel(UPDATE)
 	if err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	c.Txn.First(&new_test.Execution, new_test.ExecutionID)
+	c.Txn.First(&new_test.Script, new_test.ScriptID)
 
-	if err := new_test.Params.CheckTestParamsWithExecParams(&new_test.Execution.Params); err != nil {
+	if err := new_test.Params.CheckTestParamsWithExecParams(&new_test.Script.Params); err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
 	new_test.TestID = test.TestID
@@ -124,7 +125,7 @@ func (c Tests) Run(testID int) revel.Result {
 	test_uuid := uuid.NewV4().String()
 	room := socket.CreateRoom(test_uuid)
 
-	c.Txn.Preload("Execution").First(&test, testID)
+	c.Txn.Preload("Script").First(&test, testID)
 	test.Order = "order_test_" + strconv.Itoa(test.TestID)
 	test.Uuid = test_uuid
 
@@ -139,7 +140,7 @@ func (c Tests) Run(testID int) revel.Result {
 				c.Txn.Create(history)
 				break
 			}
-			if msg["response"].(map[string]interface{})["event_type"] == models.RESULTEVENT {
+			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_TEST {
 				room.Chan <- utils.NewResponse(true, "", "end_"+test_uuid)
 				history := msg["response"].(map[string]interface{})["history"]
 				Dbm.Create(history)
@@ -172,28 +173,28 @@ func (c Tests) Show(testID int) revel.Result {
 
 // Index method to page from reference index
 func (c Tests) Index() revel.Result {
-	test := &models.Test{TestID: 0, Execution: models.Execution{}, Uuid: uuid.NewV4().String()}
+	test := &models.Test{TestID: 0, Script: models.Script{}, Uuid: uuid.NewV4().String()}
 	return c.Render(test)
 }
 
 // All method to get all reference
 func (c Tests) All() revel.Result {
 	var tests []models.Test
-	c.Txn.Preload("Execution").Find(&tests)
+	c.Txn.Preload("Script").Find(&tests)
 	return c.Render(tests)
 }
 
 // Get method to get all reference
 func (c Tests) Get() revel.Result {
 	var tests []models.Test
-	c.Txn.Preload("Execution").Find(&tests)
+	c.Txn.Preload("Script").Find(&tests)
 	return c.RenderJson(tests)
 }
 
 // Get method to get all reference
 func (c Tests) GetOneTemplate(testID int) revel.Result {
 	test := &models.Test{}
-	c.Txn.Preload("Execution").First(test, testID)
+	c.Txn.Preload("Script").First(test, testID)
 	c.Render(test)
 	return c.RenderTemplate("Tests/TestTemplate.html")
 }

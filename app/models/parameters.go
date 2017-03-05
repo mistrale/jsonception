@@ -38,14 +38,14 @@ func (p *Parameter) Print() {
 func (p *Parameters) CheckTestParamsWithExecParams(others *Parameters) error {
 	fmt.Printf("len j : %d\tlen other : %d\n", len(*p), len(*others))
 	if len(*p) != len(*others) {
-		return errors.New("Number of parameters doesnt match between Test and Execution model")
+		return errors.New("Number of parameters doesnt match between Test and Script model")
 	}
 	for i, v := range *p {
 		if v.Name != (*others)[i].Name {
-			return errors.New("Name parameters differ between Test and Execution model")
+			return errors.New("Name parameters differ between Test and Script model")
 		}
 		if v.Type != (*others)[i].Type {
-			return errors.New("Type parameters differ between Test and Execution model")
+			return errors.New("Type parameters differ between Test and Script model")
 		}
 	}
 	return nil
@@ -133,7 +133,8 @@ func (j Parameters) Check() error {
 					j[i].Value = newVal
 				}
 			} else if v.Type == "int" {
-				if newVal, err := strconv.ParseInt(value, 10, 32); err != nil {
+				if newVal, err := strconv.Atoi(value); err != nil {
+					fmt.Printf("wtf : %d\n", newVal)
 					return err
 				} else {
 					j[i].Value = newVal

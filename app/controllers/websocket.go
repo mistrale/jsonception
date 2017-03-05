@@ -15,7 +15,7 @@ type WebSocket struct {
 }
 
 // RoomSocket : WebSocket listen to room
-func (c WebSocket) ListenExecutionRun(room_name string, ws *websocket.Conn) revel.Result {
+func (c WebSocket) ListenScriptRun(room_name string, ws *websocket.Conn) revel.Result {
 	fmt.Printf("room name : %s\n", room_name)
 	room, ok := socket.Rooms[room_name]
 	if !ok {

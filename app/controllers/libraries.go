@@ -20,7 +20,7 @@ type Libraries struct {
 	GorpController
 }
 
-// Create method to add new execution in DB
+// Create method to add new Script in DB
 func (c Libraries) Create() revel.Result {
 	lib := &models.Library{}
 	content, _ := ioutil.ReadAll(c.Request.Body)
@@ -83,8 +83,8 @@ func (c Libraries) Update(id_lib int) revel.Result {
 	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
 }
 
-func (c Libraries) initRun(lib_uuid string, lib *models.Library) error {
-	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib)
+func (c Libraries) initRun(lib_uuid string, lib *models.Library, idLib int) error {
+	c.Txn.Preload("Tests.Script").Preload("Tests").First(&lib, idLib)
 
 	if err := json.Unmarshal([]byte(lib.OrderString), &lib.Orders); err != nil {
 		return err
@@ -148,10 +148,13 @@ func (c Libraries) Start(lib_uuid string, lib *models.Library) {
 }
 
 func (c Libraries) Run(idLib int) revel.Result {
+	fmt.Printf("idlib : %d\n", idLib)
 	lib_uuid := uuid.NewV4()
 	lib := &models.Library{}
-
-	if err := c.initRun(lib_uuid.String(), lib); err != nil {
+	if idLib == 0 {
+		return c.RenderJson(utils.NewResponse(true, "Empty idLib for run", nil))
+	}
+	if err := c.initRun(lib_uuid.String(), lib, idLib); err != nil {
 		return c.RenderJson(utils.NewResponse(false, "", err.Error()))
 	}
 	c.Start(lib_uuid.String(), lib)
@@ -188,14 +191,14 @@ func (c Libraries) GetHistoryTemplate(libID int) revel.Result {
 // Get method to get all library in json
 func (c Libraries) GetOne(libID int) revel.Result {
 	lib := &models.Library{}
-	c.Txn.Preload("Tests.Execution").Preload("Tests").First(&lib, libID)
+	c.Txn.Preload("Tests.Script").Preload("Tests").First(&lib, libID)
 	return c.RenderJson(lib)
 }
 
 // Get method to get all library in json
 func (c Libraries) Get() revel.Result {
 	var libs []models.Library
-	c.Txn.Preload("Tests.Execution").Preload("Tests").Find(&libs)
+	c.Txn.Preload("Tests.Script").Preload("Tests").Find(&libs)
 	return c.RenderJson(libs)
 }
 
@@ -208,6 +211,6 @@ func (c Libraries) Index() revel.Result {
 // All method to get all library in index
 func (c Libraries) All() revel.Result {
 	var libs []models.Library
-	c.Txn.Preload("Tests.Execution").Preload("Tests").Find(&libs)
+	c.Txn.Preload("Tests.Script").Preload("Tests").Find(&libs)
 	return c.Render(libs)
 }

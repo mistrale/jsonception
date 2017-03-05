@@ -2,22 +2,19 @@ package models
 
 const (
 	// REFLOGEVENT event log of reference
-	REFLOGEVENT = "ref_log_event"
+	REF_LOG_EVENT = "ref_log_event"
 
 	// TESTLOGEVENT event log of current test uuid
-	TESTLOGEVENT = "test_log_event"
+	TEST_LOG_EVENT = "test_log_event"
 
 	// RESULTEVENT for result of a test
-	RESULTEVENT = "result_event"
+	RESULT_TEST = "result_test"
+	EVENT_TEST  = "event_test"
+	START_TEST  = "start_test"
 
-	// TESTEVENT for event when test is running
-	TESTEVENT = "test_event"
-
-	EXEC_EVENT = "exec_event"
-
-	RESULT_EXEC = "result_exec"
-
-	START_TEST = "start_test"
+	START_SCRIPT  = "start_script"
+	RESULT_SCRIPT = "result_script"
+	EVENT_SCRIPT  = "event_script"
 )
 
 //

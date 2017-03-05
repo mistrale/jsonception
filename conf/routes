@@ -4,30 +4,30 @@
 
 module:testrunner
 
-# model REST Execution
-GET     /execution/run                          Executions.Run
-POST    /execution                              Executions.Create
-DELETE  /execution/:id                          Executions.Delete
-PUT     /execution/:id                          Executions.Update
-GET     /execution                              Executions.Get
+# model REST Script
+GET     /scripts/run                          Scripts.Run
+POST    /scripts                              Scripts.Create
+DELETE  /scripts/:id                          Scripts.Delete
+PUT     /scripts/:id                          Scripts.Update
+GET     /scripts                              Scripts.Get
 # GUI Controller
-GET     /execution/all                          Executions.All
-GET     /execution/template                        Executions.GetOneTemplate
-GET     /                                       Executions.Index
+GET     /scripts/all                          Scripts.All
+GET     /scripts/template                        Scripts.GetOneTemplate
+GET     /                                       Scripts.Index
 
 # model REST Test
-POST    /test/:id/run                           Tests.Run
-#GET    /test/:id                               Tests.Show
-GET     /test/:id/history                       Tests.GetHistory
-POST    /test/                                  Tests.Create
-GET     /test                                   Tests.Get
-DELETE  /test/:id                               Tests.Delete
-PUT     /test/:id                               Tests.Update
+POST    /tests/:id/run                           Tests.Run
+#GET    /tests/:id                               Tests.Show
+GET     /tests/:id/history                       Tests.GetHistory
+POST    /tests/                                  Tests.Create
+GET     /tests                                   Tests.Get
+DELETE  /tests/:id                               Tests.Delete
+PUT     /tests/:id                               Tests.Update
 # GUI Controller
-GET     /test/all                               Tests.All
-GET     /test/:id/template                      Tests.GetOneTemplate
-GET     /test/new                               Tests.Index
-GET     /test/:id/history_template               Tests.GetHistoryTemplate
+GET     /tests/all                               Tests.All
+GET     /tests/:id/template                      Tests.GetOneTemplate
+GET     /tests/new                               Tests.Index
+GET     /tests/:id/history_template               Tests.GetHistoryTemplate
 
 GET     /history                                TestHistory.GetOne
 
@@ -49,7 +49,7 @@ GET     /libraries/new                              Libraries.Index
 GET     /libraries/:id/history_template              Libraries.GetHistoryTemplate
 
 # Socket Controller
-WS      /websocket/room                         WebSocket.ListenExecutionRun
+WS      /websocket/room                         WebSocket.ListenScriptRun
 
 
 # Ignore favicon requests

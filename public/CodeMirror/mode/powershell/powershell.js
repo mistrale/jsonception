@@ -77,7 +77,7 @@ CodeMirror.defineMode('powershell', function() {
     /ForEach-Object/,
     /Format-(Custom|List|Table|Wide)/,
     new RegExp('Get-(Acl|Alias|AuthenticodeSignature|ChildItem|Command|ComputerRestorePoint|Content|ControlPanelItem|Counter|Credential'
-      + '|Culture|Date|Event|EventLog|EventSubscriber|ExecutionPolicy|FormatData|Help|History|Host|HotFix|Item|ItemProperty|Job'
+      + '|Culture|Date|Event|EventLog|EventSubscriber|ScriptPolicy|FormatData|Help|History|Host|HotFix|Item|ItemProperty|Job'
       + '|Location|Member|Module|PfxCertificate|Process|PSBreakpoint|PSCallStack|PSDrive|PSProvider|PSSession|PSSessionConfiguration'
       + '|PSSnapin|Random|Service|TraceSource|Transaction|TypeData|UICulture|Unique|Variable|Verb|WinEvent|WmiObject)'),
     /Group-Object/,
@@ -106,7 +106,7 @@ CodeMirror.defineMode('powershell', function() {
     /Save-Help/,
     /Select-(Object|String|Xml)/,
     /Send-MailMessage/,
-    new RegExp('Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ExecutionPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug' +
+    new RegExp('Set-(Acl|Alias|AuthenticodeSignature|Content|Date|ScriptPolicy|Item(Property)?|Location|PSBreakpoint|PSDebug' +
                '|PSSessionConfiguration|Service|StrictMode|TraceSource|Variable|WmiInstance)'),
     /Show-(Command|ControlPanelItem|EventLog)/,
     /Sort-Object/,
@@ -135,7 +135,7 @@ CodeMirror.defineMode('powershell', function() {
     /sort|sp|spjb|spps|spsv|start|sujb|sv|swmi|tee|trcm|type|where|wjb|write/
   ], { prefix: '', suffix: '' });
   var variableBuiltins = buildRegexp([
-    /[$?^_]|Args|ConfirmPreference|ConsoleFileName|DebugPreference|Error|ErrorActionPreference|ErrorView|ExecutionContext/,
+    /[$?^_]|Args|ConfirmPreference|ConsoleFileName|DebugPreference|Error|ErrorActionPreference|ErrorView|ScriptContext/,
     /FormatEnumerationLimit|Home|Host|Input|MaximumAliasCount|MaximumDriveCount|MaximumErrorCount|MaximumFunctionCount/,
     /MaximumHistoryCount|MaximumVariableCount|MyInvocation|NestedPromptLevel|OutputEncoding|Pid|Profile|ProgressPreference/,
     /PSBoundParameters|PSCommandPath|PSCulture|PSDefaultParameterValues|PSEmailServer|PSHome|PSScriptRoot|PSSessionApplicationName/,

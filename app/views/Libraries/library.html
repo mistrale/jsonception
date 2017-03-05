@@ -36,8 +36,8 @@
                 <table class="table">
                   <thead>
                     <tr>
-                      <th>Order</th>
                       <th>Test name</th>
+                      <th>Order</th>
                       <th>Delete</th>
                     </tr>
                   </thead>
@@ -151,7 +151,7 @@ $(document).ready(function() {
   if (!tests) {
     $.ajax({
       dataType: "json",
-      url: "http://{{getIP}}:9000/test",
+      url: "http://{{getIP}}:9000/tests",
       success: function (data) {
         tests = data
         $.each(tests, function(k,v){
@@ -265,7 +265,7 @@ $(document).ready(function() {
       testIDs[{{.Uuid}}] = 0
     } else {
       $.ajax({
-        url: "http://{{getIP}}:9000/test/" + elem.test_id + "/template?testID=" + elem.test_id,
+        url: "http://{{getIP}}:9000/tests/" + elem.test_id + "/template?testID=" + elem.test_id,
         success: function (data) {
           currentData[{{.Uuid}}] = data
          $("#add_test_{{.Uuid}}").html(data)
@@ -379,7 +379,7 @@ $(document).ready(function() {
       url: 'http://{{getIP}}:9000/libraries/' + libID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
       dataType : 'json', // data type
-      data : "libID=" + libID,
+      data : "idLib=" + libID,
       success : function(data) {
         console.log(data)
         $("#panel_lib_run_" + lib_uuid).slideDown()
@@ -413,6 +413,9 @@ $(document).ready(function() {
              } else {
                testID = output["test_id"]
                panel = $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel")
+               console.log(testID)
+               console.log(panel.attr('id'))
+
                histUuid = panel.attr('id').split("_")[3]
 
                if (output["response"]["event_type"] == "start_test") {
@@ -427,7 +430,7 @@ $(document).ready(function() {
 
                  $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('show');
                }
-               if (output["response"]["event_type"] == "exec_event") {
+               if (output["response"]["event_type"] == "event_script") {
 
                  new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
                  for (var i = 0; i < new_array.length; i++) {
@@ -435,7 +438,7 @@ $(document).ready(function() {
                  }
                  console.log("current uuid : " + histUuid + " msg : " + event.data)
                }
-               if (output["response"]["event_type"] == "test_event") {
+               if (output["response"]["event_type"] == "event_test") {
                  new_array_ref = output["response"]["body"]["ref_log_event"] .match(/[\s\S]{1,1000}/g)
                  for (var i = 0; i < new_array_ref.length; i++) {
                    queues_test_ref[histUuid].push(new_array_ref[i])
@@ -446,7 +449,7 @@ $(document).ready(function() {
                    queues_test_test[histUuid].push(new_array_log[i])
                  }
                }
-               if (output["response"]["event_type"] == "result_event") {
+               if (output["status"] == false || output["response"]["event_type"] == "result_test") {
                  panel.removeClass("panel-warning");
                  console.log("C EST FINI : uuid : " + histUuid)
                  isFinished[histUuid] = true
