@@ -213,7 +213,7 @@ $(document).ready(function() {
                          $("#save_error_{{.Uuid}}").text(response["message"])
                        } else {
                          $("#save_success_{{.Uuid}}").slideDown()
-                         $("#save_success_{{.Uuid}}").text(response["response"])
+                         $("#save_success_{{.Uuid}}").text(response["message"])
                          console.log(response["response"])
                        }
                    },

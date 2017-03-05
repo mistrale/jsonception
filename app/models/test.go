@@ -140,7 +140,7 @@ func (test Test) Run(room chan map[string]interface{}) {
 	fmt.Printf("on run test id : %d\n", test.TestID)
 	// if there is an execution
 	if test.ExecutionID != 0 {
-
+		test.Execution.Params = test.Params
 		go test.Execution.Run(channel)
 
 		response := <-channel

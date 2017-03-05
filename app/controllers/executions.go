@@ -112,6 +112,9 @@ func (c Executions) Create() revel.Result {
 	if err != nil {
 		c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
+	for _, v := range exec.Params {
+		v.Print()
+	}
 	c.Txn.Create(exec)
 	return c.RenderJson(utils.NewResponse(true, "Execution successfully created", *exec))
 }
@@ -147,7 +150,7 @@ func (c Executions) Update(id_exec int) revel.Result {
 }
 
 // Run method to execute script
-func (c Executions) Run(id_exec int, script string) revel.Result {
+func (c Executions) Run(id_exec int, script string, params []models.Parameters) revel.Result {
 	uuid := uuid.NewV4()
 	channel := make(chan map[string]interface{})
 	var exec models.Execution

@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/utils"
@@ -33,13 +35,33 @@ func (out outstream) Write(p []byte) (int, error) {
 }
 
 // GetID method to retrieve model's id
-func (e Execution) GetOrder() string {
+func (e *Execution) GetOrder() string {
 	return e.Order
+}
+
+func (e *Execution) InitParams() {
+	for _, v := range e.Params {
+		v.Print()
+		switch v.Type {
+		case "bool":
+			e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.FormatBool(v.Value.(bool)), -1)
+		case "int":
+			if value, ok := v.Value.(float64); ok {
+				e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.FormatFloat(value, 'g', -1, 64), -1)
+			} else {
+				e.Script = strings.Replace(e.Script, "$"+v.Name, strconv.Itoa(v.Value.(int)), -1)
+			}
+		default:
+			e.Script = strings.Replace(e.Script, "$"+v.Name, v.Value.(string), -1)
+		}
+	}
+	fmt.Printf("script : %s\n", e.Script)
 }
 
 // Run method to start script
 func (e Execution) Run(response chan map[string]interface{}) {
 	fmt.Println("ON RUN")
+	e.InitParams()
 	var cmd *exec.Cmd
 	cmd = exec.Command("bash", "-c", e.Script)
 

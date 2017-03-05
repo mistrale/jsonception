@@ -31,6 +31,10 @@ func init() {
 	}
 }
 
+func (p *Parameter) Print() {
+	fmt.Printf("name : %s\tvalue : %s\ttype : %s\n", p.Name, p.Value, p.Type)
+}
+
 func (p *Parameters) CheckTestParamsWithExecParams(others *Parameters) error {
 	fmt.Printf("len j : %d\tlen other : %d\n", len(*p), len(*others))
 	if len(*p) != len(*others) {
@@ -122,10 +126,14 @@ func (j Parameters) Check() error {
 				if newVal, err := strconv.ParseBool(value); err != nil {
 					return err
 				} else {
+					fmt.Printf("value : %v\n", newVal)
+					if newVal != true && newVal != false {
+						return errors.New("Bool value cannot differ from 0 and 1")
+					}
 					j[i].Value = newVal
 				}
 			} else if v.Type == "int" {
-				if newVal, err := strconv.Atoi(value); err != nil {
+				if newVal, err := strconv.ParseInt(value, 10, 32); err != nil {
 					return err
 				} else {
 					j[i].Value = newVal
