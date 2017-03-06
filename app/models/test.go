@@ -26,6 +26,13 @@ type Test struct {
 	Uuid        string     `json:"-" sql:"-"`
 }
 
+func (test *Test) Print() {
+	fmt.Printf("Name : %d\tScriptID : %d\n", test.TestID, test.ScriptID)
+	for _, v := range test.Params {
+		fmt.Printf("Params : name = %s\tvalue = %s\ttype = %s\n", v.Name, v.Value, v.Type)
+	}
+}
+
 func (test Test) GetOrder() string {
 	return test.Order
 }

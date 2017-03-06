@@ -219,9 +219,11 @@ $(document).ready(function() {
       console.log("asdas")
       $("#add_test_{{.Uuid}} .panel").remove()
 
-      $("#panel_test_library_{{.Uuid}}").append('<tr id=panel_one_test_' + testIDs[{{.Uuid}}] + '><td class="col-lg-1"><select class="form-control select_order" id=select_order_{{.Uuid}}_' + testIDs[{{.Uuid}}] + '></select></td><td class="col-lg-10">' + currentData[{{.Uuid}}] +
-      '</td><td class="col-lg-1"><button class="btn btn-danger remove_test_from_list" id="remove_test_from_list_btn_{{.Uuid}}_' + testIDs[{{.Uuid}}] +
-      '">Remove</button></td></td>')
+      $("#panel_test_library_{{.Uuid}}").append('<tr id=panel_one_test_' + testIDs[{{.Uuid}}]
+      + '><td class="col-lg-10">' + currentData[{{.Uuid}}] +
+      '</td><td class="col-lg-1"><select class="form-control select_order" id=select_order_{{.Uuid}}_' + testIDs[{{.Uuid}}]
+       + '></select></td><td class="col-lg-1"><button class="btn btn-danger remove_test_from_list" id="remove_test_from_list_btn_{{.Uuid}}_'
+       + testIDs[{{.Uuid}}] + '">Remove</button></td></td>')
       for (i = 1; i <= listTests[{{.Uuid}}].length; i++) {
           console.log("wtf : " + i + "select_order_{{.Uuid}}_" + testIDs[{{.Uuid}}])
           $("#select_order_{{.Uuid}}_" + testIDs[{{.Uuid}}]).append("<option>" + i + "</option>")

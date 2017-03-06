@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -18,7 +19,6 @@ type Library struct {
 	Tests     []Test        `json:"tests" gorm:"many2many:library_tests;"`
 	Uuid      string        `json:"-" db:"-"`
 	Orders    LibraryOrders `json:"test_orders" sql:"type:jsonb"`
-	//OrderString string        `json:"orders"`
 }
 
 // type Order to know when to run test
@@ -58,6 +58,15 @@ func (lib Library) findTest(order Order) *Test {
 		if v.TestID == order.IdTest {
 			lib.Tests = append(lib.Tests[:index], lib.Tests[index+1:]...)
 			return &v
+		}
+	}
+	return nil
+}
+
+func (lib Library) CheckOrder() error {
+	for _, v := range lib.Orders {
+		if v.Order > len(lib.Orders) {
+			return errors.New(fmt.Sprintf("Error creating or updating library : Order %d is bigger than test number :%d\n", v.Order, len(lib.Orders)))
 		}
 	}
 	return nil

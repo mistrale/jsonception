@@ -34,11 +34,10 @@ func (c Libraries) Create() revel.Result {
 	}
 	for _, v := range lib.TestIDs {
 		test := &models.Test{}
-		c.Txn.First(test, v)
+		if db := c.Txn.First(test, v); db.Error != nil {
+			return c.RenderJson(utils.NewResponse(false, db.Error.Error(), nil))
+		}
 		lib.Tests = append(lib.Tests, *test)
-	}
-	for _, v := range lib.Orders {
-		fmt.Printf("test id : %d\torder : %d\n", v.IdTest, v.Order)
 	}
 	c.Txn.Create(lib)
 	return c.RenderJson(utils.NewResponse(true, "Successful lib creation", *lib))
@@ -57,14 +56,19 @@ func (c Libraries) Update(id_lib int) revel.Result {
 	c.Txn.First(&lib, id_lib)
 
 	content, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Printf("wtf : %s\n", content)
 	if err := json.Unmarshal(content, lib); err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
+	c.Txn.Model(lib).Association("Tests").Clear()
 	for _, v := range lib.TestIDs {
 		test := &models.Test{}
-		c.Txn.First(test, v)
+		if db := c.Txn.First(test, v); db.Error != nil {
+			return c.RenderJson(utils.NewResponse(false, db.Error.Error(), nil))
+		}
 		lib.Tests = append(lib.Tests, *test)
 	}
+
 	c.Txn.Save(&lib)
 	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
 }

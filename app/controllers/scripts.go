@@ -146,6 +146,29 @@ func (c Scripts) Update(scriptID int) revel.Result {
 	exec.Content = new_exec.Content
 	exec.Params = new_exec.Params
 	c.Txn.Save(exec)
+
+	// check test params
+	var tests []models.Test
+	c.Txn.Find(&tests, "script_id = ?", exec.ID)
+	for i_test, test := range tests {
+
+		// for each params in test
+		for i_test_params, p_test := range test.Params {
+
+			isHere := false
+			// find params in exec params
+			for _, p_exec := range exec.Params {
+				if p_exec.Name == p_test.Name {
+					isHere = true
+				}
+			}
+			if !isHere {
+				tests[i_test].Params = append(tests[i_test].Params[:i_test_params], tests[i_test].Params[i_test_params+1:]...)
+			}
+		}
+		c.Txn.Save(&tests[i_test])
+	}
+	fmt.Printf("size test : %d\n", len(tests))
 	return c.RenderJson(utils.NewResponse(true, "", "Script updated"))
 }
 
