@@ -114,6 +114,29 @@ func (_ tStatic) ServeModule(
 }
 
 
+type tTestHistory struct {}
+var TestHistory tTestHistory
+
+
+func (_ tTestHistory) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
+}
+
+func (_ tTestHistory) GetOne(
+		uuid string,
+		testName string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "uuid", uuid)
+	revel.Unbind(args, "testName", testName)
+	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
+}
+
+
 type tTests struct {}
 var Tests tTests
 
@@ -387,29 +410,6 @@ func (_ tScripts) Run(
 	revel.Unbind(args, "content", content)
 	revel.Unbind(args, "params", params)
 	return revel.MainRouter.Reverse("Scripts.Run", args).Url
-}
-
-
-type tTestHistory struct {}
-var TestHistory tTestHistory
-
-
-func (_ tTestHistory) Get(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
-}
-
-func (_ tTestHistory) GetOne(
-		uuid string,
-		testName string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "uuid", uuid)
-	revel.Unbind(args, "testName", testName)
-	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
 }
 
 

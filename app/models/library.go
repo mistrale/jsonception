@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -10,16 +12,34 @@ import (
 
 // Library : test container
 type Library struct {
-	LibraryID   int           `json:"library_id" gorm:"primary_key"`
-	Name        string        `json:"name"`
-	TestIDs     []int         `json:"test_ids" sql:"-"`
-	Tests       []Test        `json:"tests" gorm:"many2many:library_tests;"`
-	Uuid        string        `json:"-" db:"-"`
-	Orders      LibraryOrders `json:"test_orders" db:"-"`
-	OrderString string        `json:"orders"`
+	LibraryID int           `json:"library_id" gorm:"primary_key"`
+	Name      string        `json:"name"`
+	TestIDs   []int         `json:"test_ids" sql:"-"`
+	Tests     []Test        `json:"tests" gorm:"many2many:library_tests;"`
+	Uuid      string        `json:"-" db:"-"`
+	Orders    LibraryOrders `json:"test_orders" sql:"type:jsonb"`
+	//OrderString string        `json:"orders"`
+}
+
+// type Order to know when to run test
+type Order struct {
+	IdTest int `json:"id_test"`
+	Order  int `json:"order"`
 }
 
 type LibraryOrders []Order
+
+func (slice LibraryOrders) Value() (driver.Value, error) {
+	valueString, err := json.Marshal(slice)
+	return string(valueString), err
+}
+
+func (slice *LibraryOrders) Scan(value interface{}) error {
+	if err := json.Unmarshal(value.([]byte), &slice); err != nil {
+		return err
+	}
+	return nil
+}
 
 func (slice LibraryOrders) Len() int {
 	return len(slice)
@@ -31,12 +51,6 @@ func (slice LibraryOrders) Less(i, j int) bool {
 
 func (slice LibraryOrders) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
-}
-
-// type Order to know when to run test
-type Order struct {
-	IdTest int `json:"id_test"`
-	Order  int `json:"order"`
 }
 
 func (lib Library) findTest(order Order) *Test {

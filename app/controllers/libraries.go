@@ -40,15 +40,7 @@ func (c Libraries) Create() revel.Result {
 	for _, v := range lib.Orders {
 		fmt.Printf("test id : %d\torder : %d\n", v.IdTest, v.Order)
 	}
-	if b, err := json.Marshal(lib.Orders); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	} else {
-		lib.OrderString = string(b)
-	}
-	fmt.Printf("lib order : %s\n", lib.OrderString)
 	c.Txn.Create(lib)
-	//	lib.Orders.IdLib = lib.LibraryID
-	//	c.Txn.Create(lib.Orders)
 	return c.RenderJson(utils.NewResponse(true, "Successful lib creation", *lib))
 }
 
@@ -73,22 +65,12 @@ func (c Libraries) Update(id_lib int) revel.Result {
 		c.Txn.First(test, v)
 		lib.Tests = append(lib.Tests, *test)
 	}
-	if b, err := json.Marshal(lib.Orders); err != nil {
-		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
-	} else {
-		lib.OrderString = string(b)
-	}
 	c.Txn.Save(&lib)
-
 	return c.RenderJson(utils.NewResponse(true, "", "Library updated"))
 }
 
 func (c Libraries) initRun(lib_uuid string, lib *models.Library, idLib int) error {
 	c.Txn.Preload("Tests.Script").Preload("Tests").First(&lib, idLib)
-
-	if err := json.Unmarshal([]byte(lib.OrderString), &lib.Orders); err != nil {
-		return err
-	}
 
 	// check if all test are present
 	tests := make(map[int]int)

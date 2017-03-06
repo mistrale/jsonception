@@ -172,7 +172,7 @@ $(document).ready(function() {
   }
 
   if ({{.Tests}}) {
-    orders = JSON.parse({{.OrderString}});
+    orders = {{.Orders}};
 
     for (i = 1; i <= {{.Tests}}.length; i++) {
       listTests[{{.Uuid}}].push({{.Tests}}[i - 1].test_id)

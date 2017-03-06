@@ -136,6 +136,30 @@ func main() {
 			
 		})
 	
+	revel.RegisterController((*controllers.TestHistory)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "Get",
+				Args: []*revel.MethodArg{ 
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			&revel.MethodType{
+				Name: "GetOne",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "uuid", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "testName", Type: reflect.TypeOf((*string)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+					28: []string{ 
+						"hist",
+					},
+				},
+			},
+			
+		})
+	
 	revel.RegisterController((*controllers.Tests)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -418,30 +442,6 @@ func main() {
 					&revel.MethodArg{Name: "params", Type: reflect.TypeOf((*[]models.Parameters)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
-	revel.RegisterController((*controllers.TestHistory)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "Get",
-				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			&revel.MethodType{
-				Name: "GetOne",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "uuid", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "testName", Type: reflect.TypeOf((*string)(nil)) },
-				},
-				RenderArgNames: map[int][]string{ 
-					28: []string{ 
-						"hist",
-					},
 				},
 			},
 			

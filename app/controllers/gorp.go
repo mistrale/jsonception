@@ -135,10 +135,15 @@ func initLibraryDB() {
 	if !Dbm.HasTable(&models.Library{}) {
 		Dbm.CreateTable(&models.Library{})
 		var tests []models.Test
+		orders := models.LibraryOrders{
+			models.Order{IdTest: 1, Order: 3},
+			models.Order{IdTest: 2, Order: 2},
+			models.Order{IdTest: 3, Order: 1},
+		}
 
 		Dbm.Preload("Script").Find(&tests)
 
-		lib := &models.Library{Name: "First lib", Tests: tests, OrderString: `[{"id_test" : 1, "order" : 3}, {"id_test" : 2, "order" : 2}, {"id_test" : 3, "order" : 1}]`}
+		lib := &models.Library{Name: "First lib", Tests: tests, Orders: orders}
 		Dbm.Create(lib)
 	}
 
