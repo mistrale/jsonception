@@ -31,6 +31,20 @@ func main() {
 	revel.Init(*runMode, *importPath, *srcPath)
 	revel.INFO.Println("Running revel server")
 	
+	revel.RegisterController((*controllers.WebSocket)(nil),
+		[]*revel.MethodType{
+			&revel.MethodType{
+				Name: "ListenScriptRun",
+				Args: []*revel.MethodArg{ 
+					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
+					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
+				},
+				RenderArgNames: map[int][]string{ 
+				},
+			},
+			
+		})
+	
 	revel.RegisterController((*controllers.GorpController)(nil),
 		[]*revel.MethodType{
 			&revel.MethodType{
@@ -50,20 +64,6 @@ func main() {
 			&revel.MethodType{
 				Name: "Rollback",
 				Args: []*revel.MethodArg{ 
-				},
-				RenderArgNames: map[int][]string{ 
-				},
-			},
-			
-		})
-	
-	revel.RegisterController((*controllers.WebSocket)(nil),
-		[]*revel.MethodType{
-			&revel.MethodType{
-				Name: "ListenScriptRun",
-				Args: []*revel.MethodArg{ 
-					&revel.MethodArg{Name: "room_name", Type: reflect.TypeOf((*string)(nil)) },
-					&revel.MethodArg{Name: "ws", Type: reflect.TypeOf((**websocket.Conn)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
 				},
@@ -191,7 +191,7 @@ func main() {
 					&revel.MethodArg{Name: "libID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					173: []string{ 
+					174: []string{ 
 						"history",
 					},
 				},
@@ -216,7 +216,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					194: []string{ 
+					195: []string{ 
 						"library",
 					},
 				},
@@ -226,7 +226,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					201: []string{ 
+					202: []string{ 
 						"libs",
 					},
 				},
@@ -241,7 +241,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					37: []string{ 
+					38: []string{ 
 						"exec",
 					},
 				},
@@ -251,7 +251,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					45: []string{ 
+					46: []string{ 
 						"execs",
 						"testID",
 					},
@@ -279,7 +279,7 @@ func main() {
 					&revel.MethodArg{Name: "uuid", Type: reflect.TypeOf((*string)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					68: []string{ 
+					69: []string{ 
 						"exec",
 					},
 				},
@@ -391,7 +391,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					165: []string{ 
+					170: []string{ 
 						"history",
 					},
 				},
@@ -402,7 +402,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					171: []string{ 
+					176: []string{ 
 					},
 				},
 			},
@@ -411,7 +411,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					177: []string{ 
+					182: []string{ 
 						"test",
 					},
 				},
@@ -421,7 +421,7 @@ func main() {
 				Args: []*revel.MethodArg{ 
 				},
 				RenderArgNames: map[int][]string{ 
-					184: []string{ 
+					189: []string{ 
 						"tests",
 					},
 				},
@@ -439,7 +439,7 @@ func main() {
 					&revel.MethodArg{Name: "testID", Type: reflect.TypeOf((*int)(nil)) },
 				},
 				RenderArgNames: map[int][]string{ 
-					198: []string{ 
+					203: []string{ 
 						"test",
 					},
 				},

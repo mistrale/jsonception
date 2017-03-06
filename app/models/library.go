@@ -8,23 +8,24 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mistrale/jsonception/app/dispatcher"
 )
 
 // Library : test container
 type Library struct {
-	LibraryID int           `json:"library_id" gorm:"primary_key"`
-	Name      string        `json:"name"`
-	TestIDs   []int         `json:"test_ids" sql:"-"`
-	Tests     []Test        `json:"tests" gorm:"many2many:library_tests;"`
-	Uuid      string        `json:"-" db:"-"`
-	Orders    LibraryOrders `json:"test_orders" sql:"type:jsonb"`
+	gorm.Model `json:"library_id"`
+	Name       string        `json:"name"`
+	TestIDs    []uint        `json:"test_ids" sql:"-"`
+	Tests      []Test        `json:"tests" gorm:"many2many:library_tests;"`
+	Uuid       string        `json:"-" db:"-"`
+	Orders     LibraryOrders `json:"test_orders" sql:"type:jsonb"`
 }
 
 // type Order to know when to run test
 type Order struct {
-	IdTest int `json:"id_test"`
-	Order  int `json:"order"`
+	IdTest uint `json:"id_test"`
+	Order  int  `json:"order"`
 }
 
 type LibraryOrders []Order
@@ -55,7 +56,7 @@ func (slice LibraryOrders) Swap(i, j int) {
 
 func (lib Library) findTest(order Order) *Test {
 	for index, v := range lib.Tests {
-		if v.TestID == order.IdTest {
+		if v.ID == order.IdTest {
 			lib.Tests = append(lib.Tests[:index], lib.Tests[index+1:]...)
 			return &v
 		}
@@ -72,53 +73,55 @@ func (lib Library) CheckOrder() error {
 	return nil
 }
 
-func (lib Library) dealTestScript(test *Test, channel chan map[string]interface{},
-	end chan int, history *LibraryHistory, lib_room chan map[string]interface{}) {
+func (lib Library) dealTestScript(test *Test, channel chan dispatcher.Event,
+	end chan int, history *LibraryHistory, lib_room chan dispatcher.Event) {
 	fmt.Printf("test id IN GO : %s\n", test.GetOrder())
 	for {
 		msg := <-channel
-		msg["test_id"] = test.TestID
+		body := make(map[string]interface{})
+		body["test_body"] = msg.Body
+		body["test_id"] = test.ID
+		msg.Body = body
+		fmt.Printf("msg : %s\n", msg.Body)
 		lib_room <- msg
-		if response, ok := msg["response"].(map[string]interface{}); ok {
-			if response["event_type"] == RESULT_TEST {
-				hist := response["history"].(*TestHistory)
-				history.Histories = append(history.Histories, *hist)
-				log.Printf("on rnetre ici %d\n", hist.TestID)
-				if msg["status"] == true {
-					end <- 1
-				} else {
-					end <- 0
-				}
-				return
+		if msg.Type == RESULT_TEST {
+			hist := test.History
+			history.Histories = append(history.Histories, hist)
+			log.Printf("on rnetre ici %d\n", hist.TestID)
+			if msg.Status == true {
+				end <- 1
+			} else {
+				end <- 0
 			}
+			return
 		}
-		if msg["status"] != true {
-			hist := msg["history"].(*TestHistory)
-			history.Histories = append(history.Histories, *hist)
+		if msg.Status != true {
+			hist := test.History
+			history.Histories = append(history.Histories, hist)
 			end <- 0
-			fmt.Printf("ERROR : %s\n", msg["message"])
+			fmt.Printf("ERROR : %s\n", msg.Errors)
 			return
 		}
 	}
 }
 
 func (lib Library) Run(testsOrders map[int]int, end chan int, history *LibraryHistory,
-	channel chan map[string]interface{}) {
+	channel chan dispatcher.Event) {
 	for _, o := range lib.Orders {
 		test := lib.findTest(o)
 		testsOrders[o.Order]++
 
 		// if test needs to be runned in parallele
 		if testsOrders[o.Order] > 1 {
-			test.Order = "lib_" + strconv.Itoa(lib.LibraryID) + "_" + strconv.Itoa(testsOrders[o.Order])
+			test.Order = "lib_" + strconv.Itoa(int(lib.ID)) + "_" + strconv.Itoa(testsOrders[o.Order])
 		} else {
-			test.Order = "lib_" + strconv.Itoa(lib.LibraryID)
+			test.Order = "lib_" + strconv.Itoa(int(lib.ID))
 		}
 
-		fmt.Printf("Order : %s\tfor test id :%d\tand size order : %d\n", test.Order, test.TestID, len(lib.Orders))
+		fmt.Printf("Order : %s\tfor test id :%d\tand size order : %d\n", test.Order, test.ID, len(lib.Orders))
 
 		var runner dispatcher.IRunnable = test
-		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan map[string]interface{})}
+		request := dispatcher.WorkRequest{Runner: &runner, Response: make(chan dispatcher.Event)}
 		dispatcher.WorkQueue <- request
 
 		go lib.dealTestScript(test, request.Response, end, history, channel)

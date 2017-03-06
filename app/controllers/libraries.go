@@ -8,6 +8,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
@@ -77,15 +78,15 @@ func (c Libraries) initRun(lib_uuid string, lib *models.Library, idLib int) erro
 	c.Txn.Preload("Tests.Script").Preload("Tests").First(&lib, idLib)
 
 	// check if all test are present
-	tests := make(map[int]int)
+	tests := make(map[uint]int)
 	for _, v := range lib.Orders {
-		tests[v.IdTest] += 1
+		tests[v.IdTest]++
 	}
 	for i, v := range lib.Tests {
-		tests[v.TestID] -= 1
+		tests[v.ID]--
 		lib.Tests[i].Uuid = uuid.NewV4().String()
-		if tests[v.TestID] == 0 {
-			delete(tests, v.TestID)
+		if tests[v.ID] == 0 {
+			delete(tests, v.ID)
 		}
 	}
 	if len(tests) > 0 {
@@ -107,7 +108,7 @@ func (c Libraries) Start(lib_uuid string, lib *models.Library) {
 	nb_test := len(lib.Tests)
 	end := make(chan int, len(lib.Tests))
 
-	history := &models.LibraryHistory{LibID: lib.LibraryID, TimeRunned: time.Now().UnixNano(), Histories: make([]models.TestHistory, 0),
+	history := &models.LibraryHistory{LibID: lib.ID, TimeRunned: time.Now().UnixNano(), Histories: make([]models.TestHistory, 0),
 		RunUUID: lib_uuid}
 
 	go lib.Run(testsOrders, end, history, lib_room.Chan)
@@ -126,7 +127,7 @@ func (c Libraries) Start(lib_uuid string, lib *models.Library) {
 				history.LibName = lib.Name
 				Dbm.Create(history)
 
-				lib_room.Chan <- utils.NewResponse(true, "", "end_"+lib_uuid)
+				lib_room.Chan <- dispatcher.Event{Status: true, Type: models.END_ROOM, Body: "end_" + lib_uuid}
 				return
 			}
 		}
@@ -190,7 +191,7 @@ func (c Libraries) Get() revel.Result {
 
 // Index method to page from library index
 func (c Libraries) Index() revel.Result {
-	library := &models.Library{LibraryID: 0}
+	library := &models.Library{}
 	return c.Render(library)
 }
 

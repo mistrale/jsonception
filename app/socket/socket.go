@@ -3,6 +3,8 @@ package socket
 import (
 	"fmt"
 	"sync"
+
+	"github.com/mistrale/jsonception/app/dispatcher"
 )
 
 var (
@@ -12,15 +14,15 @@ var (
 
 type Room struct {
 	Name     string
-	Tmp      []map[string]interface{}
-	Chan     chan map[string]interface{}
+	Tmp      []dispatcher.Event
+	Chan     chan dispatcher.Event
 	Mux      sync.Mutex
 	IsClosed bool
 }
 
 func CreateRoom(name string) *Room {
 	fmt.Printf("creatiing room : %s\n", name)
-	room := &Room{Name: name, Chan: make(chan map[string]interface{}), Tmp: make([]map[string]interface{}, 0), IsClosed: false}
+	room := &Room{Name: name, Chan: make(chan dispatcher.Event), Tmp: make([]dispatcher.Event, 0), IsClosed: false}
 	Rooms[name] = room
 	fmt.Println("on demarrrre la boucle")
 
@@ -31,7 +33,7 @@ func CreateRoom(name string) *Room {
 			room.Mux.Lock()
 			room.Tmp = append(room.Tmp, msg)
 			room.Mux.Unlock()
-			if msg["response"] == "end_"+room.Name {
+			if msg.Body == "end_"+room.Name {
 				room.Mux.Lock()
 				fmt.Printf("[room][%s] : Closing room\n", room.Name)
 				room.IsClosed = true

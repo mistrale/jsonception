@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/models"
 	"github.com/mistrale/jsonception/app/socket"
 	"github.com/mistrale/jsonception/app/utils"
@@ -113,7 +114,7 @@ func (c Tests) Update(id_test int) revel.Result {
 	if err := new_test.Params.CheckTestParamsWithExecParams(&new_test.Script.Params); err != nil {
 		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
-	new_test.TestID = test.TestID
+	new_test.ID = test.ID
 	c.Txn.Save(new_test)
 	return c.RenderJson(utils.NewResponse(true, "Test updated", *test))
 }
@@ -121,29 +122,30 @@ func (c Tests) Update(id_test int) revel.Result {
 // Run method to start a test
 func (c Tests) Run(testID int) revel.Result {
 	var test models.Test
-	channel := make(chan map[string]interface{})
+	channel := make(chan dispatcher.Event)
 	test_uuid := uuid.NewV4().String()
 	room := socket.CreateRoom(test_uuid)
 
 	c.Txn.Preload("Script").First(&test, testID)
-	test.Order = "order_test_" + strconv.Itoa(test.TestID)
+	test.Order = "order_test_" + strconv.Itoa(int(test.ID))
 	test.Uuid = test_uuid
 
-	go func(channel chan map[string]interface{}, test_uuid string) {
+	go func(channel chan dispatcher.Event, test_uuid string) {
 		go test.Run(channel)
 		for {
 			msg := <-channel
 			room.Chan <- msg
-			if msg["status"] == false {
-				room.Chan <- utils.NewResponse(true, "", "end_"+test_uuid)
-				history := msg["history"]
-				c.Txn.Create(history)
+			if msg.Status == false {
+				room.Chan <- dispatcher.Event{Status: true, Body: "end_" + test_uuid, Type: models.END_ROOM}
+				fmt.Printf("Hstory : %d\t%d\t%s\n", test.History.ID, test.History.TestID, test.History.OutputExec)
+				Dbm.Create(&test.History)
 				break
 			}
-			if msg["response"].(map[string]interface{})["event_type"] == models.RESULT_TEST {
-				room.Chan <- utils.NewResponse(true, "", "end_"+test_uuid)
-				history := msg["response"].(map[string]interface{})["history"]
-				Dbm.Create(history)
+			if msg.Type == models.RESULT_TEST {
+				fmt.Printf("Hstory : %d\t%d\t%s\n", test.History.ID, test.History.TestID, test.History.OutputExec)
+
+				room.Chan <- dispatcher.Event{Status: true, Body: "end_" + test_uuid, Type: models.END_ROOM}
+				Dbm.Create(&test.History)
 				break
 			}
 		}
@@ -161,7 +163,10 @@ func (c Tests) GetHistory(testID string) revel.Result {
 // GetHistory method to get all history from one test and template html
 func (c Tests) GetHistoryTemplate(testID int) revel.Result {
 	var history []models.TestHistory
+
 	c.Txn.Where("test_id = ?", testID).Find(&history)
+	fmt.Println(len(history))
+
 	c.Render(history)
 	return c.RenderTemplate("TestHistory/all.html")
 }
@@ -173,7 +178,7 @@ func (c Tests) Show(testID int) revel.Result {
 
 // Index method to page from reference index
 func (c Tests) Index() revel.Result {
-	test := &models.Test{TestID: 0, Script: models.Script{}, Uuid: uuid.NewV4().String()}
+	test := &models.Test{Script: models.Script{}, Uuid: uuid.NewV4().String()}
 	return c.Render(test)
 }
 

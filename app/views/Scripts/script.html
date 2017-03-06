@@ -300,25 +300,23 @@ $(document).ready(function() {
           output = ""
           socket.onmessage = function(event) {
             output = JSON.parse(event.data)
-            console.log(event.data)
 
             if (output["status"] == false) {
-              alert(output["message"])
+              alert(output["errors"])
               isFinished[{{.Uuid}}] = true
-            } else if (output["response"]["body"] && output["response"]["event_type"] != "result_script") {
-              console.log("on push dans la queue : " + output["response"]["body"].match(/[\s\S]{1,1000}/g))
-              new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
+            } else if (output["body"] && output["event_type"] != "result_script") {
+              new_array = output["body"].match(/[\s\S]{1,1000}/g)
               for (var i = 0; i < new_array.length; i++) {
                 queues[{{.Uuid}}].push(new_array[i])
               }
               //queues[{{.Uuid}}].push(output["response"]["body"]);
-            } else if (output["response"]["event_type"] == "result_script") {
+            } else if (output["event_type"] == "result_script") {
               isFinished[{{.Uuid}}] = true
 
               if (output["status"] != true) {
 
                 $("#save_error_{{.Uuid}}").slideDown()
-                $("#save_error_{{.Uuid}}").text(output["message"])
+                $("#save_error_{{.Uuid}}").text(output["errors"])
               } else {
                 $("#save_success_{{.Uuid}}").slideDown()
                 $("#save_success_{{.Uuid}}").text("Script done !")

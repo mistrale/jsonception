@@ -38,9 +38,13 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
+          <ul class="list-group" id=save_test_run_error_history_{{.Uuid}} style="display:none;" >
+            {{range .Errors}}
+            <li class="list-group-item list-group-item-danger">{{.}}</li>
+            {{end}}
+          </ul>
           <ul class="list-group">
-            <li id=save_test_run_error_history_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-danger"></li>
-            <li id=save_test_run_success_history_{{.Uuid}} style="display:none;" class="list-group-item list-group-item-success"></li>
+            <li  class="list-group-item list-group-item-success"  style="display:none;" id=save_test_run_success_history_{{.Uuid}}></li>
           </ul>
         </div>
       </div>
@@ -68,7 +72,6 @@ $(document).ready(function() {
         $("#head_panel_history_{{.Uuid}}").addClass("panel-danger");
         $("#head_panel_history_{{.Uuid}}").removeClass("panel-default");
         $("#save_test_run_error_history_{{.Uuid}}").show();
-        $("#save_test_run_error_history_{{.Uuid}}").text({{.OutputTest}});
       }
   }
 

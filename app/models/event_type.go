@@ -1,6 +1,7 @@
 package models
 
 const (
+	END_ROOM = "end_room"
 	// REFLOGEVENT event log of reference
 	REF_LOG_EVENT = "ref_log_event"
 
@@ -15,13 +16,8 @@ const (
 	START_SCRIPT  = "start_script"
 	RESULT_SCRIPT = "result_script"
 	EVENT_SCRIPT  = "event_script"
-)
 
-//
-// IRunnable interface for all models implementing Run method
-//
-type IRunnable interface {
-	GetOrder() string
-	GetID() int
-	Run(chan map[string]interface{})
-}
+	START_LIB  = "start_lib"
+	EVENT_LIB  = "event_lib"
+	RESULT_LIB = "result_lib"
+)

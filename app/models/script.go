@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
-	"github.com/mistrale/jsonception/app/utils"
+	"github.com/mistrale/jsonception/app/dispatcher"
 )
 
 // Script : script runned
@@ -59,7 +59,7 @@ func (e *Script) InitParams() {
 }
 
 // Run method to start script
-func (e Script) Run(response chan map[string]interface{}) {
+func (e Script) Run(response chan dispatcher.Event) {
 	fmt.Println("ON RUN")
 	e.InitParams()
 	var cmd *exec.Cmd
@@ -70,26 +70,15 @@ func (e Script) Run(response chan map[string]interface{}) {
 	cmd.Stdout = out
 	cmd.Stderr = out
 	if err := cmd.Start(); err != nil {
-		response <- utils.NewResponse(false, err.Error(), nil)
-		//log.Fatal(err)
+		response <- dispatcher.Event{Type: RESULT_SCRIPT, Errors: []string{err.Error()}, Status: false, Body: nil}
 	}
-	response <- utils.NewResponse(true, "ok", e.Uuid)
+	response <- dispatcher.Event{Type: START_SCRIPT, Errors: nil, Status: true, Body: e.Uuid}
 	go func(ch chan string) {
 		for {
-			msg := <-ch
-			resp := make(map[string]interface{})
-			resp["event_type"] = EVENT_SCRIPT
-			resp["body"] = msg
-
-			response <- utils.NewResponse(true, "", resp)
-			//room.Chan <- msg
+			response <- dispatcher.Event{Type: EVENT_SCRIPT, Errors: nil, Status: true, Body: <-ch}
 		}
 	}(ch)
 	cmd.Wait()
 	cmd.Process.Kill()
-	resp := make(map[string]interface{})
-	resp["event_type"] = RESULT_SCRIPT
-	resp["body"] = "Script done !"
-	response <- utils.NewResponse(true, "", resp)
-
+	response <- dispatcher.Event{Type: RESULT_SCRIPT, Errors: nil, Status: true, Body: "Script done !"}
 }

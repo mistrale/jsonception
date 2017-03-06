@@ -5,29 +5,31 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
+	"github.com/mistrale/jsonception/app/dispatcher"
 	"github.com/mistrale/jsonception/app/jsoncmp"
 	"github.com/mistrale/jsonception/app/utils"
 )
 
 // Test : script and logevent
 type Test struct {
-	TestID      int        `json:"test_id"  gorm:"primary_key"`
-	Name        string     `json:"name"`
-	Config      string     `json:"config"`
-	PathRefFile string     `json:"path_test_log"`
-	PathLogFile string     `json:"path_ref_log"`
-	ScriptID    int        `json:"scriptID"`
-	Script      Script     `json:"script" gorm:"ForeignKey:ScriptID;AssociationForeignKey:ID"`
-	Params      Parameters `json:"parameters" sql:"type:jsonb"`
-	Order       string     `json:"-" sql:"-"`
-	Uuid        string     `json:"-" sql:"-"`
+	gorm.Model  `json:"test_id"`
+	Name        string      `json:"name"`
+	Config      string      `json:"config"`
+	PathRefFile string      `json:"path_test_log"`
+	PathLogFile string      `json:"path_ref_log"`
+	ScriptID    int         `json:"scriptID"`
+	Script      Script      `json:"script" gorm:"ForeignKey:ScriptID;AssociationForeignKey:ID"`
+	Params      Parameters  `json:"parameters" sql:"type:jsonb"`
+	Order       string      `json:"-" sql:"-"`
+	Uuid        string      `json:"-" sql:"-"`
+	History     TestHistory `json:"-" sql:"-"`
 }
 
 func (test *Test) Print() {
-	fmt.Printf("Name : %d\tScriptID : %d\n", test.TestID, test.ScriptID)
+	fmt.Printf("Name : %d\tScriptID : %d\n", test.ID, test.ScriptID)
 	for _, v := range test.Params {
 		fmt.Printf("Params : name = %s\tvalue = %s\ttype = %s\n", v.Name, v.Value, v.Type)
 	}
@@ -37,42 +39,42 @@ func (test Test) GetOrder() string {
 	return test.Order
 }
 
-func (test Test) GetID() int {
-	return test.TestID
+func (test Test) GetID() uint {
+	return test.ID
 }
 
 // Run method to realise test
-func (test Test) Compare(response chan map[string]interface{}) {
+func (test *Test) Compare(response chan dispatcher.Event) {
 	fmt.Println("Running teeeeeest")
 	errors := make([]string, 0)
 	status := true
 	b, err := ioutil.ReadFile(test.PathRefFile)
 	if err != nil {
-		response <- utils.NewResponse(false, "Error reading log reference file : "+err.Error(), nil)
+		response <- dispatcher.Event{Status: false, Errors: []string{"Error reading log reference file : " + err.Error()}, Body: nil, Type: RESULT_TEST}
 		return
 	}
-	refJSon := make([]interface{}, 0)
-	config := make([]interface{}, 0)
+	var refJSon []interface{}
+	var config []interface{}
 
 	if err := json.Unmarshal([]byte(b), &refJSon); err != nil {
-		response <- utils.NewResponse(false, err.Error(), nil)
+		response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 		return
 	}
 	if err := json.Unmarshal([]byte(test.Config), &config); err != nil {
-		response <- utils.NewResponse(false, err.Error(), nil)
+		response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 		return
 	}
 	// get json event from two files to differ
 	var testJson []interface{}
 	if err := utils.GetJsonArray(test.PathLogFile, &testJson); err != nil {
 		fmt.Println(err.Error())
-		response <- utils.NewResponse(false, err.Error(), nil)
+		response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 		return
 	}
 
 	if len(refJSon) != len(testJson) {
 		fmt.Println("File diverg from different events number")
-		response <- utils.NewResponse(false, "File diverg from different events number", nil)
+		response <- dispatcher.Event{Status: false, Errors: []string{"File diverg from different events number"}, Type: RESULT_TEST}
 		return
 	}
 	// iterate through reference file
@@ -82,7 +84,7 @@ func (test Test) Compare(response chan map[string]interface{}) {
 		// get keys to compare for current event
 		eventParams := jsoncmp.FindParameters(refEvent.(map[string]interface{}), params1)
 		if eventParams == nil {
-			response <- utils.NewResponse(false, "", nil)
+			continue
 		}
 		// compare two events
 		if err := jsoncmp.CompareEvent(refEvent.(map[string]interface{}), testJson[i].(map[string]interface{}), eventParams); err != nil {
@@ -95,87 +97,77 @@ func (test Test) Compare(response chan map[string]interface{}) {
 		jsonrefresp := testJson[i].(map[string]interface{})
 		str1, err := json.Marshal(jsonlogresp)
 		if err != nil {
-			response <- utils.NewResponse(false, err.Error(), nil)
+			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 			return
 
 		}
 		str2, err2 := json.Marshal(jsonrefresp)
 
 		if err2 != nil {
-			response <- utils.NewResponse(false, err2.Error(), nil)
+			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 			return
 		}
-		resp := make(map[string]interface{})
-		resp["event_type"] = EVENT_TEST
+
 		var prettyJSON1 bytes.Buffer
 		err = json.Indent(&prettyJSON1, str1, "", "\t")
 		if err != nil {
-			response <- utils.NewResponse(false, err.Error(), nil)
+			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 			return
 		}
 		var prettyJSON2 bytes.Buffer
 		err = json.Indent(&prettyJSON2, str2, "", "\t")
 		if err != nil {
-			response <- utils.NewResponse(false, err.Error(), nil)
+			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
 			return
 		}
-		resp["body"] = make(map[string]interface{})
-		resp["body"].(map[string]interface{})[TEST_LOG_EVENT] = string(prettyJSON1.Bytes())
-		resp["body"].(map[string]interface{})[REF_LOG_EVENT] = string(prettyJSON2.Bytes())
-		response <- utils.NewResponse(true, "", resp)
+		body := make(map[string]interface{})
+		body[TEST_LOG_EVENT] = string(prettyJSON1.Bytes())
+		body[REF_LOG_EVENT] = string(prettyJSON2.Bytes())
+		response <- dispatcher.Event{Status: true, Errors: nil, Type: EVENT_TEST, Body: body}
 	}
 	resp := make(map[string]interface{})
 	resp["event_type"] = RESULT_TEST
 
 	if status {
-		resp["body"] = "files match !"
-		response <- utils.NewResponse(true, "", resp)
+		response <- dispatcher.Event{Status: true, Errors: nil, Type: RESULT_TEST, Body: "files match !"}
 	} else {
-
-		resp["body"] = errors
-		response <- utils.NewResponse(false, strings.Join(errors[:], ""), resp)
+		response <- dispatcher.Event{Status: false, Errors: errors, Type: RESULT_TEST, Body: "files doesnt match !"}
 	}
 	return
 }
 
-func (test Test) Run(room chan map[string]interface{}) {
+func (test *Test) Run(room chan dispatcher.Event) {
 	//	history := &TestHistory{TestID: test.TestID, RunUUID: test.Uuid}
-	channel := make(chan map[string]interface{})
+	channel := make(chan dispatcher.Event)
 	output := ""
-
+	room <- dispatcher.Event{Type: START_TEST, Status: true, Errors: nil, Body: time.Now().UnixNano()}
 	//var runner IRunnable = test.Script
-	fmt.Printf("on run test id : %d\n", test.TestID)
+	fmt.Printf("on run test id : %d\n", test.ID)
 	// if there is an Script
 	if test.ScriptID != 0 {
 		test.Script.Params = test.Params
 		go test.Script.Run(channel)
 
 		response := <-channel
-		if response["status"] != true {
-			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, TimeRunned: time.Now().UnixNano()}
+		if response.Status != true {
+			test.History = TestHistory{TestID: test.ID, RunUUID: test.Uuid, TestName: test.Name, Success: false, TimeRunned: time.Now().UnixNano()}
 			room <- response
 			return
 		}
-
-		response["response"] = make(map[string]interface{})
-		response["response"].(map[string]interface{})["event_type"] = START_TEST
-		response["response"].(map[string]interface{})["time_runned"] = time.Now().UnixNano()
 		room <- response
 
 		for {
 			msg := <-channel
-			if msg["status"] != true {
-				response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false, OutputExec: output, OutputTest: msg["message"].(string)}
+			if msg.Status != true {
+				test.History = TestHistory{TestID: test.ID, RunUUID: test.Uuid, TestName: test.Name, Success: false, OutputExec: output, OutputTest: msg.Errors[0]}
 				room <- msg
 				return
 			}
 			room <- msg
-			if response2, ok := msg["response"].(map[string]interface{}); ok {
-				if response2["event_type"] == RESULT_SCRIPT {
-					break
-				}
-				output += msg["response"].(map[string]interface{})["body"].(string)
+			if msg.Type == RESULT_SCRIPT {
+				break
 			}
+			output += msg.Body.(string)
 		}
 	}
 	go test.Compare(channel)
@@ -184,23 +176,20 @@ func (test Test) Run(room chan map[string]interface{}) {
 
 	for {
 		msg := <-channel
-		if msg["status"] != true {
-			msg["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: false,
-				OutputExec: output, OutputTest: msg["message"].(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
-			room <- msg
-			break
-		}
-		response := msg["response"].(map[string]interface{})
-		if response["event_type"] == EVENT_TEST {
-			reflog += response["body"].(map[string]interface{})[REF_LOG_EVENT].(string)
-			testlog += response["body"].(map[string]interface{})[TEST_LOG_EVENT].(string)
-		} else if response["event_type"] == RESULT_TEST {
-			fmt.Printf("on a fini le test : %d\n", test.TestID)
-			response["history"] = &TestHistory{TestID: test.TestID, RunUUID: test.Uuid, TestName: test.Name, Success: true,
-				OutputExec: output, OutputTest: response["body"].(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
-			room <- msg
-			break
-		}
 		room <- msg
+		if msg.Status != true {
+			test.History = TestHistory{TestID: test.ID, RunUUID: test.Uuid, TestName: test.Name, Success: false, Errors: msg.Errors,
+				OutputExec: output, OutputTest: "Test failed !", Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
+			break
+		}
+		if msg.Type == EVENT_TEST {
+			reflog += msg.Body.(map[string]interface{})[REF_LOG_EVENT].(string)
+			testlog += msg.Body.(map[string]interface{})[TEST_LOG_EVENT].(string)
+		} else if msg.Type == RESULT_TEST {
+			fmt.Printf("on a fini le test : %d\n", test.ID)
+			test.History = TestHistory{TestID: test.ID, RunUUID: test.Uuid, TestName: test.Name, Success: true,
+				OutputExec: output, OutputTest: msg.Body.(string), Reflog: reflog, Testlog: testlog, TimeRunned: time.Now().UnixNano()}
+			break
+		}
 	}
 }

@@ -6,16 +6,23 @@ import (
 	"time"
 )
 
+type Event struct {
+	Status bool        `json:"status"`
+	Type   string      `json:"event_type"`
+	Errors []string    `json:"errors"`
+	Body   interface{} `json:"body"`
+}
+
 type IRunnable interface {
 	GetOrder() string
-	GetID() int
-	Run(chan map[string]interface{})
+	GetID() uint
+	Run(chan Event)
 }
 
 type WorkRequest struct {
 	Runner   *IRunnable
 	Delay    time.Duration
-	Response chan map[string]interface{}
+	Response chan Event
 }
 
 //var resources map[string]*sync.Mutex

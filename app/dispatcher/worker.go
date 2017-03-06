@@ -47,8 +47,6 @@ func (w *Worker) Start() {
 				fmt.Println("on va wrok")
 				w.Run(work)
 				fmt.Println("on a wrok")
-
-				// Receive a work request.
 			}
 		}
 	}()

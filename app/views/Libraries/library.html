@@ -1,7 +1,7 @@
 {{set_library_uuid . }}
-<div class="panel panel-info" id=panel_library_{{.LibraryID}}>
+<div class="panel panel-info" id=panel_library_{{.ID}}>
   <div class="panel-heading" id=>
-    {{if eq .LibraryID 0}}
+    {{if eq .ID 0}}
     <h4 class="panel-title">
       <a data-toggle="collapse" href=collapse_library_{{.Uuid}} id=collapser_library_{{.Uuid}} style="background-color:transparent;"><span>New library</span></a>
     </h4>    {{else}}
@@ -10,7 +10,7 @@
     </h4>
     {{end}}
   </div>
-  {{if eq .LibraryID 0}}
+  {{if eq .ID 0}}
   <div id="collapse_library_{{.Uuid}}">
   {{else}}
   <div id="collapse_library_{{.Uuid}}" class="panel-collapse collapse">
@@ -43,17 +43,17 @@
                   </thead>
                   <tbody  id=panel_test_library_{{.Uuid}}>
                 {{range .Tests}}
-                <tr  id=panel_one_test_{{.TestID}}>
+                <tr  id=panel_one_test_{{.ID}}>
 
                   <td class="col-lg-10">
                     {{template "Tests/test.html" .}}
                   </td>
                   <td class="col-lg-1">
-                    <select class="form-control select_order" id="select_order_{{.Uuid}}_{{.TestID}}">
+                    <select class="form-control select_order" id="select_order_{{.Uuid}}_{{.ID}}">
                     </select>
                   </td>
                   <td>
-                    <button class="btn btn-danger remove_test_from_list" id=remove_test_from_list_btn_{{.Uuid}}_{{.TestID}}>Remove</button>
+                    <button class="btn btn-danger remove_test_from_list" id=remove_test_from_list_btn_{{.Uuid}}_{{.ID}}>Remove</button>
                   </td>
                 </tr>
                 {{end}}
@@ -85,8 +85,8 @@
 
                   <div class="panel-group" id="panel_output_lib_{{.Uuid}}">
                     {{range .Tests}}
-                    <div class="test_id_{{.TestID}}">
-                    {{template "TestHistory/history.html" newHistory .TestID}}
+                    <div class=test_id_{{.ID}}>
+                    {{template "TestHistory/history.html" newHistory .ID}}
                   </div>
                     {{end}}
                   </div>
@@ -289,7 +289,7 @@ $(document).ready(function() {
 
         // construct an HTTP request
       var xhr = new XMLHttpRequest();
-      xhr.open("PUT", 'http://{{getIP}}:9000/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}}, true);
+      xhr.open("PUT", 'http://{{getIP}}:9000/libraries/' + {{.ID}} + "?id_lib=" + {{.ID}}, true);
       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
       // send the collected data as JSON
@@ -311,7 +311,7 @@ $(document).ready(function() {
 
   $("#delete_btn_library_{{.Uuid}}").click(function(){
     $.ajax({
-        url: '/libraries/' + {{.LibraryID}} + "?id_lib=" + {{.LibraryID}},
+        url: '/libraries/' + {{.ID}} + "?id_lib=" + {{.ID}},
         type: 'DELETE',
         success: function(result) {
           if (result["status"] != true) {
@@ -408,69 +408,73 @@ $(document).ready(function() {
             socket.onmessage = function(event) {
               console.log(event.data)
               output = JSON.parse(event.data)
-              if (output["response"] == "end_" + uuid) {
+              if (output["body"] == "end_" + uuid) {
                 width = 100
                 document.getElementById("myBar_" + lib_uuid).style.width = width + '%';
                document.getElementById("label_" + lib_uuid).innerHTML = width * 1 + '%';
              } else {
-               testID = output["test_id"]
-               panel = $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel")
+               testID = output["body"]["test_id"]
+               console.log(output)
+               panel = $("#panel_library_{{.ID}} .test_id_" + testID + " .panel")
                console.log(testID)
                console.log(panel.attr('id'))
 
                histUuid = panel.attr('id').split("_")[3]
 
-               if (output["response"]["event_type"] == "start_test") {
+               if (output["event_type"] == "start_test") {
                  panel.addClass("panel-warning");
                  panel.removeClass("panel-default");
 
                  $("#save_test_run_error_history_" + histUuid).hide()
                  $("#save_test_run_success_history_" + histUuid).hide()
 
-                 var myDate = new Date(output["response"]["time_runned"] / 1000000);
+                 var myDate = new Date(output["body"]["test_body"] / 1000000);
                 $("#collapser_history_" + histUuid).text(myDate.toString());
 
-                 $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('show');
+                 $("#panel_library_{{.ID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('show');
                }
-               if (output["response"]["event_type"] == "event_script") {
+               if (output["event_type"] == "event_script") {
 
-                 new_array = output["response"]["body"].match(/[\s\S]{1,1000}/g)
+                 new_array = output["body"]["test_body"].match(/[\s\S]{1,1000}/g)
                  for (var i = 0; i < new_array.length; i++) {
                    queues[histUuid].push(new_array[i])
                  }
                  console.log("current uuid : " + histUuid + " msg : " + event.data)
                }
-               if (output["response"]["event_type"] == "event_test") {
-                 new_array_ref = output["response"]["body"]["ref_log_event"] .match(/[\s\S]{1,1000}/g)
+               if (output["event_type"] == "event_test") {
+                 new_array_ref = output["body"]["test_body"]["ref_log_event"] .match(/[\s\S]{1,1000}/g)
                  for (var i = 0; i < new_array_ref.length; i++) {
                    queues_test_ref[histUuid].push(new_array_ref[i])
                  }
 
-                 new_array_log = output["response"]["body"]["test_log_event"].match(/[\s\S]{1,1000}/g)
+                 new_array_log = output["body"]["test_body"]["test_log_event"].match(/[\s\S]{1,1000}/g)
                  for (var i = 0; i < new_array_log.length; i++) {
                    queues_test_test[histUuid].push(new_array_log[i])
                  }
                }
-               if (output["status"] == false || output["response"]["event_type"] == "result_test") {
+               if (output["status"] == false || output["event_type"] == "result_test") {
                  panel.removeClass("panel-warning");
                  console.log("C EST FINI : uuid : " + histUuid)
                  isFinished[histUuid] = true
                  isFinished_test[histUuid] = true
                  if (output["status"] == true) {
                    panel.addClass("panel-success");
-                   $("#save_test_run_success_history_" + histUuid).text(output["response"]["body"])
+                   $("#save_test_run_success_history_" + histUuid).text(output["body"])
                    $("#save_test_run_success_history_" + histUuid).slideDown()
 
                  } else {
+                   $("#save_test_run_error_history_{{.Uuid}}").show();
+                   for (i = 0; i < output["errors"].length; i++) {
+                     $("#save_test_run_error_history_" + histUuid).append('<li class="list-group-item list-group-item-danger">' + output["errors"][i] + '</li>')
+                   }
                    panel.addClass("panel-danger");
-                   $("#save_test_run_error_history_" + histUuid).text(output["response"]["body"])
                    $("#save_test_run_error_history_" + histUuid).slideDown()
                    $("#myBar_{{.Uuid}}").css('background-color', 'red');
                  }
                    width = width + 1 / nb_test * 100
                    document.getElementById("myBar_" + lib_uuid).style.width = width + '%';
                   document.getElementById("label_" + lib_uuid).innerHTML = width * 1 + '%';
-                 $("#panel_library_{{.LibraryID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('hide');
+                 $("#panel_library_{{.ID}} .test_id_" + testID + " .panel-collapse.collapse").collapse('hide');
                }
              }
             }
@@ -483,11 +487,11 @@ $(document).ready(function() {
   }
 
   $("#run_btn_library_{{.Uuid}}").click(function() {
-      run({{.LibraryID}}, {{.Uuid}});
+      run({{.ID}}, {{.Uuid}});
      });
 
  $("#see_history_library_btn_{{.Uuid}}").click(function() {
-   $.get( "/libraries/{{.LibraryID}}/history_template?libID={{.LibraryID}}", function(data) {
+   $.get( "/libraries/{{.ID}}/history_template?libID={{.ID}}", function(data) {
        $("#lib_history_panel_{{.Uuid}}").slideDown();
        $("#lib_history_panel_body_{{.Uuid}}").html(data)
      });
@@ -495,7 +499,7 @@ $(document).ready(function() {
 
     $("#clear_lib_history_btn_{{.Uuid}}").click(function() {
       $.ajax({
-          url: '/libraries/' + {{.LibraryID}} + "/history?id_lib=" + {{.LibraryID}},
+          url: '/libraries/' + {{.ID}} + "/history?id_lib=" + {{.ID}},
           type: 'DELETE',
           success: function(result) {
             $("#lib_history_panel_{{.Uuid}}").slideUp();
