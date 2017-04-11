@@ -1,0 +1,236 @@
+{
+	"info": {
+		"client_name": "workbench",
+		"client_version": "4.5.2rc3",
+		"task_schema_version": "2.0.0",
+		"type": "scenario"
+	},
+	"blocks": [{
+			"id": "0",
+			"params": {
+				"in": {},
+				"out": {}
+			},
+			"type": "container"
+		}, {
+			"id": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "88fb8100-37d2-6d42-d803-24aeb65d8a4c"
+					}
+				},
+				"out": {
+					"duration": {
+						"value": "",
+						"uuid": "b722e11c-52e9-5332-5455-2224a13494bc"
+					}
+				}
+			},
+			"type": "container"
+		}, {
+			"id": "723a864c-6047-222a-de14-24c6fc7ab510",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "dc05aeee-f91f-fc1a-a2e0-8ebc44bb2c2e"
+					},
+					"type": {
+						"value": "iterate",
+						"uuid": "5c51a342-f3b5-7166-0d28-5c8ad4d36ec4"
+					},
+					"maxTries": {
+						"value": 0,
+						"uuid": "850d7304-35fa-4fda-c490-8ce4ee12318c"
+					},
+					"list": {
+						"value": "$c5c92136-17a3-c5ac-0106-ab545cda1852",
+						"uuid": "ec73586e-88b3-1708-a5ad-5454167babc6",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "114a5fb2-29d0-a7fc-41c4-a6d6d5a54d54"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "897a71dc-c5c9-6906-2a0e-6e5c196f6f96",
+			"params": {
+				"in": {
+					"variable": {
+						"value": "New Variable",
+						"uuid": "e306ede4-dbec-882c-85e0-7180523bcf2a"
+					},
+					"name": {
+						"value": "listVar",
+						"uuid": "d49df892-cf2a-a64a-f90b-ae866def5f26"
+					},
+					"scope": {
+						"value": "scenario",
+						"uuid": "7e4ff02c-b221-197c-9b10-774056055a48"
+					},
+					"type": {
+						"value": "list",
+						"uuid": "796a5916-34fe-f1a0-4da9-5a8ea9784876"
+					},
+					"value": {
+						"value": ["test1", "test2", "test3"],
+						"uuid": "17dd91e6-d395-9f46-040c-1930b649a062",
+						"wtype": "list"
+					}
+				},
+				"out": {
+					"variable": {
+						"value": "",
+						"uuid": "c5c92136-17a3-c5ac-0106-ab545cda1852"
+					}
+				},
+				"wfunction": "setVariable"
+			},
+			"type": "action"
+		}, {
+			"id": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+			"params": {
+				"in": {
+					"message": {
+						"value": "$114a5fb2-29d0-a7fc-41c4-a6d6d5a54d54",
+						"uuid": "e2a51dba-c643-1294-5d79-183cb9263b14"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "f18285c6-b01d-0608-4177-518c008adfe8",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "9d71f89e-a579-9dd2-d368-9adc788f4df2"
+					},
+					"majorTimeout": {
+						"value": 120000,
+						"uuid": "084688b4-4eb8-e5aa-4cee-2446a68f971e"
+					},
+					"minorTimeout": {
+						"value": 120000,
+						"uuid": "1d0a8800-9e66-c6e4-6d8b-f3faff3eda44"
+					}
+				},
+				"out": {
+					"duration": {
+						"value": "",
+						"uuid": "776c2946-5e09-efea-de66-1be001b08132"
+					},
+					"status": {
+						"value": "",
+						"uuid": "eaf1fa7a-b473-d816-216f-e8e83a23e87e"
+					},
+					"har": {
+						"value": "",
+						"uuid": "0b74c604-1f74-367c-06a5-1706408a8e52"
+					}
+				}
+			},
+			"type": "step"
+		}
+	],
+	"links": [{
+			"connections": {
+				"in": [{
+						"id": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "0"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "f18285c6-b01d-0608-4177-518c008adfe8",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				],
+				"out_ok": [{
+						"id": "0",
+						"pad": "out_ok"
+					}
+				]
+			},
+			"id": "3a8c410a-ce02-158c-ead5-03fc46f90dd6"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+						"pad": "in"
+					}
+				],
+				"break": [{
+						"id": "f18285c6-b01d-0608-4177-518c008adfe8",
+						"pad": "out_nok"
+					}
+				],
+				"continue": [{
+						"id": "f18285c6-b01d-0608-4177-518c008adfe8",
+						"pad": "out_ok"
+					}
+				]
+			},
+			"id": "723a864c-6047-222a-de14-24c6fc7ab510"
+		}, {
+			"connections": {
+				"out_nok": [{
+						"id": "f18285c6-b01d-0608-4177-518c008adfe8",
+						"pad": "out_nok"
+					}
+				],
+				"out_ok": [{
+						"id": "723a864c-6047-222a-de14-24c6fc7ab510",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "897a71dc-c5c9-6906-2a0e-6e5c196f6f96"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "723a864c-6047-222a-de14-24c6fc7ab510",
+						"pad": "continue"
+					}
+				]
+			},
+			"id": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "897a71dc-c5c9-6906-2a0e-6e5c196f6f96",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+						"pad": "out_nok"
+					}
+				],
+				"out_ok": [{
+						"id": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+						"pad": "out_ok"
+					}
+				]
+			},
+			"id": "f18285c6-b01d-0608-4177-518c008adfe8"
+		}
+	],
+	"name": "[JS - DB] Administratif block"
+}

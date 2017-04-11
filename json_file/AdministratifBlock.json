@@ -1,0 +1,705 @@
+[{
+		"body": {
+			"data": {},
+			"event_type": "RUNSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912452
+		},
+		"event_id": 0,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e2dac4d0-b995-49b4-834a-1f12181d6113",
+				"block_uuid": "0",
+				"outputs": {},
+				"params": {
+					"uuid": "5a9f8374-bbf8-4024-a0a3-e9ddcc6006bb"
+				},
+				"previous_block_run_uuid": "null"
+			},
+			"event_type": "CONTAINERSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912452
+		},
+		"event_id": 1,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "5b75feaf-f5a2-411a-8702-18277f960434",
+				"block_uuid": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+				"outputs": {},
+				"params": {
+					"label": "",
+					"uuid": "5a9f8374-bbf8-4024-a0a3-e9ddcc6006bb"
+				},
+				"previous_block_run_uuid": "e2dac4d0-b995-49b4-834a-1f12181d6113"
+			},
+			"event_type": "CONTAINERSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912452
+		},
+		"event_id": 2,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "90e10877-122c-4bd5-a54d-698687788db1",
+				"block_uuid": "f18285c6-b01d-0608-4177-518c008adfe8",
+				"outputs": {},
+				"params": {
+					"label": "",
+					"majorTimeout": 120000,
+					"minorTimeout": 120000,
+					"uuid": "5a9f8374-bbf8-4024-a0a3-e9ddcc6006bb"
+				},
+				"previous_block_run_uuid": "5b75feaf-f5a2-411a-8702-18277f960434"
+			},
+			"event_type": "STEPSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912452
+		},
+		"event_id": 3,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "f690ddbc-89a8-422c-a992-9e3b8e4c73c8",
+				"block_uuid": "897a71dc-c5c9-6906-2a0e-6e5c196f6f96",
+				"outputs": {},
+				"params": {
+					"name": "listVar",
+					"scope": "scenario",
+					"type": "list",
+					"value": ["test1", "test2", "test3"],
+					"variable": "New Variable"
+				},
+				"previous_block_run_uuid": "90e10877-122c-4bd5-a54d-698687788db1",
+				"wfunction": "setVariable"
+			},
+			"event_type": "ACTIONSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912453
+		},
+		"event_id": 4,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "f690ddbc-89a8-422c-a992-9e3b8e4c73c8",
+				"block_uuid": "897a71dc-c5c9-6906-2a0e-6e5c196f6f96",
+				"outputs": {
+					"duration": 97,
+					"real_duration": 97,
+					"returncode": 0,
+					"variable": ["test1", "test2", "test3"]
+				},
+				"returncode": 0,
+				"status": "OK",
+				"wfunction": "setVariable"
+			},
+			"event_type": "ACTIONENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912453
+		},
+		"event_id": 5,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e84f1e2c-28c6-4f78-bb58-5532febc4f9c",
+				"block_uuid": "723a864c-6047-222a-de14-24c6fc7ab510",
+				"loop_type": "iteration_loop",
+				"outputs": {},
+				"previous_block_run_uuid": "f690ddbc-89a8-422c-a992-9e3b8e4c73c8"
+			},
+			"event_type": "ITERATIONLOOPSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912453
+		},
+		"event_id": 6,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_uuid": "723a864c-6047-222a-de14-24c6fc7ab510",
+				"iteraion_number": 0,
+				"iteration_value": "test1",
+				"loop_type": "iteration_loop"
+			},
+			"event_type": "LOOPITERATION",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912454
+		},
+		"event_id": 7,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "a48849e6-294f-48a5-a425-400a9770d1dd",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {},
+				"params": {
+					"message": "test1"
+				},
+				"previous_block_run_uuid": "e84f1e2c-28c6-4f78-bb58-5532febc4f9c",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912454
+		},
+		"event_id": 8,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "a48849e6-294f-48a5-a425-400a9770d1dd",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {
+					"duration": 103,
+					"real_duration": 103,
+					"returncode": 0
+				},
+				"returncode": 0,
+				"status": "OK",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912455
+		},
+		"event_id": 9,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_uuid": "723a864c-6047-222a-de14-24c6fc7ab510",
+				"iteraion_number": 1,
+				"iteration_value": "test2",
+				"loop_type": "iteration_loop"
+			},
+			"event_type": "LOOPITERATION",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912455
+		},
+		"event_id": 10,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "c1832737-38cc-4d8c-b500-f04147dda047",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {},
+				"params": {
+					"message": "test2"
+				},
+				"previous_block_run_uuid": "e84f1e2c-28c6-4f78-bb58-5532febc4f9c",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912456
+		},
+		"event_id": 11,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "c1832737-38cc-4d8c-b500-f04147dda047",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {
+					"duration": 91,
+					"real_duration": 91,
+					"returncode": 0
+				},
+				"returncode": 0,
+				"status": "OK",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912456
+		},
+		"event_id": 12,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_uuid": "723a864c-6047-222a-de14-24c6fc7ab510",
+				"iteraion_number": 2,
+				"iteration_value": "test3",
+				"loop_type": "iteration_loop"
+			},
+			"event_type": "LOOPITERATION",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912457
+		},
+		"event_id": 13,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e8928bb3-5774-46a9-a090-27923e484c0c",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {},
+				"params": {
+					"message": "test3"
+				},
+				"previous_block_run_uuid": "e84f1e2c-28c6-4f78-bb58-5532febc4f9c",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912457
+		},
+		"event_id": 14,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e8928bb3-5774-46a9-a090-27923e484c0c",
+				"block_uuid": "d3bcfcb6-1c73-7d54-e229-2462fb1411ec",
+				"outputs": {
+					"duration": 96,
+					"real_duration": 96,
+					"returncode": 0
+				},
+				"returncode": 0,
+				"status": "OK",
+				"wfunction": "logMessage"
+			},
+			"event_type": "ACTIONENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912458
+		},
+		"event_id": 15,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e84f1e2c-28c6-4f78-bb58-5532febc4f9c",
+				"block_uuid": "723a864c-6047-222a-de14-24c6fc7ab510",
+				"duration": 290,
+				"error_codes": [],
+				"loop_type": "iteration_loop",
+				"outputs": {},
+				"pad": "continue",
+				"returncode": 0,
+				"status": "OK",
+				"user_error_codes": []
+			},
+			"event_type": "ITERATIONLOOPENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912459
+		},
+		"event_id": 16,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "90e10877-122c-4bd5-a54d-698687788db1",
+				"block_uuid": "f18285c6-b01d-0608-4177-518c008adfe8",
+				"container_name": "",
+				"duration": 387,
+				"error_codes": [],
+				"outputs": {
+					"har": "",
+					"har_error": "Impossible to open har file",
+					"traces": [{
+							"extension": ".har",
+							"type": "har",
+							"uuid": "d308c821-9813-454a-8982-a8697f0d9dec"
+						}
+					]
+				},
+				"pad": "out_ok",
+				"real_duration": 387,
+				"returncode": 0,
+				"status": "OK",
+				"user_error_codes": []
+			},
+			"event_type": "STEPENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912459
+		},
+		"event_id": 17,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "5b75feaf-f5a2-411a-8702-18277f960434",
+				"block_uuid": "3a8c410a-ce02-158c-ead5-03fc46f90dd6",
+				"container_name": "",
+				"duration": 387,
+				"error_codes": [],
+				"outputs": {
+					"duration": 387
+				},
+				"pad": "out_ok",
+				"real_duration": 387,
+				"returncode": 0,
+				"status": "OK",
+				"user_error_codes": []
+			},
+			"event_type": "CONTAINERENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912460
+		},
+		"event_id": 18,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "e2dac4d0-b995-49b4-834a-1f12181d6113",
+				"block_uuid": "0",
+				"container_name": "",
+				"duration": 387,
+				"error_codes": [],
+				"outputs": {
+					"duration": 387
+				},
+				"pad": "out_ok",
+				"real_duration": 387,
+				"returncode": 0,
+				"status": "OK",
+				"user_error_codes": []
+			},
+			"event_type": "CONTAINERENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912461
+		},
+		"event_id": 19,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}, {
+		"body": {
+			"data": {
+				"duration": 387,
+				"real_duration": 9388,
+				"returncode": 0,
+				"status": "OK"
+			},
+			"event_type": "RUNENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "ab675c3c-ea5e-46a2-7a98-344881629649",
+				"task_instance_uuid": "ef51accd-b992-43a9-bc89-a3bf122a1b23",
+				"task_uuid": "AdministratifBlock",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912461
+		},
+		"event_id": 20,
+		"header": {
+			"room": "scenario_ab675c3c-ea5e-46a2-7a98-344881629649"
+		}
+	}
+]

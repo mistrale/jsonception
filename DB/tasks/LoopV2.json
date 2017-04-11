@@ -1,0 +1,320 @@
+{
+	"info": {
+		"client_name": "workbench",
+		"client_version": "4.5.2rc3",
+		"task_schema_version": "2.0.0",
+		"type": "scenario"
+	},
+	"blocks": [{
+			"id": "0",
+			"params": {
+				"in": {},
+				"out": {}
+			},
+			"type": "container"
+		}, {
+			"id": "28a85150-2110-4220-e527-ca4f77e2efc5",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "ee1bdc37-1e04-3c08-fce7-f9cf21444288"
+					},
+					"type": {
+						"value": "iterate",
+						"uuid": "ca7994f3-ffdd-ffbb-f117-e22f7c10f821"
+					},
+					"maxTries": {
+						"value": 0,
+						"uuid": "06860d0c-8edf-1dbe-00fe-01fc8207040e"
+					},
+					"list": {
+						"value": "$e9d9d3b3-c6b9-8d73-51e6-a3cd4c4a9895",
+						"uuid": "0e1c1c38-fc31-f863-bb57-76aea09d413a",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "cc039807-6e12-dc25-7972-f2e5e777ceef"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "8a311462-de9f-bd3f-866d-0cda05180a30",
+			"params": {
+				"in": {
+					"variable": {
+						"value": "New Variable",
+						"uuid": "76bced79-e937-d26f-0a70-14e0501ca039"
+					},
+					"name": {
+						"value": "listoflist",
+						"uuid": "c8f591eb-2f42-5e84-feaf-fd5faac35586"
+					},
+					"scope": {
+						"value": "scenario",
+						"uuid": "7364e6c9-df43-be87-4546-8a8da5c54b8a"
+					},
+					"type": {
+						"value": "list",
+						"uuid": "9e8b3d16-6fda-dfb5-29e2-53c4cf419e83"
+					},
+					"value": {
+						"value": [["test1", "test2"], ["test3", "test4"]],
+						"uuid": "cc9d993b-5482-a905-e3bd-c77b4cb09961",
+						"wtype": "list"
+					}
+				},
+				"out": {
+					"variable": {
+						"value": "",
+						"uuid": "e9d9d3b3-c6b9-8d73-51e6-a3cd4c4a9895"
+					}
+				},
+				"wfunction": "setVariable"
+			},
+			"type": "action"
+		}, {
+			"id": "955b2ab6-f95d-f2bb-18a2-314461cac395",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "76c4ed89-365c-6cb8-0c5c-18b89ae935d2"
+					},
+					"type": {
+						"value": "iterate",
+						"uuid": "50fca1f9-cf7d-9efb-a035-406a3e427c84"
+					},
+					"maxTries": {
+						"value": 0,
+						"uuid": "d4d1a9a3-5ae4-b5c9-97c9-2f92ee97dd2f"
+					},
+					"list": {
+						"value": "$cc039807-6e12-dc25-7972-f2e5e777ceef",
+						"uuid": "d119a233-c6b5-8d6b-98e1-31c2ea33d467",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "7c16f82d-1cc4-3988-0014-00282cee59dc"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "74f6e9ed-e09f-c13f-b31b-6636fa31f463",
+			"params": {
+				"in": {
+					"message": {
+						"value": "$7c16f82d-1cc4-3988-0014-00282cee59dc",
+						"uuid": "6cb0d961-33c2-6784-2130-426035dc6bb8"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "86710ce2-563c-ac79-5a8e-b51dd75daebb",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "95052a0a-cbbb-9777-34f4-69e83c107820"
+					},
+					"type": {
+						"value": "repeat",
+						"uuid": "9dc53b8a-d571-aae3-526a-a4d5406480c9"
+					},
+					"maxTries": {
+						"value": 10,
+						"uuid": "5528aa51-d29d-a53b-9f5b-3eb680b7016e"
+					},
+					"list": {
+						"value": [],
+						"uuid": "413c8279-9fbb-3f76-ba6d-74da04ba0974",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "20084010-0354-06a8-ce25-9c4b5280a501"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "ef0dde1b-f3ff-e7ff-d7c3-af87c4898913",
+			"params": {
+				"in": {
+					"message": {
+						"value": "ca complete",
+						"uuid": "6666cccd-371e-6e3c-5558-aab1af6f5ede"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "473e8e7d-e27f-c4ff-7c48-f89187330e66",
+			"params": {
+				"in": {
+					"message": {
+						"value": "ca break",
+						"uuid": "0d061a0c-79ae-f35d-e3a5-c74b16e02dc0"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "06f60dec-1806-300c-6746-ce8de695cd2b",
+			"params": {
+				"in": {
+					"message": {
+						"value": "",
+						"uuid": "c46588cb-af1b-5e36-1c6c-38d89e813d02"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}
+	],
+	"links": [{
+			"connections": {
+				"in": [{
+						"id": "8a311462-de9f-bd3f-866d-0cda05180a30",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "0"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "955b2ab6-f95d-f2bb-18a2-314461cac395",
+						"pad": "in"
+					}
+				],
+				"continue": [{
+						"id": "86710ce2-563c-ac79-5a8e-b51dd75daebb",
+						"pad": "in"
+					}
+				],
+				"break": [{
+						"id": "86710ce2-563c-ac79-5a8e-b51dd75daebb",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "28a85150-2110-4220-e527-ca4f77e2efc5"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "28a85150-2110-4220-e527-ca4f77e2efc5",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "8a311462-de9f-bd3f-866d-0cda05180a30"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "74f6e9ed-e09f-c13f-b31b-6636fa31f463",
+						"pad": "in"
+					}
+				],
+				"continue": [{
+						"id": "28a85150-2110-4220-e527-ca4f77e2efc5",
+						"pad": "continue"
+					}
+				],
+				"break": [{
+						"id": "28a85150-2110-4220-e527-ca4f77e2efc5",
+						"pad": "break"
+					}
+				]
+			},
+			"id": "955b2ab6-f95d-f2bb-18a2-314461cac395"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "955b2ab6-f95d-f2bb-18a2-314461cac395",
+						"pad": "continue"
+					}
+				]
+			},
+			"id": "74f6e9ed-e09f-c13f-b31b-6636fa31f463"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "06f60dec-1806-300c-6746-ce8de695cd2b",
+						"pad": "in"
+					}
+				],
+				"continue": [{
+						"id": "ef0dde1b-f3ff-e7ff-d7c3-af87c4898913",
+						"pad": "in"
+					}
+				],
+				"break": [{
+						"id": "473e8e7d-e27f-c4ff-7c48-f89187330e66",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "86710ce2-563c-ac79-5a8e-b51dd75daebb"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "0",
+						"pad": "out_ok"
+					}
+				],
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "ef0dde1b-f3ff-e7ff-d7c3-af87c4898913"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				],
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "473e8e7d-e27f-c4ff-7c48-f89187330e66"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "86710ce2-563c-ac79-5a8e-b51dd75daebb",
+						"pad": "break"
+					}
+				]
+			},
+			"id": "06f60dec-1806-300c-6746-ce8de695cd2b"
+		}
+	],
+	"name": "[JS - DB] LoopV2"
+}

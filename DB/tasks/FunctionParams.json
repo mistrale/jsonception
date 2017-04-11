@@ -1,0 +1,206 @@
+{
+	"info": {
+		"client_name": "workbench",
+		"client_version": "4.5.2rc3",
+		"task_schema_version": "2.0.0",
+		"type": "scenario"
+	},
+	"blocks": [{
+			"id": "0",
+			"params": {
+				"in": {},
+				"out": {}
+			},
+			"type": "container"
+		}, {
+			"id": "458c8b19-456a-8ad5-f7af-ef5f6faadf55",
+			"params": {
+				"in": {
+					"variable": {
+						"value": "New Variable",
+						"uuid": "ee41dc83-863d-0c7a-ace9-59d26f6cded9"
+					},
+					"name": {
+						"value": "list",
+						"uuid": "fd23fa47-e98f-d31f-a381-4702b86d70da"
+					},
+					"scope": {
+						"value": "scenario",
+						"uuid": "f047e08f-a84b-5096-975f-2ebe6318c631"
+					},
+					"type": {
+						"value": "list",
+						"uuid": "19f033e0-78b8-f171-de4f-bc9f8425084a"
+					},
+					"value": {
+						"value": ["toto", "titi", "tutu"],
+						"uuid": "79acf359-235e-46bc-4954-92a9a8af515e",
+						"wtype": "list"
+					}
+				},
+				"out": {
+					"variable": {
+						"value": "",
+						"uuid": "770cee19-e6c3-cd87-b311-66229c413882"
+					}
+				},
+				"wfunction": "setVariable"
+			},
+			"type": "action"
+		}, {
+			"id": "495e92bd-a5ed-4bda-91a1-2342f151e2a3",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "753eea7d-5e58-bcb1-aab5-556afb7df6fb"
+					},
+					"type": {
+						"value": "iterate",
+						"uuid": "00fe01fc-bcc7-798e-88e5-11ca7904f209"
+					},
+					"maxTries": {
+						"value": 0,
+						"uuid": "3296652c-51e8-a3d1-d22d-a45bef9bdf37"
+					},
+					"list": {
+						"value": "$8b47168e-4930-9261-7c76-f8ed04080810",
+						"uuid": "920f241e-ba55-74aa-92f5-25ea13a02740",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "f55deabb-1abe-357c-e93f-d27f66b2cd65"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "85d30ba6-9267-24ce-fda5-fb4bd3eba7d7",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "287250e4-c69f-8d3f-3334-6668490c9219"
+					},
+					"listFunc": {
+						"value": "$770cee19-e6c3-cd87-b311-66229c413882",
+						"uuid": "5216a42d-a2cb-4596-36f8-6df08a6914d2",
+						"wtype": "list"
+					},
+					"majorTimeout": {
+						"value": 120000,
+						"uuid": "e213c427-3f3a-7e74-0770-0ee086a10d42"
+					},
+					"minorTimeout": {
+						"value": 120000,
+						"uuid": "9d033a06-cbe5-97cb-df83-bf0760c0c181"
+					}
+				},
+				"out": {
+					"duration": {
+						"value": "",
+						"uuid": "983d307a-82f5-05ea-1396-272cbe3b7c76"
+					},
+					"har": {
+						"value": "",
+						"uuid": "c7b18f63-d345-a68b-3baa-7754dbf1b7e3"
+					},
+					"outparams": {
+						"value": "",
+						"uuid": "8b47168e-4930-9261-7c76-f8ed04080810",
+						"wtype": "list"
+					},
+					"status": {
+						"value": "",
+						"uuid": "3c087810-0f56-1eac-dda3-bb478ef71dee"
+					}
+				},
+				"function_uuid": "541f5c56-2efc-4e41-b03f-e7a87c5f46d2"
+			},
+			"type": "macro_function"
+		}, {
+			"id": "b9b97372-fb0f-f61f-ae59-5cb21a803500",
+			"params": {
+				"in": {
+					"pauseDuration": {
+						"value": "$f55deabb-1abe-357c-e93f-d27f66b2cd65",
+						"uuid": "005a00b4-1aae-355c-076e-0edc2fd45fa8"
+					}
+				},
+				"out": {},
+				"wfunction": "wbPause"
+			},
+			"type": "action"
+		}
+	],
+	"links": [{
+			"connections": {
+				"in": [{
+						"id": "458c8b19-456a-8ad5-f7af-ef5f6faadf55",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "0"
+		}, {
+			"connections": {
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				],
+				"out_ok": [{
+						"id": "85d30ba6-9267-24ce-fda5-fb4bd3eba7d7",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "458c8b19-456a-8ad5-f7af-ef5f6faadf55"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "b9b97372-fb0f-f61f-ae59-5cb21a803500",
+						"pad": "in"
+					}
+				],
+				"break": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				],
+				"continue": [{
+						"id": "0",
+						"pad": "out_ok"
+					}
+				]
+			},
+			"id": "495e92bd-a5ed-4bda-91a1-2342f151e2a3"
+		}, {
+			"connections": {
+				"out_nok": [{
+						"id": "495e92bd-a5ed-4bda-91a1-2342f151e2a3",
+						"pad": "in"
+					}
+				],
+				"out_ok": [{
+						"id": "495e92bd-a5ed-4bda-91a1-2342f151e2a3",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "85d30ba6-9267-24ce-fda5-fb4bd3eba7d7"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "495e92bd-a5ed-4bda-91a1-2342f151e2a3",
+						"pad": "continue"
+					}
+				]
+			},
+			"id": "b9b97372-fb0f-f61f-ae59-5cb21a803500"
+		}
+	],
+	"name": "[JS - DB] Functions params"
+}

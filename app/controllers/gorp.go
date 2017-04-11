@@ -68,14 +68,15 @@ func initScriptDB() {
 	if !Dbm.HasTable(&models.Script{}) {
 		Dbm.CreateTable(&models.Script{})
 		params := models.Parameters{
-			models.Parameter{Name: "test", Value: 5, Type: "int"},
-			models.Parameter{Name: "test2", Value: "tata", Type: "file"},
+			models.Parameter{Name: "run_uuid", Value: "", Type: "string"},
+			models.Parameter{Name: "device_uuid", Value: "", Type: "string"},
+			models.Parameter{Name: "json_file", Value: "", Type: "file"},
+			models.Parameter{Name: "jesaispasquoicasert", Value: "", Type: "string"},
+			models.Parameter{Name: "obsid", Value: "", Type: "string"},
 		}
 
 		execs := []*models.Script{
-			&models.Script{Name: "Click_element_set_return", Content: "ScenarioEngine.exe -r click_set_return -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 5d84fccb-3836-42a8-a0c8-56bc93518cb4 -T 63432494-c134-4ebd-9dc5-de6f6150060f -o -1748335", Params: params},
-			&models.Script{Name: "gla func", Content: "ScenarioEngine.exe -r gla_func -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 03b77937-aacb-4e32-8933-1b44c22e77ea -T a8ac7bc1-561f-4657-a94b-118c498756f3 -o -2608857"},
-			&models.Script{Name: "test_amazone", Content: "ScenarioEngine.exe -r test_amazon -d b142a21e-b7c9-448a-9c57-37cb39d36530 -t 68ea0181-b048-4375-91bd-cd0cd6d7434c -T b9d19b1e-14df-410f-b97a-f871bf6094d6 -o -1160361"},
+			&models.Script{Name: "ScenarioEngine", Content: `"C:\\Program Files\\Witbe\\applications\\witbe-scenario-engine\\bin\\ScenarioEngine.exe" -r $run_uuid -d $device_uuid -t $json_file -T $jesaispasquoicasert -o $obsid`, Params: params},
 		}
 		for _, exec := range execs {
 			Dbm.Create(exec)
@@ -86,20 +87,130 @@ func initScriptDB() {
 func initTestDB() {
 	if !Dbm.HasTable(&models.Test{}) {
 		Dbm.CreateTable(&models.Test{})
-		params := models.Parameters{
-			models.Parameter{Name: "test", Value: 5, Type: "int"},
-			models.Parameter{Name: "test2", Value: "tata", Type: "file"},
-		}
 		tests := []*models.Test{
-			&models.Test{Name: "test_click_element_set_return", PathRefFile: "C:\\json_file\\click_set_return_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\click_set_return_debug.json", ScriptID: 1,
-				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, Params: params},
-			&models.Test{Name: "test_gla_func", PathRefFile: "C:\\json_file\\gla_func_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\gla_func_debug.json", ScriptID: 2,
-				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
-			&models.Test{Name: "test_amazon", PathRefFile: "C:\\json_file\\test_amazon_debug.json",
-				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\test_amazon_debug.json", ScriptID: 3,
-				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`},
+			&models.Test{
+				Name: "CustomCode",
+				PathRefFile: "C:\\json_file\\CustomCode.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\80a6f70e-c8d2-420f-7380-a881c48f3355_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "80a6f70e-c8d2-420f-7380-a881c48f3355", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "CustomCode", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "5ce14f17-a44c-4497-bc52-01f01cb13677", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-2917977", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "AdministratifBlock",
+				PathRefFile: "C:\\json_file\\AdministratifBlock.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\ab675c3c-ea5e-46a2-7a98-344881629649_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "ab675c3c-ea5e-46a2-7a98-344881629649", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "AdministratifBlock", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "ef51accd-b992-43a9-bc89-a3bf122a1b23", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-1430563", Type: "string"},		
+				},
+			},
+			
+			
+			&models.Test{
+				Name: "ContainerDuration",
+				PathRefFile: "C:\\json_file\\ContainerDuration.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\29aac857-61ad-44fb-6a5f-db6ac1d10b06_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "29aac857-61ad-44fb-6a5f-db6ac1d10b06", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "ContainerDuration", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "7abba34f-c235-424f-9a88-c9812feb0d6", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-2261861", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "ContainerInAndOutParams",
+				PathRefFile: "C:\\json_file\\ContainerInAndOutParams.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\30110e84-e876-4459-7ced-c065abd90389_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "30110e84-e876-4459-7ced-c065abd90389", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "ContainerInAndOutParams", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "0f988986-758f-4dec-8f6b-2fc2a97cf56c", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-2001385", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "FunctionParams",
+				PathRefFile: "C:\\json_file\\FunctionParams.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\a2fe0eba-575f-4f5e-69e8-c75ac6e6ea34_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "a2fe0eba-575f-4f5e-69e8-c75ac6e6ea34", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "FunctionParams", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "c6ba999d-18b4-4a1e-a7b2-27fc888ef451", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-2126025", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "LoopV2",
+				PathRefFile: "C:\\json_file\\LoopV2.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\0a3ae90c-daed-425d-7b9d-b22d880b3554_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "0a3ae90c-daed-425d-7b9d-b22d880b3554", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "LoopV2", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "4f901d78-0272-4080-86c6-09f907db0088", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-1861469", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "ReturnCode",
+				PathRefFile: "C:\\json_file\\ReturnCode.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\6a21f539-4b7d-4d08-4835-f39f4b18498e_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "6a21f539-4b7d-4d08-4835-f39f4b18498e", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "ReturnCode", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "fe92a841-44bb-4dd2-9102-8e7cb3aaeefe", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-2626999", Type: "string"},		
+				},
+			},
+			
+			&models.Test{
+				Name: "Timeout",
+				PathRefFile: "C:\\json_file\\Timeout.json",
+				PathLogFile: "C:\\ProgramData\\Witbe\\storage\\data\\logs\\witbe-scenario-engine\\7e495da1-5a71-43b4-5116-a00b3dc52cf4_debug.json",
+				ScriptID: 1,
+				Config: `[{"ref_fields" : {},"config" : {"body" : {"data" : ["returncode", "status", "pad"]}}}]`, 
+				Params: models.Parameters{
+					models.Parameter{Name: "run_uuid", Value: "7e495da1-5a71-43b4-5116-a00b3dc52cf4", Type: "string"},
+					models.Parameter{Name: "json_file", Value: "Timeout", Type: "file"},					
+					models.Parameter{Name: "device_uuid", Value: "b142a21e-b7c9-448a-9c57-37cb39d36530", Type: "string"},					
+					models.Parameter{Name: "jesaispasquoicasert", Value: "a89dec01-0464-4b66-9394-7b882c670390", Type: "string"},					
+					models.Parameter{Name: "obsid", Value: "-1710827", Type: "string"},		
+				},
+			},
+			
+			
+			
 		}
 		for _, test := range tests {
 			Dbm.Create(test)
@@ -115,9 +226,14 @@ func initLibraryDB() {
 		Dbm.CreateTable(&models.Library{})
 		var tests []models.Test
 		orders := models.LibraryOrders{
-			models.Order{IdTest: 1, Order: 3},
+			models.Order{IdTest: 1, Order: 1},
 			models.Order{IdTest: 2, Order: 2},
-			models.Order{IdTest: 3, Order: 1},
+			models.Order{IdTest: 3, Order: 3},
+			models.Order{IdTest: 4, Order: 4},
+			models.Order{IdTest: 5, Order: 5},
+			models.Order{IdTest: 6, Order: 6},
+			models.Order{IdTest: 7, Order: 7},
+			models.Order{IdTest: 8, Order: 8},
 		}
 
 		Dbm.Preload("Script").Find(&tests)
@@ -134,7 +250,7 @@ func initLibraryDB() {
 func InitDB() {
 	json_writer.Init()
 
-	db, err := gorm.Open("postgres", "user=admin dbname=jsonception sslmode=disable")
+	db, err := gorm.Open("postgres", "user=mistrale dbname=jsonception sslmode=disable password=witbe77")
 	if err != nil {
 		panic(err)
 	}

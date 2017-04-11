@@ -1,0 +1,350 @@
+{
+	"info": {
+		"client_name": "workbench",
+		"client_version": "4.5.2rc3",
+		"task_schema_version": "2.0.0",
+		"type": "scenario"
+	},
+	"blocks": [{
+			"id": "0",
+			"params": {
+				"in": {
+					"boolParams": {
+						"value": 0,
+						"uuid": "5e64bcc9-3e72-7ce4-8c49-1892d3a3a747"
+					},
+					"listParams": {
+						"value": ["test"],
+						"uuid": "fa5ff4bf-61a8-c351-a3b1-4762d6cdad9b",
+						"wtype": "list"
+					},
+					"stringParams": {
+						"value": "string",
+						"uuid": "af335e66-38b6-716c-ac69-58d2c77f8eff"
+					}
+				},
+				"out": {
+					"boolOutParams": {
+						"value": 0,
+						"uuid": "9f173e2e-7b98-f731-a29d-453ac4cb8997"
+					},
+					"listOutParams": {
+						"value": "$94312862-241c-4838-b015-602aabe757ce",
+						"uuid": "c87d90fb-7000-e001-f88d-f11b9a833506",
+						"wtype": "list"
+					},
+					"strOutParams": {
+						"value": "$43308661-12ec-25d8-0bae-175cce6d9cdb",
+						"uuid": "b1fd63fa-2314-4628-0a20-144078daf1b5"
+					}
+				}
+			},
+			"type": "container"
+		}, {
+			"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "7f22fe45-c08b-8117-e29d-c53b1dea3bd4"
+					}
+				},
+				"out": {
+					"duration": {
+						"value": "",
+						"uuid": "0a5414a8-6176-c2ed-a0d9-41b2c6b98d73"
+					}
+				}
+			},
+			"type": "container"
+		}, {
+			"id": "15f42be8-e2a3-c547-85cd-0b9a608ec11d",
+			"params": {
+				"in": {
+					"message": {
+						"value": "$af335e66-38b6-716c-ac69-58d2c77f8eff",
+						"uuid": "63f2c7e5-7da4-fb49-a84b-509697072e0e"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "11942328-b789-6f12-0402-0804f275e4eb",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "7ee4fdc9-d81d-b03b-3f3c-7e78e665cccb"
+					}
+				},
+				"out": {
+					"duration": {
+						"value": "",
+						"uuid": "3cb07960-325c-64b8-540a-a815a1cf439e"
+					}
+				}
+			},
+			"type": "container"
+		}, {
+			"id": "b5d96bb2-766e-ecdd-5a7e-b4fd72b4e569",
+			"params": {
+				"in": {
+					"message": {
+						"value": "$5e64bcc9-3e72-7ce4-8c49-1892d3a3a747",
+						"uuid": "bb4b7696-12cc-2598-49d6-93adf7e5efcb"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}, {
+			"id": "a4b94972-6b72-d6e5-fafd-f5fbc5198a33",
+			"params": {
+				"in": {
+					"label": {
+						"value": "",
+						"uuid": "10f821f0-71a0-e341-3a38-74707aa6f54d"
+					},
+					"type": {
+						"value": "iterate",
+						"uuid": "5d12ba25-f38f-e71f-7c38-f8716dc8db91"
+					},
+					"maxTries": {
+						"value": 0,
+						"uuid": "26c64d8c-41a4-8349-d2e9-a5d3df5bbeb7"
+					},
+					"list": {
+						"value": "$fa5ff4bf-61a8-c351-a3b1-4762d6cdad9b",
+						"uuid": "c7a98f53-7ac0-f581-ded5-bdab765cecb9",
+						"wtype": "list"
+					},
+					"iterator": {
+						"value": "",
+						"uuid": "30ce619c-993b-3276-c80b-9017f547ea8f"
+					}
+				},
+				"out": {}
+			},
+			"type": "iteration_loop"
+		}, {
+			"id": "7f82ff05-15c6-2b8c-a33f-467ed0eba1d7",
+			"params": {
+				"in": {
+					"variable": {
+						"value": "New Variable",
+						"uuid": "f10de21b-9311-2622-2c1e-583cd093a127"
+					},
+					"name": {
+						"value": "listParams",
+						"uuid": "4db69b6d-eaa1-d543-5b44-b689261a4c34"
+					},
+					"scope": {
+						"value": "scenario",
+						"uuid": "16b02d60-db87-b70f-aba3-5746b84d709a"
+					},
+					"type": {
+						"value": "list",
+						"uuid": "10b22164-2c2c-5858-0c1a-18347424e849"
+					},
+					"value": {
+						"value": ["tata", "titi", "toto"],
+						"uuid": "c7f58feb-bea1-7d42-c2a7-854f435086a1",
+						"wtype": "list"
+					}
+				},
+				"out": {
+					"variable": {
+						"value": "",
+						"uuid": "94312862-241c-4838-b015-602aabe757ce"
+					}
+				},
+				"wfunction": "setVariable"
+			},
+			"type": "action"
+		}, {
+			"id": "05f20be4-0ff8-1ff0-f799-ef334886910d",
+			"params": {
+				"in": {
+					"variable": {
+						"value": "New Variable",
+						"uuid": "73b4e769-7826-f04d-b93d-727ae99bd337"
+					},
+					"name": {
+						"value": "strParams",
+						"uuid": "60f8c1f1-b74b-6e96-7d72-fae55488a911"
+					},
+					"scope": {
+						"value": "scenario",
+						"uuid": "43fe87fd-c34f-869f-d8a7-b14fe9add35b"
+					},
+					"type": {
+						"value": "string",
+						"uuid": "22c84590-94cb-2996-412c-8259a5b14b62"
+					},
+					"value": {
+						"value": "tesrt",
+						"uuid": "6884d109-46d2-8da5-cfe9-9fd37f84ff09"
+					}
+				},
+				"out": {
+					"variable": {
+						"value": "",
+						"uuid": "43308661-12ec-25d8-0bae-175cce6d9cdb"
+					}
+				},
+				"wfunction": "setVariable"
+			},
+			"type": "action"
+		}, {
+			"id": "2b105620-5922-b245-6af0-d5e118d431a8",
+			"params": {
+				"in": {
+					"message": {
+						"value": "$30ce619c-993b-3276-c80b-9017f547ea8f",
+						"uuid": "bf237e46-2eae-5d5c-e18f-c31fc9c7938f"
+					}
+				},
+				"out": {},
+				"wfunction": "logMessage"
+			},
+			"type": "action"
+		}
+	],
+	"links": [{
+			"connections": {
+				"in": [{
+						"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "0"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "15f42be8-e2a3-c547-85cd-0b9a608ec11d",
+						"pad": "in"
+					}
+				],
+				"out_ok": [{
+						"id": "0",
+						"pad": "out_ok"
+					}
+				],
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "15f42be8-e2a3-c547-85cd-0b9a608ec11d"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "b5d96bb2-766e-ecdd-5a7e-b4fd72b4e569",
+						"pad": "in"
+					}
+				],
+				"out_ok": [{
+						"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187",
+						"pad": "out_ok"
+					}
+				],
+				"out_nok": [{
+						"id": "a12b4256-e0dd-c1bb-ade7-5bcef8c3f187",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "11942328-b789-6f12-0402-0804f275e4eb"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "a4b94972-6b72-d6e5-fafd-f5fbc5198a33",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "b5d96bb2-766e-ecdd-5a7e-b4fd72b4e569"
+		}, {
+			"connections": {
+				"in": [{
+						"id": "2b105620-5922-b245-6af0-d5e118d431a8",
+						"pad": "in"
+					}
+				],
+				"continue": [{
+						"id": "7f82ff05-15c6-2b8c-a33f-467ed0eba1d7",
+						"pad": "in"
+					}
+				],
+				"break": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "a4b94972-6b72-d6e5-fafd-f5fbc5198a33"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "05f20be4-0ff8-1ff0-f799-ef334886910d",
+						"pad": "in"
+					}
+				],
+				"out_nok": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "7f82ff05-15c6-2b8c-a33f-467ed0eba1d7"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "out_ok"
+					}
+				],
+				"out_nok": [{
+						"id": "11942328-b789-6f12-0402-0804f275e4eb",
+						"pad": "out_nok"
+					}
+				]
+			},
+			"id": "05f20be4-0ff8-1ff0-f799-ef334886910d"
+		}, {
+			"connections": {
+				"out_ok": [{
+						"id": "a4b94972-6b72-d6e5-fafd-f5fbc5198a33",
+						"pad": "continue"
+					}
+				]
+			},
+			"id": "2b105620-5922-b245-6af0-d5e118d431a8"
+		}
+	],
+	"name": "[JS - DB] ContainerInAndOutParams"
+}

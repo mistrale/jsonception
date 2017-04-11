@@ -1,0 +1,194 @@
+[{
+		"body": {
+			"data": {},
+			"event_type": "RUNSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912042
+		},
+		"event_id": 0,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "0ff8d2e1-50f4-4cf3-a05d-4f24c93b3de2",
+				"block_uuid": "0",
+				"outputs": {},
+				"params": {
+					"uuid": "194d6ba1-7a66-4ba7-9b61-ac65288c5a25"
+				},
+				"previous_block_run_uuid": "null"
+			},
+			"event_type": "CONTAINERSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912042
+		},
+		"event_id": 1,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "20cbab0b-ae4d-48af-8295-c045a3d234eb",
+				"block_uuid": "43115206-2620-2a50-09b9-fdbe91c1c9ef",
+				"outputs": {},
+				"params": {
+					"function": "unnamed_block1",
+					"module": "asi"
+				},
+				"previous_block_run_uuid": "0ff8d2e1-50f4-4cf3-a05d-4f24c93b3de2",
+				"wfunction": "customCode"
+			},
+			"event_type": "ACTIONSTARTED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912042
+		},
+		"event_id": 2,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "20cbab0b-ae4d-48af-8295-c045a3d234eb",
+				"block_uuid": "43115206-2620-2a50-09b9-fdbe91c1c9ef",
+				"outputs": {
+					"duration": 88,
+					"real_duration": 88,
+					"returncode": null
+				},
+				"returncode": 10031,
+				"status": "OK",
+				"wfunction": "customCode"
+			},
+			"event_type": "ACTIONENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912042
+		},
+		"event_id": 3,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}, {
+		"body": {
+			"data": {
+				"block_run_uuid": "0ff8d2e1-50f4-4cf3-a05d-4f24c93b3de2",
+				"block_uuid": "0",
+				"container_name": "",
+				"duration": 88,
+				"error_codes": [10031],
+				"outputs": {
+					"duration": 88
+				},
+				"pad": "out_ok",
+				"real_duration": 88,
+				"returncode": 0,
+				"status": "OK",
+				"user_error_codes": []
+			},
+			"event_type": "CONTAINERENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912042
+		},
+		"event_id": 4,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}, {
+		"body": {
+			"data": {
+				"duration": 88,
+				"real_duration": 662,
+				"returncode": 0,
+				"status": "OK"
+			},
+			"event_type": "RUNENDED",
+			"event_version": "UNKNOWN",
+			"level": "INFO",
+			"metadata": {
+				"device_uuids": ["b142a21e-b7c9-448a-9c57-37cb39d36530"],
+				"interactive": false,
+				"run_uuid": "80a6f70e-c8d2-420f-7380-a881c48f3355",
+				"task_instance_uuid": "5ce14f17-a44c-4497-bc52-01f01cb13677",
+				"task_uuid": "CustomCode",
+				"type": "scenario"
+			},
+			"source": {
+				"name": "UNKNOWN",
+				"version": "UNKNOWN"
+			},
+			"ts": 1491912043
+		},
+		"event_id": 5,
+		"header": {
+			"room": "scenario_80a6f70e-c8d2-420f-7380-a881c48f3355"
+		}
+	}
+]

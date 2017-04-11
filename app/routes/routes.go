@@ -4,6 +4,22 @@ package routes
 import "github.com/revel/revel"
 
 
+type tWebSocket struct {}
+var WebSocket tWebSocket
+
+
+func (_ tWebSocket) ListenScriptRun(
+		room_name string,
+		ws interface{},
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.ListenScriptRun", args).Url
+}
+
+
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -27,22 +43,6 @@ func (_ tGorpController) Rollback(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("GorpController.Rollback", args).Url
-}
-
-
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) ListenScriptRun(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.ListenScriptRun", args).Url
 }
 
 
@@ -111,102 +111,6 @@ func (_ tTestRunner) List(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("TestRunner.List", args).Url
-}
-
-
-type tLibraries struct {}
-var Libraries tLibraries
-
-
-func (_ tLibraries) Create(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Libraries.Create", args).Url
-}
-
-func (_ tLibraries) Delete(
-		id_lib int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "id_lib", id_lib)
-	return revel.MainRouter.Reverse("Libraries.Delete", args).Url
-}
-
-func (_ tLibraries) Update(
-		id_lib int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "id_lib", id_lib)
-	return revel.MainRouter.Reverse("Libraries.Update", args).Url
-}
-
-func (_ tLibraries) Run(
-		idLib int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "idLib", idLib)
-	return revel.MainRouter.Reverse("Libraries.Run", args).Url
-}
-
-func (_ tLibraries) GetHistory(
-		libID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "libID", libID)
-	return revel.MainRouter.Reverse("Libraries.GetHistory", args).Url
-}
-
-func (_ tLibraries) DeleteHistory(
-		id_lib int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "id_lib", id_lib)
-	return revel.MainRouter.Reverse("Libraries.DeleteHistory", args).Url
-}
-
-func (_ tLibraries) GetHistoryTemplate(
-		libID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "libID", libID)
-	return revel.MainRouter.Reverse("Libraries.GetHistoryTemplate", args).Url
-}
-
-func (_ tLibraries) GetOne(
-		libID int,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "libID", libID)
-	return revel.MainRouter.Reverse("Libraries.GetOne", args).Url
-}
-
-func (_ tLibraries) Get(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Libraries.Get", args).Url
-}
-
-func (_ tLibraries) Index(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Libraries.Index", args).Url
-}
-
-func (_ tLibraries) All(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("Libraries.All", args).Url
 }
 
 
@@ -287,29 +191,6 @@ func (_ tScripts) Run(
 	
 	revel.Unbind(args, "id_script", id_script)
 	return revel.MainRouter.Reverse("Scripts.Run", args).Url
-}
-
-
-type tTestHistory struct {}
-var TestHistory tTestHistory
-
-
-func (_ tTestHistory) Get(
-		) string {
-	args := make(map[string]string)
-	
-	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
-}
-
-func (_ tTestHistory) GetOne(
-		uuid string,
-		testName string,
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "uuid", uuid)
-	revel.Unbind(args, "testName", testName)
-	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
 }
 
 
@@ -406,6 +287,125 @@ func (_ tTests) GetOneTemplate(
 	
 	revel.Unbind(args, "testID", testID)
 	return revel.MainRouter.Reverse("Tests.GetOneTemplate", args).Url
+}
+
+
+type tTestHistory struct {}
+var TestHistory tTestHistory
+
+
+func (_ tTestHistory) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("TestHistory.Get", args).Url
+}
+
+func (_ tTestHistory) GetOne(
+		uuid string,
+		testName string,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "uuid", uuid)
+	revel.Unbind(args, "testName", testName)
+	return revel.MainRouter.Reverse("TestHistory.GetOne", args).Url
+}
+
+
+type tLibraries struct {}
+var Libraries tLibraries
+
+
+func (_ tLibraries) Create(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Create", args).Url
+}
+
+func (_ tLibraries) Delete(
+		id_lib int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "id_lib", id_lib)
+	return revel.MainRouter.Reverse("Libraries.Delete", args).Url
+}
+
+func (_ tLibraries) Update(
+		id_lib int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "id_lib", id_lib)
+	return revel.MainRouter.Reverse("Libraries.Update", args).Url
+}
+
+func (_ tLibraries) Run(
+		idLib int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "idLib", idLib)
+	return revel.MainRouter.Reverse("Libraries.Run", args).Url
+}
+
+func (_ tLibraries) GetHistory(
+		libID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "libID", libID)
+	return revel.MainRouter.Reverse("Libraries.GetHistory", args).Url
+}
+
+func (_ tLibraries) DeleteHistory(
+		id_lib int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "id_lib", id_lib)
+	return revel.MainRouter.Reverse("Libraries.DeleteHistory", args).Url
+}
+
+func (_ tLibraries) GetHistoryTemplate(
+		libID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "libID", libID)
+	return revel.MainRouter.Reverse("Libraries.GetHistoryTemplate", args).Url
+}
+
+func (_ tLibraries) GetOne(
+		libID int,
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "libID", libID)
+	return revel.MainRouter.Reverse("Libraries.GetOne", args).Url
+}
+
+func (_ tLibraries) Get(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Get", args).Url
+}
+
+func (_ tLibraries) Index(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.Index", args).Url
+}
+
+func (_ tLibraries) All(
+		) string {
+	args := make(map[string]string)
+	
+	return revel.MainRouter.Reverse("Libraries.All", args).Url
 }
 
 

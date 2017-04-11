@@ -1,0 +1,60 @@
+{
+	"info": {
+		"client_name": "workbench",
+		"client_version": "4.5.2rc3",
+		"task_schema_version": "2.0.0",
+		"type": "scenario"
+	},
+	"blocks": [{
+			"id": "0",
+			"params": {
+				"in": {},
+				"out": {}
+			},
+			"type": "container"
+		}, {
+			"id": "43115206-2620-2a50-09b9-fdbe91c1c9ef",
+			"params": {
+				"in": {
+					"function": {
+						"value": "unnamed_block1",
+						"uuid": "49b07304-df4f-3167-c834-9213f362426d"
+					},
+					"module": {
+						"value": "asi",
+						"uuid": "dd1ef942-bd4e-4b55-ac6a-a7406ec96510"
+					}
+				},
+				"out": {},
+				"wfunction": "customCode"
+			},
+			"type": "action"
+		}
+	],
+	"links": [{
+			"connections": {
+				"in": [{
+						"id": "43115206-2620-2a50-09b9-fdbe91c1c9ef",
+						"pad": "in"
+					}
+				]
+			},
+			"id": "0"
+		}, {
+			"connections": {
+				"out_nok": [{
+						"id": "0",
+						"pad": "out_nok"
+					}
+				],
+				"out_ok": [{
+						"id": "0",
+						"pad": "out_ok"
+					}
+				]
+			},
+			"id": "43115206-2620-2a50-09b9-fdbe91c1c9ef"
+		}
+	],
+	"name": "[JS - DB] CustomCode"
+}
