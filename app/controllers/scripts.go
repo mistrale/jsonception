@@ -111,10 +111,11 @@ func (c Scripts) InitScriptModel(mode int) (*models.Script, error) {
 func (c Scripts) Create() revel.Result {
 	exec, err := c.InitScriptModel(CREATE)
 	if err != nil {
-		c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
 	}
+	fmt.Printf("name : %s\tcontent : %s\t params : \n", exec.Content, exec.Name)
 	for _, v := range exec.Params {
-		v.Print()
+		fmt.Printf("name : %s\ttype : %s\n", v.Name, v.Type)
 	}
 	c.Txn.Create(exec)
 	return c.RenderJson(utils.NewResponse(true, "Script successfully created", *exec))
@@ -170,23 +171,37 @@ func (c Scripts) Update(scriptID int) revel.Result {
 		c.Txn.Save(&tests[i_test])
 	}
 	fmt.Printf("size test : %d\n", len(tests))
-	return c.RenderJson(utils.NewResponse(true, "", "Script updated"))
+	return c.RenderJson(utils.NewResponse(true, "Script updated", "Script updated"))
 }
 
 // Run method to execute script
-func (c Scripts) Run(scriptID int, content string, params []models.Parameters) revel.Result {
-	uuid := uuid.NewV4()
+func (c Scripts) Run(id_script int) revel.Result {
+	exec := &models.Script{}
+	m := c.Request.MultipartForm
+	content := c.Request.FormValue("content")
+	params := c.Request.FormValue("parameters")
+	fmt.Println(reflect.TypeOf(m))
+	fmt.Printf("content : %s\n", content)
+	if content == "" {
+		return c.RenderJson(utils.NewResponse(false, "Script content cannot be empty.", nil))
+	}
+	if err := json.Unmarshal([]byte(params), &exec.Params); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	if err := exec.Params.Check(); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	if err := exec.Params.UploadFileFromParameters(m); err != nil {
+		return c.RenderJson(utils.NewResponse(false, err.Error(), nil))
+	}
+	exec.Content = content
+
 	//channel := make(chan map[string]interface{})
 	channel := make(chan dispatcher.Event)
-	var exec models.Script
+	//var exec models.Script
 
-	if scriptID != 0 {
-		c.Txn.First(&exec, scriptID)
-
-	} else {
-		exec.Content = content
-	}
-	exec.Uuid = uuid.String()
+	exec.Uuid = uuid.NewV4().String()
+	fmt.Printf("id script :%d\n ", id_script)
 
 	go exec.Run(channel)
 	response := <-channel
@@ -194,7 +209,7 @@ func (c Scripts) Run(scriptID int, content string, params []models.Parameters) r
 		fmt.Printf("status : %v\n", response.Status)
 		return c.RenderJson(response)
 	}
-	room := socket.CreateRoom(uuid.String())
+	room := socket.CreateRoom(exec.Uuid)
 
 	go func(ch chan dispatcher.Event, exec_uuid string) {
 		for {

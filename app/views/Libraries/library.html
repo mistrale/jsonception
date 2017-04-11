@@ -151,12 +151,14 @@ $(document).ready(function() {
   if (!tests) {
     $.ajax({
       dataType: "json",
-      url: "http://{{getIP}}:9000/tests",
+      url: "/tests",
       success: function (data) {
         tests = data
+        console.log(data)
         $.each(tests, function(k,v){
+          console.log(v["ID"])
           $('#select_library_{{.Uuid}}').append($('<option>', {
-                value : v["testID"],
+                value : v["ID"],
                 text: v["name"]
               }))
           });
@@ -164,8 +166,10 @@ $(document).ready(function() {
     });
   } else {
     $.each(tests, function(k,v){
+      console.log(v["ID"])
+
       $('#select_library_{{.Uuid}}').append($('<option>', {
-            value : v["testID"],
+            value : v["ID"],
             text: v["name"]
           }))
       });
@@ -175,7 +179,7 @@ $(document).ready(function() {
     orders = {{.Orders}};
 
     for (i = 1; i <= {{.Tests}}.length; i++) {
-      listTests[{{.Uuid}}].push({{.Tests}}[i - 1].test_id)
+      listTests[{{.Uuid}}].push({{.Tests}}[i - 1].ID)
       $('#panel_test_library_{{.Uuid}} .select_order').each(function() {
         $(this).append("<option>" + i + "</option>")
       });
@@ -267,13 +271,13 @@ $(document).ready(function() {
       testIDs[{{.Uuid}}] = 0
     } else {
       $.ajax({
-        url: "http://{{getIP}}:9000/tests/" + elem.test_id + "/template?testID=" + elem.test_id,
+        url: "/tests/" + elem.ID + "/template?testID=" + elem.ID,
         success: function (data) {
           currentData[{{.Uuid}}] = data
          $("#add_test_{{.Uuid}}").html(data)
         }
       });
-      testIDs[{{.Uuid}}] = elem.test_id
+      testIDs[{{.Uuid}}] = elem.ID
     }
   });
 
@@ -289,7 +293,7 @@ $(document).ready(function() {
 
         // construct an HTTP request
       var xhr = new XMLHttpRequest();
-      xhr.open("PUT", 'http://{{getIP}}:9000/libraries/' + {{.ID}} + "?id_lib=" + {{.ID}}, true);
+      xhr.open("PUT", '/libraries/' + {{.ID}} + "?id_lib=" + {{.ID}}, true);
       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
       // send the collected data as JSON
@@ -349,7 +353,7 @@ $(document).ready(function() {
 
           // construct an HTTP request
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", 'http://{{getIP}}:9000/libraries/', true);
+        xhr.open("POST", '/libraries/', true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
         // send the collected data as JSON
@@ -376,9 +380,10 @@ $(document).ready(function() {
   });
 
   function run(libID, lib_uuid) {
+    $(".errors_test").html("")
     //console.log("exec uuid  :" + execUUIDs[ruuid])
     $.ajax({
-      url: 'http://{{getIP}}:9000/libraries/' + libID + '/run', // url where to submit the request
+      url: '/libraries/' + libID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
       dataType : 'json', // data type
       data : "idLib=" + libID,
@@ -403,7 +408,7 @@ $(document).ready(function() {
               init_run_test(current_uuid)
             });
             uuid = data["response"]
-            var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
+            var socket = new WebSocket('ws://' + window.location.host  +'/websocket/room?room_name=' + uuid)
             output = ""
             socket.onmessage = function(event) {
               console.log(event.data)

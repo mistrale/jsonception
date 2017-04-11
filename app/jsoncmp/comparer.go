@@ -68,6 +68,7 @@ func FindParameters(event map[string]interface{}, params []interface{}) map[stri
 
 func CompareEvent(refEvent, testEvent map[string]interface{}, params interface{}) error {
 	// if params is a string
+
 	if sParams, ok := params.(string); ok {
 		eq := reflect.DeepEqual(refEvent[sParams], testEvent[sParams])
 		if !eq {
@@ -76,7 +77,13 @@ func CompareEvent(refEvent, testEvent map[string]interface{}, params interface{}
 		return nil
 	} else /* else if params is an object */ if oParams, ok := params.(map[string]interface{}); ok {
 		for k, v := range oParams {
-			if err := CompareEvent(refEvent[k].(map[string]interface{}), testEvent[k].(map[string]interface{}), v); err != nil {
+			//fmt.Printf("oobject : %s\t%s\t%s\t%s\n", k, v, refEvent, testEvent)
+			// case we dont have those parameters in event
+			if _, ok := refEvent[k].(map[string]interface{}); !ok {
+				continue
+			} else if _, ok := testEvent[k].(map[string]interface{}); !ok {
+				continue
+			} else if err := CompareEvent(refEvent[k].(map[string]interface{}), testEvent[k].(map[string]interface{}), v); err != nil {
 				return fmt.Errorf("[%s] %s", k, err.Error())
 			}
 		}

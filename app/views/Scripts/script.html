@@ -182,15 +182,15 @@ $(document).ready(function() {
       return params
     }
 
-    $("#create_btn_{{.Uuid}}").click(function() {
-      $("#save_error_{{.Uuid}}").hide()
-      $("#save_success_{{.Uuid}}").hide()
+    function uploadScript(uuid, url, method) {
+      $("#save_error_" + uuid).hide()
+      $("#save_success_" + uuid).hide()
 
       var form_data = new FormData()
-      var params = getParams({{.Uuid}})
+      var params = getParams(uuid)
 
-       form_data.append("name", $("#exec_name_{{.Uuid}}").val());
-       form_data.append("content", script_editor[{{.Uuid}}].getValue());
+       form_data.append("name", $("#exec_name_" + uuid).val());
+       form_data.append("content", script_editor[uuid].getValue());
        form_data.append("parameters", JSON.stringify(params));
 
        for (i = 0; i < params.length; i++) {
@@ -199,13 +199,13 @@ $(document).ready(function() {
          }
        }
        $.ajax({
-                   url: 'http://{{getIP}}:9000/scripts/', // point to server-side PHP script
+                   url: url, // point to server-side PHP script
                    dataType: 'text',  // what to expect back from the PHP script, if anything
                    cache: false,
                    contentType: false,
                    processData: false,
                    data: form_data,
-                   type: 'post',
+                   type: method,
                    success: function(php_script_response){
                        response = JSON.parse(php_script_response);
                        if (response["status"] != true) {
@@ -221,48 +221,15 @@ $(document).ready(function() {
                         alert(" Can't do because: " + error);
                     },
         });
+    }
+
+    $("#create_btn_{{.Uuid}}").click(function() {
+      uploadScript({{.Uuid}}, '/scripts/', 'post')
     });
 
     $("#save_btn_{{.Uuid}}").click(function() {
-        $("#save_error_{{.Uuid}}").hide()
-        $("#save_success_{{.Uuid}}").hide()
+      uploadScript({{.Uuid}}, '/scripts/' + {{.ID}}  + "?scriptID=" + {{.ID}}, 'put')
 
-        var form_data = new FormData()
-        var params = getParams({{.Uuid}})
-
-         form_data.append("name", $("#exec_name_{{.Uuid}}").val());
-         form_data.append("content", script_editor[{{.Uuid}}].getValue());
-         form_data.append("parameters", JSON.stringify(params));
-
-         for (i = 0; i < params.length; i++) {
-           if (params[i].type == "file") {
-             console.log("on est ici : " + params[i].value)
-             form_data.append(params[i].name, params[i].value);
-           }
-         }
-         $.ajax({
-                     url: 'http://{{getIP}}:9000/scripts/' + {{.ID}}  + "?scriptID=" + {{.ID}}, // point to server-side PHP script
-                     dataType: 'text',  // what to expect back from the PHP script, if anything
-                     cache: false,
-                     contentType: false,
-                     processData: false,
-                     data: form_data,
-                     type: 'put',
-                     success: function(php_script_response){
-                         response = JSON.parse(php_script_response);
-                         if (response["status"] != true) {
-                           $("#save_error_{{.Uuid}}").slideDown()
-                           $("#save_error_{{.Uuid}}").text(response["message"])
-                         } else {
-                           $("#save_success_{{.Uuid}}").slideDown()
-                           $("#save_success_{{.Uuid}}").text(response["response"])
-                           console.log(response["response"])
-                         }
-                     },
-                     error: function (request, error) {
-                          alert(" Can't do because: " + error);
-                      },
-          });
     });
 
     $("#delete_btn_{{.Uuid}}").click(function(){
@@ -285,46 +252,72 @@ $(document).ready(function() {
     $("#run-btn_{{.Uuid}}").click(function(){
       $("#save_error_{{.Uuid}}").slideUp()
       $("#save_success_{{.Uuid}}").slideUp()
+      var form_data = new FormData()
+      var params = getParams({{.Uuid}})
 
-      $.getJSON( "http://{{getIP}}:9000/scripts/run?scriptID=" + encodeURIComponent({{.ID}}) + "&content=" + encodeURIComponent(script_editor[{{.Uuid}}].getValue()), function(data) {
-        if (data["success"] == false) {
-          alert(data["message"])
-        } else {
-          $("#output_exec_{{.Uuid}}").slideDown()
-          output_script_editor[{{.Uuid}}].refresh()
-          room_Uuid = data["response"]
+       form_data.append("name", $("#exec_name_" + {{.Uuid}}).val());
+       form_data.append("content", script_editor[{{.Uuid}}].getValue());
+       form_data.append("parameters", JSON.stringify(params));
 
-          var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + room_Uuid)
-          init_run({{.Uuid}})
+       for (i = 0; i < params.length; i++) {
+         if (params[i].type == "file") {
+           form_data.append(params[i].name, params[i].value);
+         }
+       }
 
-          output = ""
-          socket.onmessage = function(event) {
-            output = JSON.parse(event.data)
+      $.ajax({
+                  url: '/scripts/run', // point to server-side PHP script
+                  dataType: 'text',  // what to expect back from the PHP script, if anything
+                  cache: false,
+                  contentType: false,
+                  processData: false,
+                  data: form_data,
+                  type: 'post',
+                  success: function(php_script_response){
+                      data = JSON.parse(php_script_response);
+                      console.log(data)
+                      if (data["status"] == false) {
+                        alert(data["message"])
+                      } else {
+                        $("#output_exec_{{.Uuid}}").slideDown()
+                        output_script_editor[{{.Uuid}}].refresh()
+                        room_Uuid = data["response"]
 
-            if (output["status"] == false) {
-              alert(output["errors"])
-              isFinished[{{.Uuid}}] = true
-            } else if (output["body"] && output["event_type"] != "result_script") {
-              new_array = output["body"].match(/[\s\S]{1,1000}/g)
-              for (var i = 0; i < new_array.length; i++) {
-                queues[{{.Uuid}}].push(new_array[i])
-              }
-              //queues[{{.Uuid}}].push(output["response"]["body"]);
-            } else if (output["event_type"] == "result_script") {
-              isFinished[{{.Uuid}}] = true
+                        var socket = new WebSocket('ws://' + window.location.host + '/websocket/room?room_name=' + room_Uuid)
+                        init_run({{.Uuid}})
 
-              if (output["status"] != true) {
+                        output = ""
+                        socket.onmessage = function(event) {
+                          output = JSON.parse(event.data)
 
-                $("#save_error_{{.Uuid}}").slideDown()
-                $("#save_error_{{.Uuid}}").text(output["errors"])
-              } else {
-                $("#save_success_{{.Uuid}}").slideDown()
-                $("#save_success_{{.Uuid}}").text("Script done !")
-              }
-            }
-          }
-        }
-      });
+                          if (output["status"] == false) {
+                            alert(output["errors"])
+                            isFinished[{{.Uuid}}] = true
+                          } else if (output["body"] && output["event_type"] != "result_script") {
+                            new_array = output["body"].match(/[\s\S]{1,1000}/g)
+                            for (var i = 0; i < new_array.length; i++) {
+                              queues[{{.Uuid}}].push(new_array[i])
+                            }
+                            //queues[{{.Uuid}}].push(output["response"]["body"]);
+                          } else if (output["event_type"] == "result_script") {
+                            isFinished[{{.Uuid}}] = true
+
+                            if (output["status"] != true) {
+
+                              $("#save_error_{{.Uuid}}").slideDown()
+                              $("#save_error_{{.Uuid}}").text(output["errors"])
+                            } else {
+                              $("#save_success_{{.Uuid}}").slideDown()
+                              $("#save_success_{{.Uuid}}").text("Script done !")
+                            }
+                          }
+                        }
+                      }
+                  },
+                  error: function (request, error) {
+                       alert(" Can't do because: " + error);
+                   },
+       });
     });
 
     $("#clear_exec_btn_{{.Uuid}}").click(function() {

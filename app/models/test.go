@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,7 @@ import (
 
 // Test : script and logevent
 type Test struct {
-	gorm.Model  `json:"test_id"`
+	gorm.Model
 	Name        string      `json:"name"`
 	Config      string      `json:"config"`
 	PathRefFile string      `json:"path_test_log"`
@@ -89,7 +90,7 @@ func (test *Test) Compare(response chan dispatcher.Event) {
 		// compare two events
 		if err := jsoncmp.CompareEvent(refEvent.(map[string]interface{}), testJson[i].(map[string]interface{}), eventParams); err != nil {
 			fmt.Printf("Error : %s\n", err.Error())
-			errors = append(errors, err.Error()+"\n")
+			errors = append(errors, "Event id nb "+strconv.Itoa(i)+" : "+err.Error()+"\n")
 			status = false
 			continue
 		}
@@ -97,27 +98,27 @@ func (test *Test) Compare(response chan dispatcher.Event) {
 		jsonrefresp := testJson[i].(map[string]interface{})
 		str1, err := json.Marshal(jsonlogresp)
 		if err != nil {
-			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
+			response <- dispatcher.Event{Status: false, Errors: []string{"Event id nb " + strconv.Itoa(i) + " : " + err.Error()}, Type: RESULT_TEST}
 			return
 
 		}
 		str2, err2 := json.Marshal(jsonrefresp)
 
 		if err2 != nil {
-			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
+			response <- dispatcher.Event{Status: false, Errors: []string{"Event id nb " + strconv.Itoa(i) + " : " + err.Error()}, Type: RESULT_TEST}
 			return
 		}
 
 		var prettyJSON1 bytes.Buffer
 		err = json.Indent(&prettyJSON1, str1, "", "\t")
 		if err != nil {
-			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
+			response <- dispatcher.Event{Status: false, Errors: []string{"Event id nb " + strconv.Itoa(i) + " : " + err.Error()}, Type: RESULT_TEST}
 			return
 		}
 		var prettyJSON2 bytes.Buffer
 		err = json.Indent(&prettyJSON2, str2, "", "\t")
 		if err != nil {
-			response <- dispatcher.Event{Status: false, Errors: []string{err.Error()}, Type: RESULT_TEST}
+			response <- dispatcher.Event{Status: false, Errors: []string{"Event id nb " + strconv.Itoa(i) + " : " + err.Error()}, Type: RESULT_TEST}
 			return
 		}
 		body := make(map[string]interface{})

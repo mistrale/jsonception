@@ -4,22 +4,6 @@ package routes
 import "github.com/revel/revel"
 
 
-type tWebSocket struct {}
-var WebSocket tWebSocket
-
-
-func (_ tWebSocket) ListenScriptRun(
-		room_name string,
-		ws interface{},
-		) string {
-	args := make(map[string]string)
-	
-	revel.Unbind(args, "room_name", room_name)
-	revel.Unbind(args, "ws", ws)
-	return revel.MainRouter.Reverse("WebSocket.ListenScriptRun", args).Url
-}
-
-
 type tGorpController struct {}
 var GorpController tGorpController
 
@@ -43,6 +27,22 @@ func (_ tGorpController) Rollback(
 	args := make(map[string]string)
 	
 	return revel.MainRouter.Reverse("GorpController.Rollback", args).Url
+}
+
+
+type tWebSocket struct {}
+var WebSocket tWebSocket
+
+
+func (_ tWebSocket) ListenScriptRun(
+		room_name string,
+		ws interface{},
+		) string {
+	args := make(map[string]string)
+	
+	revel.Unbind(args, "room_name", room_name)
+	revel.Unbind(args, "ws", ws)
+	return revel.MainRouter.Reverse("WebSocket.ListenScriptRun", args).Url
 }
 
 
@@ -281,15 +281,11 @@ func (_ tScripts) Update(
 }
 
 func (_ tScripts) Run(
-		scriptID int,
-		content string,
-		params interface{},
+		id_script int,
 		) string {
 	args := make(map[string]string)
 	
-	revel.Unbind(args, "scriptID", scriptID)
-	revel.Unbind(args, "content", content)
-	revel.Unbind(args, "params", params)
+	revel.Unbind(args, "id_script", id_script)
 	return revel.MainRouter.Reverse("Scripts.Run", args).Url
 }
 

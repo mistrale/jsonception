@@ -26,7 +26,7 @@ var (
 
 func init() {
 	if runtime.GOOS == "windows" {
-		TMP_DIRECTORY = "C:\\ProgramData\\Witbe\\storage\\data\\jsonception"
+		TMP_DIRECTORY = "C:\\ProgramData\\Witbe\\storage\\data\\jsonception\\"
 		fmt.Println("Running under Windows")
 	}
 }
@@ -55,7 +55,7 @@ func (j *Parameters) GiveFileParamsValue(params_name, file_name string) {
 	fmt.Printf("params name : %s\t[aras : %s\n", params_name, *j)
 	for i, v := range *j {
 		if v.Name == params_name {
-			(*j)[i].Value = file_name
+			(*j)[i].Value = TMP_DIRECTORY + file_name
 		}
 	}
 }
@@ -123,6 +123,9 @@ func (j Parameters) Check() error {
 				continue
 			}
 			if v.Type == "bool" {
+				if value != "0" && value != "false" && value != "true" && value != "1" {
+					return errors.New("Bool cannot have value : " + value)
+				}
 				if newVal, err := strconv.ParseBool(value); err != nil {
 					return err
 				} else {

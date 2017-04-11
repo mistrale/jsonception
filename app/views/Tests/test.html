@@ -172,8 +172,9 @@ $(document).ready(function() {
   if (!array) {
     $.ajax({
       dataType: "json",
-      url: "http://{{getIP}}:9000/scripts",
+      url: "/scripts",
       success: function (data) {
+        console.log(data)
         array = data["response"]
         $.each(array, function(k,v){
           $('#select_exec_{{.Uuid}}').append($('<option>', {
@@ -341,7 +342,7 @@ $("#collapser_test_{{.Uuid}}").on('click', function() {
   }
 
   $("#create_test_btn_{{.Uuid}}").click(function() {
-    CreateOrUpdateTest({{.Uuid}}, 'http://{{getIP}}:9000/tests/', 'post')
+    CreateOrUpdateTest({{.Uuid}}, '/tests/', 'post')
   });
 
   function run(testID, ruuid) {
@@ -349,7 +350,7 @@ $("#collapser_test_{{.Uuid}}").on('click', function() {
     $("#save_test_run_success_history_{{.Uuid}}").hide();
 
     $.ajax({
-      url: 'http://{{getIP}}:9000/tests/' + testID + '/run', // url where to submit the request
+      url: '/tests/' + testID + '/run', // url where to submit the request
       type : "POST", // type of action POST || GET
       dataType : 'json', // data type
       data : "testID=" + testID,
@@ -359,7 +360,7 @@ $("#collapser_test_{{.Uuid}}").on('click', function() {
           } else {
             console.log(data)
           uuid = data["response"]
-          var socket = new WebSocket('ws://{{getIP}}:9000/websocket/room?room_name=' + uuid)
+          var socket = new WebSocket('ws://'+ window.location.host +'/websocket/room?room_name=' + uuid)
 
           isFinished_test[{{.Uuid}}] = false
           isFinished[{{.Uuid}}] = false
@@ -446,7 +447,7 @@ $("#collapser_test_{{.Uuid}}").on('click', function() {
 
 
    $("#save_test_btn_{{.Uuid}}").click(function() {
-     CreateOrUpdateTest({{.Uuid}}, 'http://{{getIP}}:9000/tests/' + {{.ID}} + "?id_test="+ {{.ID}}, 'put')
+     CreateOrUpdateTest({{.Uuid}}, '/tests/' + {{.ID}} + "?id_test="+ {{.ID}}, 'put')
    });
 
    $("#delete_test_btn_{{.Uuid}}").click(function(){

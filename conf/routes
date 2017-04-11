@@ -5,7 +5,7 @@
 module:testrunner
 
 # model REST Script
-GET     /scripts/run                          Scripts.Run
+POST     /scripts/run                          Scripts.Run
 POST    /scripts                              Scripts.Create
 DELETE  /scripts/:id                          Scripts.Delete
 PUT     /scripts/:id                          Scripts.Update

@@ -55,14 +55,14 @@ func (e *Script) InitParams() {
 			e.Content = strings.Replace(e.Content, "$"+v.Name, v.Value.(string), -1)
 		}
 	}
-	fmt.Printf("Content : %s\n", e.Content)
 }
 
-// Run method to start script
+// Run method to exec script
 func (e Script) Run(response chan dispatcher.Event) {
-	fmt.Println("ON RUN")
 	e.InitParams()
 	var cmd *exec.Cmd
+	fmt.Printf("Content : %s\nWTTFFFF", e.Content)
+
 	cmd = exec.Command("bash", "-c", e.Content)
 
 	ch := make(chan string)

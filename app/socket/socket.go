@@ -29,10 +29,6 @@ func CreateRoom(name string) *Room {
 	go func() {
 		for {
 			msg := <-room.Chan
-			//fmt.Printf("[room][%s] : on recoit %s\n", name, msg)
-			room.Mux.Lock()
-			room.Tmp = append(room.Tmp, msg)
-			room.Mux.Unlock()
 			if msg.Body == "end_"+room.Name {
 				room.Mux.Lock()
 				fmt.Printf("[room][%s] : Closing room\n", room.Name)
@@ -40,6 +36,11 @@ func CreateRoom(name string) *Room {
 				room.Mux.Unlock()
 				break
 			}
+			//fmt.Printf("[room][%s] : on recoit %s\n", name, msg)
+			room.Mux.Lock()
+			room.Tmp = append(room.Tmp, msg)
+			room.Mux.Unlock()
+
 		}
 	}()
 	return room
