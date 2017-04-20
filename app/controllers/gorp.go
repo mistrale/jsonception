@@ -227,13 +227,13 @@ func initLibraryDB() {
 		var tests []models.Test
 		orders := models.LibraryOrders{
 			models.Order{IdTest: 1, Order: 1},
-			models.Order{IdTest: 2, Order: 2},
-			models.Order{IdTest: 3, Order: 3},
-			models.Order{IdTest: 4, Order: 4},
-			models.Order{IdTest: 5, Order: 5},
-			models.Order{IdTest: 6, Order: 6},
-			models.Order{IdTest: 7, Order: 7},
-			models.Order{IdTest: 8, Order: 8},
+			models.Order{IdTest: 2, Order: 1},
+			models.Order{IdTest: 3, Order: 1},
+			models.Order{IdTest: 4, Order: 1},
+			models.Order{IdTest: 5, Order: 1},
+			models.Order{IdTest: 6, Order: 1},
+			models.Order{IdTest: 7, Order: 1},
+			models.Order{IdTest: 8, Order: 1},
 		}
 
 		Dbm.Preload("Script").Find(&tests)
@@ -250,7 +250,7 @@ func initLibraryDB() {
 func InitDB() {
 	json_writer.Init()
 
-	db, err := gorm.Open("postgres", "user=mistrale dbname=jsonception sslmode=disable password=witbe77")
+	db, err := gorm.Open("postgres", "user=mistrale dbname=jsonception sslmode=disable password=admin77")
 	if err != nil {
 		panic(err)
 	}

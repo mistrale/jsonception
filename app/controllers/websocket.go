@@ -32,12 +32,11 @@ func (c WebSocket) ListenScriptRun(room_name string, ws *websocket.Conn) revel.R
 		for ; i < len(room.Tmp); i++ {
 			if err := websocket.JSON.Send(ws, room.Tmp[i]); err != nil {
 				fmt.Printf("err : %s\n", err.Error())
-				break
 			}
 		}
 		if room.IsClosed == true {
 			fmt.Println("Boucle pour listeN CA FA FINI")
-			break
+			return nil
 		}
 		room.Mux.Unlock()
 	}

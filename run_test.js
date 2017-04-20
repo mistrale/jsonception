@@ -16,14 +16,11 @@ callback = function(response) {
   var str = ''
   response.on('data', function (chunk) {
 	  var obj = JSON.parse(chunk);
-	  	  console.log("chucn : " + chunk)
 	  if (obj["status"] == false) {
 		process.exit(-1);
 	  } else {
 		uuid = obj["response"]
 		test = client.connect('ws://localhost:9000/websocket/room?room_name=' + uuid, null, "http://localhost:9000");
- 		console.log("Library run successfully started")
-		console.log("Library run successfully started2")
 	  }
   });
 }
@@ -38,7 +35,12 @@ client.on('connect', function(connection) {
 	});
 	connection.on('message', function(message) {
 		if (message.type === 'utf8') {
-			console.log("Received: '" + message.utf8Data + "'");
+			var obj = JSON.parse(message.utf8Data);
+			if (obj["status"] == false) {
+				throw new Error("Something went badly wrong!"  + message.utf8Data);
+			} else {
+				console.log("Received event")
+			}
 		}
 	});
 });
